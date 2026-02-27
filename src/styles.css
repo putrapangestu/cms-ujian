@@ -1,15 +1,41 @@
 @import "tailwindcss";
 
-body {
-  @apply m-0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+@layer utilities {
+  .text-primary {
+    color: #214545;
+  }
+  
+  .bg-primary {
+    background-color: #214545;
+  }
+  
+  .border-primary {
+    border-color: #214545;
+  }
+  
+  .text-secondary {
+    color: #00AF81;
+  }
+  
+  .bg-secondary {
+    background-color: #00AF81;
+  }
+  
+  .border-secondary {
+    border-color: #00AF81;
+  }
+  
+  .hover-secondary:hover {
+    background-color: #008f6a;
+  }
 }

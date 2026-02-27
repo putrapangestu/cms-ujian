@@ -14164,7 +14164,7 @@
 }
 [data-bs-theme=dark][data-color-theme=Sipjaki_Theme]:root,[data-bs-theme=light][data-color-theme=Sipjaki_Theme]:root{
     --bs-primary:#214545;
-    --bs-primary-rgb:27, 48, 97;
+    --bs-primary-rgb:33, 69, 69;
     --bs-light-primary:rgba(var(--bs-primary-rgb), 0.1);
     --bs-primary-bg-subtle:rgba(var(--bs-primary-rgb), 0.1);
     --bs-secondary:#00AF63;
