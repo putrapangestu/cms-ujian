@@ -1,0 +1,1 @@
+export const Required = () => <small className="text-danger">*</small>
