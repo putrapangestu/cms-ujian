@@ -1,9 +1,16 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import { HeadContent, Scripts, createRootRoute, useMatches } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { useAuthStore } from '@/data/store/auth_store'
+import { apiClient } from '@/lib/api-client'
+import { AUTH } from '@/data/const/api_url'
+import { useGlobalStore } from '@/data/store/global_store'
+import '@/lib/global-settings'
 
+// Bootstrap CSS
 import appCss from '@/assets/css/styles.css?url'
 import customCss from '@/assets/css/custom.css?url'
+
+// Bootstrap JS
 import vendorJs from "@/assets/js/vendor.min.js?url"
 import bootstrapJs from "@/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js?url"
 import appInitJs from "@/assets/js/theme/app.init.js?url"
@@ -11,51 +18,48 @@ import themeJs from "@/assets/js/theme/theme.js?url"
 import appJs from "@/assets/js/theme/app.min.js?url"
 import sidebarmenuJs from "@/assets/js/theme/sidebarmenu.js?url"
 import jqueryJs from 'jquery/dist/jquery.min.js?url'
-// import landingCss from '@/assets/landing/style.css?url'
-// import landingJs from '@/assets/landing/bundle.js?url'
-import { useEffect } from 'react'
-import { useAuthStore } from '@/data/store/auth_store'
-import { apiClient } from '@/lib/api-client'
-import { AUTH } from '@/data/const/api_url'
-import { useGlobalStore } from '@/data/store/global_store'
-import '@/lib/global-settings' 
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: `${import.meta.env.VITE_APP_NAME}`,
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-      {
-        rel: 'stylesheet',
-        href: customCss,
-      },
-      // {
-      //   rel: 'stylesheet',
-      //   href: landingCss,
-      // },
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: import.meta.env.VITE_APP_NAME },
     ],
   }),
-
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const matches = useMatches()
   const { login, logout, isFetched, setIsFetched } = useAuthStore()
   const setIsMounted = useGlobalStore(state => state.setIsMounted)
+
+  const isLandingPage = matches.some(match => 
+    match.id === '/_public' || 
+    match.id === '/landing' ||
+    match.id.includes('_public')
+  )
+
+  useEffect(() => {
+    if (!isLandingPage) {
+      const loadScripts = async () => {
+        // Check if jQuery already loaded
+        if (typeof window.$ === 'undefined') {
+          const script = document.createElement('script')
+          script.src = jqueryJs
+          script.async = false
+          document.body.appendChild(script)
+
+          await new Promise(resolve => {
+            script.onload = resolve
+          })
+        }
+      }
+
+      loadScripts()
+    }
+  }, [isLandingPage])
 
   useEffect(() => {
     setIsMounted(true)
@@ -76,52 +80,54 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const handleImageError = (event: Event) => {
       const img = event.target as HTMLImageElement;
-
       if (img.tagName === 'IMG') {
         if(img.classList.contains('leaflet-tile')) return
         const fallbackUrl = "/not-found-img.png";
         if (img.src !== window.location.origin + fallbackUrl) {
           img.src = fallbackUrl
-          img.classList.add('img-error-fallback'); 
+          img.classList.add('img-error-fallback');
         }
       }
     };
 
     window.addEventListener('error', handleImageError, true);
-
-    return () => {
-      window.removeEventListener('error', handleImageError, true);
-    };
+    return () => window.removeEventListener('error', handleImageError, true);
   }, [])
 
   return (
     <html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Sipjaki_Theme" data-layout="vertical">
       <head>
         <HeadContent />
+        
+        {/* ✅ Conditional CSS Loading */}
+        {isLandingPage ? (
+          // Load Tailwind for landing page
+          <link rel="stylesheet" href="/src/styles.css" />
+        ) : (
+          // Load Bootstrap for other pages
+          <>
+            <link rel="stylesheet" href={appCss} />
+            <link rel="stylesheet" href={customCss} />
+          </>
+        )}
       </head>
-      <body style={{ backgroundColor: '#f5f5fc' }}>
+      <body style={{ backgroundColor: isLandingPage ? 'transparent' : '#f5f5fc' }}>
         {children}
-        {/* <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        /> */}
         <Scripts />
 
-        {/* <script src={landingJs} ></script> */}
-        <script src={vendorJs} ></script>
-        <script src={bootstrapJs} ></script>
-        <script src={appInitJs} ></script>
-        <script src={themeJs} ></script>
-        <script src={appJs} ></script>
-        <script src={jqueryJs} ></script>
-        <script src={sidebarmenuJs} ></script>
+        {/* ✅ Load Bootstrap JS only for non-landing pages */}
+        {!isLandingPage && (
+          <>
+            <script src={vendorJs}></script>
+            <script src={bootstrapJs}></script>
+            <script src={appInitJs}></script>
+            <script src={themeJs}></script>
+            <script src={appJs}></script>
+            <script src={jqueryJs}></script>
+            <script src={sidebarmenuJs}></script>
+          </>
+        )}
+        
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
       </body>
     </html>

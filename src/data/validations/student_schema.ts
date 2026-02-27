@@ -22,3 +22,11 @@ export const studentGroupSchema = z.object({
 
 export type StudentGroupType = z.infer<typeof studentGroupSchema>
 export type StudentGroupDataType = StudentGroupType & DefaultDataType
+
+export const studentGroupRollSchema = z.object({
+    rolls: z.array(z.object({
+        student_id: z.string().min(1).max(255),
+        new_group_id: z.string().min(1).max(255),
+    }))
+})
+export type StudentGroupRollType = z.infer<typeof studentGroupRollSchema>

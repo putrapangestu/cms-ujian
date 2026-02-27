@@ -4,8 +4,8 @@ import { STUDENT_GROUP } from '@/data/const/api_url'
 import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { StudentGroupDataType } from '@/data/validations/student_schema'
-import { IconEdit, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
+import { IconEdit, IconEye, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import StudentGroupModalCreate from './-components/student-group-modal-add'
 import { deleteDataAlert } from '@/lib/toast'
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/admin/master/student-group')({
   component: RouteComponent,
 })
 function RouteComponent() {
-
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isEdit, setIsEdit] = useState(false)
@@ -29,6 +29,7 @@ function RouteComponent() {
   const columns: ColumnDef<StudentGroupDataType>[] = [
         {header: '#', cell: (_, i) => (i+1)},
         {header: 'Nama', accessorKey: 'name'},
+        {header: 'Deskripsi', accessorKey: 'description'},
         {header: 'Total Siswa', cell(row, index) {
           return (
             <span className='badge bg-success-subtle text-success'>{row.max_students}</span>
@@ -37,8 +38,9 @@ function RouteComponent() {
         },
         {header: 'Aksi', cell: (v) => (
             <div className='d-flex align-items-center gap-2'>
-                <button type="button" className="btn btn-md px-3 rounded-1 btn-warning" onClick={() => clickOpenModalHandle(v)}><IconEdit size={18} /></button>
-                <button type="button" className="btn btn-md px-3 rounded-1 btn-danger" onClick={() => clickDeleteHandle(v)}><IconTrash size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-info" onClick={() => navigate({to: '/admin/master/students/$studentGroupId', params: {studentGroupId: v.id}})}><IconEye size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-warning" onClick={() => clickOpenModalHandle(v)}><IconEdit size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-danger" onClick={() => clickDeleteHandle(v)}><IconTrash size={18} /></button>
             </div>
         )},
     ]

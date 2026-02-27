@@ -37,17 +37,17 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
                 url: "/admin/question-bank",
                 children: [
                     {
-                        label: 'Group Soal',
-                        url: '/admin/question-bank/question-group',
-                    },
-                    {
                         label: 'Kategori Soal',
                         url: '/admin/question-bank/question-category',
                     },
                     {
-                        label: 'Master Soal',
-                        url: '/admin/question-bank/question-master',
+                        label: 'Tipe Soal',
+                        url: '/admin/question-bank/question-group',
                     },
+                    // {
+                    //     label: 'Bank Soal',
+                    //     url: '/admin/question-bank/question-bank',
+                    // },
                 ]
             },
             {
@@ -65,11 +65,11 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
                     },
                 ]
             },
-            {
-                icon: IconNotebook,
-                label: "Laporan",
-                url: "/admin/report",
-            },
+            // {
+            //     icon: IconNotebook,
+            //     label: "Laporan",
+            //     url: "/admin/report",
+            // },
         ]
     },
 ]

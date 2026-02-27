@@ -1,7 +1,4 @@
 import type { ObjectType } from "../types/object"
-
-
-
 type UrlGroupType = ObjectType<string>
 
 export const AUTH = {
@@ -30,7 +27,8 @@ export const STUDENT_GROUP = {
     CREATE: '/admin/student-groups',
     UPDATE: '/admin/student-groups/{id}',
     DELETE: '/admin/student-groups/{id}',
-    GET_BY_ID: '/admin/student-groups/{id}',
+    GET_BY_ID: '/student-groups/{id}',
+    ROLL_MULTIPLE: '/student-groups/roll-multiple',
 } as const satisfies UrlGroupType
 
 export const QUESTION_GROUP = {
@@ -38,5 +36,36 @@ export const QUESTION_GROUP = {
     CREATE: '/admin/question-groups',
     UPDATE: '/admin/question-groups/{id}',
     DELETE: '/admin/question-groups/{id}',
-    GET_BY_ID: '/admin/question-groups/{id}',
+    GET_BY_ID: '/question-groups/{id}',
 } as const satisfies UrlGroupType
+
+export const QUESTION_CATEGORY = {
+    GET: '/question-categories', 
+    CREATE: '/admin/question-categories',
+    UPDATE: '/admin/question-categories/{id}',
+    DELETE: '/admin/question-categories/{id}',
+    GET_BY_ID: '/question-categories/{id}',
+} as const satisfies UrlGroupType
+
+export const QUESTION_BANK = {
+    GET: '/question-bank', 
+} as const satisfies UrlGroupType
+
+export const QUESTION = {
+    GET: '/questions', 
+    CREATE: '/questions',
+    UPDATE: '/admin/questions/{id}',
+    DELETE: '/admin/questions/{id}',
+    GET_BY_ID: '/admin/questions/{id}',
+}
+
+export const EXAM = {
+    GET: '/exams', 
+    GET_BY_ID: '/exams/{id}',
+    CREATE: '/admin/exams',
+    UPDATE: '/admin/exams/{id}',
+    DELETE: '/admin/exams/{id}',
+    USERS: '/exams/{id}/user-exams',
+    QUESTIONS: '/exams/{id}/questions',
+    ROLL_QUESTIONS: '/exams/{id}/select-questions',
+}

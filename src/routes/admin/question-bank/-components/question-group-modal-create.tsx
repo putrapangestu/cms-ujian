@@ -4,9 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useState } from "react"
 import { IconX } from "@tabler/icons-react"
 import { studentGroupSchema, studentSchema, type StudentGroupDataType, type StudentGroupType, type StudentType } from "@/data/validations/student_schema"
-import { STUDENT_GROUP } from "@/data/const/api_url"
-import { useMutationAction } from "@/data/hooks/api/useGlobalFetch"
-import { questioniGroupSchema, type QuestionGroupDataType, type QuestionGroupType } from "@/data/validations/question_schema"
+import { QUESTION_CATEGORY, QUESTION_GROUP, STUDENT_GROUP } from "@/data/const/api_url"
+import { useMutationAction, useQueryData } from "@/data/hooks/api/useGlobalFetch"
+import { questioniGroupSchema, type QuestionCategoryDataType, type QuestionGroupDataType, type QuestionGroupType } from "@/data/validations/question_schema"
+import type { ApiResponsePaginationType } from "@/data/types/api_response"
+import Select from "react-select";
+import { ca } from "zod/v4/locales"
+import { findSelectOption } from "@/lib/select-utils"
 
 type ComponentProps = { isEdit?: boolean, questionGroup?: QuestionGroupDataType}
 
@@ -14,15 +18,18 @@ export default function QuestionGroupModalCreate({ isEdit = false, questionGroup
     const closeForm = () => {
         form.reset(defaultValues)
         $('#question-group-modal-create').modal('hide')
-    } 
-
-    const { trigger: createTrigger, isMutating: isMutatingCreate } = useMutationAction(STUDENT_GROUP.CREATE, 'post', {refreshKey: STUDENT_GROUP.GET, onSuccess: closeForm})
-    const { trigger: updateTrigger, isMutating: isMutatingUpdate } = useMutationAction(STUDENT_GROUP.UPDATE, 'put', {refreshKey: STUDENT_GROUP.GET, onSuccess: closeForm})
+    }
+    
+    const { data: categories, isLoading: categoryLoading } = useQueryData<ApiResponsePaginationType<QuestionCategoryDataType>>(QUESTION_CATEGORY.GET, { limit: 999999, page: 1 })
+    const optCategories = useMemo(() => categories?.data?.map((category: QuestionCategoryDataType) => ({ value: category?.id, label: `${category?.name} (${category?.code})`, })) || [], [categories])
+    const { trigger: createTrigger, isMutating: isMutatingCreate } = useMutationAction(QUESTION_GROUP.CREATE, 'post', {refreshKey: QUESTION_GROUP.GET, onSuccess: closeForm})
+    const { trigger: updateTrigger, isMutating: isMutatingUpdate } = useMutationAction(QUESTION_GROUP.UPDATE, 'put', {refreshKey: QUESTION_GROUP.GET, onSuccess: closeForm})
 
     const defaultValues: QuestionGroupType = {
         name: '',
         description: undefined,
         code: '',
+        question_category_id: '',
         status: 'active',
     }
 
@@ -44,7 +51,7 @@ export default function QuestionGroupModalCreate({ isEdit = false, questionGroup
     }, [isEdit, questionGroup])
 
     return (
-        <div className="modal fade" tabIndex={-1} id="student-group-modal-create">
+        <div className="modal fade" tabIndex={-1} id="question-group-modal-create">
             <div className="modal-dialog">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="modal-content">
@@ -79,6 +86,27 @@ export default function QuestionGroupModalCreate({ isEdit = false, questionGroup
                                     </FormItem>
                                 )}
                             />
+                            <FormField
+                                control={form.control}
+                                name="question_category_id"
+                                render={({ field: { value, onChange, ...field } }) => (
+                                    <FormItem>
+                                    <FormLabel required>{'Kategori Soal'}</FormLabel>
+                                    <FormControl>
+                                        <Select
+                                            styles={{ menu: (base) => ({ ...base, zIndex: 10 }) }}
+                                            isLoading={categoryLoading}
+                                            onChange={(e) => onChange(e?.value)}
+                                            value={findSelectOption(value, optCategories)}
+                                            options={optCategories}
+                                            placeholder="Pilih Kategori Soal"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
                             <FormField
                                 control={form.control}
                                 name="description"

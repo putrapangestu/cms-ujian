@@ -4,37 +4,28 @@ import { IconEdit, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-export const Route = createFileRoute('/admin/exam/exam-data')({
+export const Route = createFileRoute('/admin/question-bank/question-bank')({
   component: RouteComponent,
 })
 
-type StudentGroupDataType = {
+type QuestionGroupDataType = {
   name: string,
-  date: string,
-  startTime: string,
-  endTime: string,
-  status: string,
+  category: string,
 }
 function RouteComponent() {
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
 
-  const data: StudentGroupDataType[] = [
-    {name: 'Ujian CPNS Batch 1', date: '2023-01-01', startTime: '08:00', endTime: '10:00', status: 'Selesai'},
+  const data: QuestionGroupDataType[] = [
+    {name: 'Ideologi pancasila adalah', category: 'TWK'},
+    {name: 'Ideologi pancasila adalah', category: 'TIU'},
   ]
 
-  const columns: ColumnDef<StudentGroupDataType>[] = [
+  const columns: ColumnDef<QuestionGroupDataType>[] = [
         {header: '#', cell: (_, i) => (i+1)},
-        {header: 'Nama Ujian', accessorKey: 'name'},
-        {header: 'Tanggal', accessorKey: 'date'},
-        {header: 'Waktu Mulai', accessorKey: 'startTime'},
-        {header: 'Waktu Selesai', accessorKey: 'endTime'},
-        {header: 'Status', cell(row, index) {
-          return (
-            <span className='badge bg-success-subtle text-success'>{row.status}</span>
-          )
-        },},
+        {header: 'Soal', accessorKey: 'name'},
+        {header: 'Kategori', accessorKey: 'name'},
         {header: 'Aksi', cell: (v) => (
             <div className='d-flex align-items-center gap-2'>
                 <button type="button" className="btn btn-md px-3 rounded-1 btn-warning"><IconEdit size={18} /></button>
@@ -46,14 +37,14 @@ function RouteComponent() {
   return (
     <div className="card">
       <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Data Ujian</h5>
-        <button type="button" className='btn btn-primary'>Tambah Ujian</button>
+        <h5 className="card-title fw-bolder">Master Soal</h5>
+        <button type="button" className="btn btn-primary">Tambah Soal</button>
       </div>
       <div className="card-body">
         <div className="d-flex flex-wrap gap-2 mb-3">
              <div className='input-group input-group-sm w-auto'>
                   <DebouncedInput value={search} onChange={(v) => setSearch(String(v))} className='form-control bg-white' placeholder='cari...' />
-                  <button type="button" className='btn btn-primary py-2'><IconSearch size={18} /></button>
+                  <button type="button" className="btn btn-primary py-2"><IconSearch size={18} /></button>
               </div>
         </div>
         <DataTable

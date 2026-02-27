@@ -9,6 +9,7 @@ import type { StudentDataType } from '@/data/validations/student_schema'
 import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import { STUDENT } from '@/data/const/api_url'
+import { deleteDataAlert } from '@/lib/toast'
 
 export const Route = createFileRoute('/admin/master/student-master')({
   component: RouteComponent,
@@ -34,13 +35,18 @@ function RouteComponent() {
         {header: 'Status', accessorKey: 'status'},
         {header: 'Aksi', cell: (v) => (
             <div className='d-flex align-items-center gap-2'>
-                <button type="button" className="btn btn-md px-3 rounded-1 btn-warning"><IconEdit size={18} /></button>
-                <button type="button" className="btn btn-md px-3 rounded-1 btn-danger"><IconTrash size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-warning" onClick={() => clickOpenModalHandle(v)}><IconEdit size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-danger" onClick={() => deleteHandle(v)}><IconTrash size={18} /></button>
             </div>
         )},
     ]
 
-  const {data} = useQueryData<ApiResponsePaginationType<StudentDataType>>(STUDENT.GET)
+    const { trigger: deleteTrigger } = useMutationAction(STUDENT.DELETE, 'delete', { refreshKey: STUDENT.GET })
+  const {data} = useQueryData<ApiResponsePaginationType<StudentDataType>>(STUDENT.GET, {per_page: 10, page: page})
+
+  const deleteHandle = (student: StudentDataType) => {
+      deleteDataAlert(student.name, () => deleteTrigger({ id: student.id }))
+  }
 
   const clickOpenModalHandle = (student?: StudentDataType) => {
         setIsEdit(student ? true : false);
@@ -71,7 +77,7 @@ function RouteComponent() {
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={data?.data?.length || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
         />
