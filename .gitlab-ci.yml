@@ -15,7 +15,7 @@ stages:
 # =============================
 build_dev:
   stage: build
-  image: docker:24.0.7-alpine
+  image: docker:latest
   tags:
     - runner-development
   variables:
