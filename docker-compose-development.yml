@@ -10,7 +10,7 @@ services:
     pids_limit: 512
     command: bun run preview
     ports:
-      - "3003:3000"
+      - "3000:3000"
     volumes:
       - asset_ujian:/app/dist/client
 
