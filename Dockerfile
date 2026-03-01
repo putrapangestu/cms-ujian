@@ -31,5 +31,5 @@ COPY --from=build /app/node_modules ./node_modules
 # Copy build output
 COPY --from=build /app/dist ./dist
 
-EXPOSE 3003
+EXPOSE 3000
 CMD ["bun", "run", "start"]
