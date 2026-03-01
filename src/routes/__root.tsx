@@ -12,7 +12,7 @@ import customCss from '@/assets/css/custom.css?url'
 
 // Bootstrap JS
 import vendorJs from "@/assets/js/vendor.min.js?url"
-import bootstrapJs from "@/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js?url"
+import bootstrapJs from "@/assets/dependencies/bootstrap/js/bootstrap.min.js?url"
 import appInitJs from "@/assets/js/theme/app.init.js?url"
 import themeJs from "@/assets/js/theme/theme.js?url"
 import appJs from "@/assets/js/theme/app.min.js?url"
