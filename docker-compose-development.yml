@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  cms-ujian:
+    image: registry.hummatech.com/proyek/ujian-cpns/cms-ujian:latest
+    container_name: cms-ujian
+    restart: unless-stopped
+    mem_limit: "2g"
+    cpus: "1.5"
+    pids_limit: 512
+    command: bun run dist/server/server.js
+    ports:
+      - "3003:3003"
+    volumes:
+      - asset_ujian:/app/dist/client
+
+  nginx:
+    image: nginx:alpine
+    container_name: ujian-nginx
+    mem_limit: "256m"
+    cpus: "0.5"
+    pids_limit: 256
+    ports:
+      - "8025:80"
+    volumes:
+      - asset_ujian:/app/dist/client:ro
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - cms-ujian
+
+volumes:
+  asset_ujian:
+  db_data:
