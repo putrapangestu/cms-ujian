@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   cms-ujian:
-    image: registry.hummatech.com/proyek/ujian-cpns/cms-ujian:latest
+    image: registry.hummatech.com/proyek/ujian-cnps/cms-ujian:latest
     container_name: cms-ujian
     restart: unless-stopped
     mem_limit: "2g"
