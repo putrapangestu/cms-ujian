@@ -98,7 +98,7 @@ deploy_dev:
     - docker compose -p $APP_NAME stop cms-ujian nginx
     - docker compose -p $APP_NAME rm -f cms-ujian nginx
     # hapus hanya volume public
-    - docker volume rm ${APP_NAME}_asset_sipjaki || true
+    # - docker volume rm ${APP_NAME}_asset_sipjaki || true
 
     - docker compose -f docker-compose-development.yml pull
     - docker compose -f docker-compose-development.yml -p $APP_NAME up -d --force-recreate
