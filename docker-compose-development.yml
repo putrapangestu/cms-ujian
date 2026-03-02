@@ -5,30 +5,23 @@ services:
     image: registry.hummatech.com/proyek/ujian-cnps/cms-ujian:latest
     container_name: cms-ujian
     restart: unless-stopped
-    # mem_limit: "1g"
-    # cpus: "1"
-    # pids_limit: 512
-    # command: node dist/server/server.js
-    command: node --max-old-space-size=512 dist/server/server.js
+    command: bun run start
     ports:
       - "3000:3000"
-    # volumes:
-    #   - asset_ujian:/app/dist/client
+    volumes:
+      - asset_ujian:/app/dist/client
 
   nginx:
     image: nginx:alpine
     container_name: ujian-nginx
-    # mem_limit: "256m"
-    # cpus: "0.5"
-    # pids_limit: 256
     ports:
       - "8025:80"
     volumes:
-      # - asset_ujian:/app/dist/client:ro
+      - asset_ujian:/app/dist/client:ro
       - ./nginx:/etc/nginx/conf.d
     depends_on:
       - cms-ujian
 
 volumes:
-  # asset_ujian:
+  asset_ujian:
   db_data:

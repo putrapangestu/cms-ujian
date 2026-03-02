@@ -1,13 +1,31 @@
-# Build stage
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+# =====================
+# BUILD STAGE
+# =====================
+FROM oven/bun:1 AS build
 
-# Runtime stage
-FROM nginx:alpine
-COPY --from=build /app/dist/client /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /app
+
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
+
+COPY . .
+RUN bun run build
+
+# =====================
+# PRODUCTION STAGE
+# =====================
+FROM oven/bun:1-slim
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# hanya copy yang perlu
+COPY --from=build /app/package.json ./
+COPY --from=build /app/bun.lockb ./
+RUN bun install --production --frozen-lockfile
+
+COPY --from=build /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["bun", "run", "start"]
