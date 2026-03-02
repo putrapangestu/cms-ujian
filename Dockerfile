@@ -13,22 +13,15 @@ RUN npm run build
 
 
 # =====================
-# PRODUCTION STAGE (BUN)
+# RUNTIME STAGE (BUN)
 # =====================
 FROM oven/bun:1-slim
 
 WORKDIR /app
 ENV NODE_ENV=production
 
-# copy package.json saja (tanpa dev deps)
-COPY --from=build /app/package.json ./
-COPY --from=build /app/bun.lock ./
-
-# install production deps pakai bun
-RUN bun install --production --frozen-lockfile
-
-# copy hasil build saja
-COPY --from=build /app/package.json ./
+# 🔥 Jangan install ulang
+COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
