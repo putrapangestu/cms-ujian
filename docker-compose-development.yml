@@ -11,8 +11,8 @@ services:
     command: node dist/server/server.js
     ports:
       - "3000:3000"
-    volumes:
-      - asset_ujian:/app/dist/client
+    # volumes:
+    #   - asset_ujian:/app/dist/client
 
   nginx:
     image: nginx:alpine
@@ -23,11 +23,11 @@ services:
     ports:
       - "8025:80"
     volumes:
-      - asset_ujian:/app/dist/client:ro
+      # - asset_ujian:/app/dist/client:ro
       - ./nginx:/etc/nginx/conf.d
     depends_on:
       - cms-ujian
 
 volumes:
-  asset_ujian:
+  # asset_ujian:
   db_data:
