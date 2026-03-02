@@ -1,30 +1,35 @@
 # =====================
-# BUILD STAGE
+# BUILD STAGE (NODE)
 # =====================
-FROM oven/bun:1 AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+COPY package.json package-lock.json* bun.lock* ./
+RUN npm install
 
 COPY . .
-RUN bun run build
+RUN npm run build
+
 
 # =====================
-# PRODUCTION STAGE
+# PRODUCTION STAGE (BUN)
 # =====================
 FROM oven/bun:1-slim
 
 WORKDIR /app
 ENV NODE_ENV=production
 
-# hanya copy yang perlu
+# copy package.json saja (tanpa dev deps)
 COPY --from=build /app/package.json ./
 COPY --from=build /app/bun.lock ./
+
+# install production deps pakai bun
 RUN bun install --production --frozen-lockfile
 
+# copy hasil build saja
 COPY --from=build /app/dist ./dist
+COPY --from=build /app/server.js ./server.js
 
 EXPOSE 3000
 
