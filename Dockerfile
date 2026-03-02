@@ -29,7 +29,7 @@ RUN bun install --production --frozen-lockfile
 
 # copy hasil build saja
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/server.js ./server.js
+COPY --from=build /app/dist/server/server.js ./server.js
 
 EXPOSE 3000
 
