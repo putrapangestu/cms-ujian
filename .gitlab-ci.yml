@@ -47,13 +47,14 @@ build_dev:
       apk add --no-cache curl
       curl -v https://$REGISTRY_URL/v2/
       echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY_URL
-      docker build --network host --pull --progress=plain -t $IMAGE_NAME:$TAG .
+      docker build --network host -t $IMAGE_NAME:$TAG .
       docker push $IMAGE_NAME:$TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
+
 # =============================
-# ✅ DEPLOY DEV JOB
+# ✅ DEPLOY DEV JOB 
 # =============================
 deploy_dev:
   stage: deploy
@@ -65,8 +66,6 @@ deploy_dev:
     PORT: 8025
     DEPLOY_DIR: /home/gitlab-runner/apps/$APP_NAME
   script:
-    - echo "🔹 Cek koneksi Docker..."
-    - docker ps
     - echo "🔹 Running on host (Shell Executor)..."
     
     - |
@@ -75,8 +74,6 @@ deploy_dev:
       # pastikan direktori deploy ada
       mkdir -p $DEPLOY_DIR
       mkdir -p $DEPLOY_DIR/nginx
-
-      cp docker-compose-development.yml $DEPLOY_DIR/docker-compose-development.yml
 
       # cek ENV_DEV
       if [ -z "$ENV_DEV" ]; then
@@ -92,15 +89,16 @@ deploy_dev:
       echo "$NGINX_CONF" > $DEPLOY_DIR/nginx/default.conf
       echo "✅ Nginx config berhasil dibuat di $DEPLOY_DIR/nginx/default.conf"
 
-    - cd $DEPLOY_DIR
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY_URL
-    # stop & remove container yang pakai volume public
-    - docker compose -p $APP_NAME stop cms-ujian nginx
-    - docker compose -p $APP_NAME rm -f cms-ujian nginx
-    # hapus hanya volume public
-    # - docker volume rm ${APP_NAME}_asset_sipjaki || true
-
-    - docker compose -f docker-compose-development.yml pull
-    - docker compose -f docker-compose-development.yml -p $APP_NAME up -d --force-recreate
+    - |
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY_URL &&
+      docker stop $APP_NAME || true &&
+      docker rm $APP_NAME || true &&
+      docker pull $IMAGE_NAME:$TAG &&
+      docker run -d --name $APP_NAME \
+        --env-file $DEPLOY_DIR/.env \
+        -v $DEPLOY_DIR/nginx:/etc/nginx/conf.d \
+        -p $PORT:80 \
+        $IMAGE_NAME:$TAG
+        
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
