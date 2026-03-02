@@ -28,8 +28,9 @@ COPY --from=build /app/bun.lock ./
 RUN bun install --production --frozen-lockfile
 
 # copy hasil build saja
+COPY --from=build /app/package.json ./
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/dist/server/server.js ./server.js
 
 EXPOSE 3000
 
