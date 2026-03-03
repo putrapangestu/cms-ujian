@@ -48,5 +48,5 @@ COPY --from=build /app/package.json ./package.json
 
 EXPOSE 3000
 
-# CMD ["npm", "run", "start"]
-CMD ["node", "dist/server/server.js"]
+CMD ["npm", "run", "start"]
+# CMD ["node", "dist/server/server.js"]
