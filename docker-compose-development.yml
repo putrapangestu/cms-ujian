@@ -34,7 +34,7 @@ services:
     container_name: cms-ujian
     restart: unless-stopped
     # command: bun run start
-    expose:
+    ports:
       - "3000:3000"
 
   nginx:
