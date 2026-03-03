@@ -7,13 +7,13 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
-    "build": "react-start build",
+    "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix",
-    "start": "react-start start"
+    "start": "node entry-server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
