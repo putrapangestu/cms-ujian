@@ -8,12 +8,14 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "postbuild": "node -e \"const fs=require('fs');let s=fs.readFileSync('entry-server.js','utf8');s=s.replace('./dist/server/server.js','./server/server.js');fs.mkdirSync('dist',{recursive:true});fs.writeFileSync('dist/entry-server.js',s)\"",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix",
-    "start": "node entry-server.js"
+    "start": "node entry-server.js",
+    "start:prod": "node dist/entry-server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
