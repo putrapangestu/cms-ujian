@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     # command: bun run start
     expose:
-      - "3000"
+      - "3000:3000"
 
   nginx:
     image: nginx:alpine
