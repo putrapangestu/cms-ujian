@@ -9,10 +9,11 @@ import '@/lib/global-settings'
 // Bootstrap CSS
 import appCss from '@/assets/css/styles.css?url'
 import customCss from '@/assets/css/custom.css?url'
+import stylesCss from '@/styles.css?url'
 
 // Bootstrap JS
 import vendorJs from "@/assets/js/vendor.min.js?url"
-import bootstrapJs from "@/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js?url"
+import bootstrapJs from "@/assets/dependencies/bootstrap/js/bootstrap.min.js?url"
 import appInitJs from "@/assets/js/theme/app.init.js?url"
 import themeJs from "@/assets/js/theme/theme.js?url"
 import appJs from "@/assets/js/theme/app.min.js?url"
@@ -102,7 +103,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {/* ✅ Conditional CSS Loading */}
         {isLandingPage ? (
           // Load Tailwind for landing page
-          <link rel="stylesheet" href="/src/styles.css" />
+          <link rel="stylesheet" href={stylesCss} />
         ) : (
           // Load Bootstrap for other pages
           <>
