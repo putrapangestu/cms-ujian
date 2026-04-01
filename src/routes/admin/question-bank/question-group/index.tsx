@@ -64,8 +64,11 @@ function RouteComponent() {
     <>
     <QuestionGroupModalCreate isEdit={isEdit} questionGroup={current} />
     <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Tipe Soal</h5>
+      <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="card-title fw-bolder">Tipe Soal</h5>
+          <p>List informasi tipe soal</p>
+        </div>
         <button type="button" className="btn btn-primary" onClick={() => clickOpenModalHandle()}>Tambah Tipe Soal</button>
       </div>
       <div className="card-body">

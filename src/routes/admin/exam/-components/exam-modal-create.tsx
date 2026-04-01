@@ -51,14 +51,19 @@ export default function ExamModalCreate({ isEdit = false, exam }: ComponentProps
         trigger(dataToSubmit)
     }
 
+    console.log(exam)
     useEffect(() => {
         if(!isEdit) form.reset(defaultValues)
-        else form.reset(exam)
+        else form.reset({
+            title: exam?.title || '',
+            description: exam?.description || undefined,
+            duration: exam?.duration || 0,
+            passing_score: exam?.passing_score || 0,
+            start_date: exam ? new Date(exam.start_date).toISOString().slice(0,16) : '',
+            end_date: exam ? new Date(exam.end_date).toISOString().slice(0,16) : '',
+            student_groups: exam?.student_groups || [],
+        })
     }, [isEdit, exam])
-
-    console.log({
-        data: form.getValues()
-    })
 
     return (
         <div className="modal modal-lg fade" tabIndex={-1} id="exam-modal-create">

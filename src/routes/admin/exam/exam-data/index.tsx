@@ -9,6 +9,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import ExamModalCreate from '../-components/exam-modal-create'
 import dayjs from 'dayjs'
+import { formatDate, formatTime } from '@/lib/date-format'
 
 export const Route = createFileRoute('/admin/exam/exam-data/')({
   component: RouteComponent,
@@ -27,9 +28,9 @@ function RouteComponent() {
   const columns: ColumnDef<ExamDataType>[] = [
         {header: '#', cell: (_, i) => (i+1)},
         {header: 'Nama Ujian', accessorKey: 'title'},
-        {header: 'Tanggal', cell: (v) => dayjs(v.start_date).format('DD/MM/YYYY')},
-        {header: 'Waktu Mulai', cell: (v) => dayjs(v.start_date).format('HH:mm')},
-        {header: 'Waktu Selesai', cell: (v) => dayjs(v.end_date).format('HH:mm')},
+        {header: 'Tanggal', cell: (v) => formatDate(v.start_date)},
+        {header: 'Waktu Mulai', cell: (v) => formatTime(v.start_date)},
+        {header: 'Waktu Selesai', cell: (v) => formatTime(v.end_date)},
         {header: 'Nilai Minimum', cell(row, index) {
           return (
             <span className='badge bg-success-subtle text-success'>{row.passing_score}</span>
@@ -43,7 +44,7 @@ function RouteComponent() {
         {header: 'Aksi', cell: (v) => (
             <div className='d-flex align-items-center gap-2'>
                 <button type="button" className="btn btn-md rounded-1 btn-info" onClick={() => navigate({to: `/admin/exam/exam-data/${v.id}`})}><IconEye size={18} /></button>
-                <button type="button" className="btn btn-md rounded-1 btn-warning"><IconEdit size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-warning" onClick={() => clickOpenModalHandle(v)}><IconEdit size={18} /></button>
                 <button type="button" className="btn btn-md rounded-1 btn-danger"><IconTrash size={18} /></button>
             </div>
         )},
@@ -59,8 +60,11 @@ function RouteComponent() {
     <>
     <ExamModalCreate isEdit={isEdit} exam={current} />
     <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Data Ujian</h5>
+      <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="card-title fw-bolder">Data Ujian</h5>
+          <p className="p-0">List informasi ujian</p>
+        </div>
         <button type="button" className="btn btn-primary" onClick={() => clickOpenModalHandle()}>Tambah Ujian</button>
       </div>
       <div className="card-body">

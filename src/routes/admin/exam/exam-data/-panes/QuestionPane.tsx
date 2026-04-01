@@ -28,8 +28,15 @@ export function QuestionPane({ examId }: { examId: string }) {
     <>
     <div className="card">
       <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Soal</h5>
-        <button type="button" className="btn btn-primary" onClick={() => navigate({to: `/admin/exam/exam-data/$examId/manage-questions`})}>Kelola Soal</button>
+        
+        <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 className="card-title fw-bolder">Soal Ujian</h5>
+              <p className="text-muted">Pilih soal yang akan dijawab oleh siswa</p>
+            </div>
+            <button type="button" className="btn btn-primary" onClick={() => navigate({to: `/admin/exam/exam-data/$examId/manage-questions`})}>Kelola Soal</button>
+        </div>
+
       </div>
       <div className="card-body">
         <div className="d-flex flex-wrap gap-2 mb-3">

@@ -57,7 +57,7 @@ export const QUESTION = {
     UPDATE: '/admin/questions/{id}',
     DELETE: '/admin/questions/{id}',
     GET_BY_ID: '/admin/questions/{id}',
-}
+} as const satisfies UrlGroupType
 
 export const EXAM = {
     GET: '/exams', 
@@ -68,4 +68,11 @@ export const EXAM = {
     USERS: '/exams/{id}/user-exams',
     QUESTIONS: '/exams/{id}/questions',
     ROLL_QUESTIONS: '/exams/{id}/select-questions',
-}
+    TODAY: '/exams/today',
+    HISTORY: '/exams/history',
+    DETAIL_HISTORY: '/exams/history/{id}',
+    START: '/exams/{id}/start',
+    GET_QUESTIONS_USER: '/exams/{id}/questions-for-student/{userId}',
+} as const satisfies UrlGroupType
+
+export const SOCKET_URL = "https://socket-ujian.hummatech.com"

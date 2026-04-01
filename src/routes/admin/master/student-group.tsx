@@ -57,8 +57,11 @@ function RouteComponent() {
     <>
     <StudentGroupModalCreate isEdit={isEdit} studentGroup={current} />
     <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Group Siswa</h5>
+      <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="card-title fw-bolder">Grup Siswa</h5>
+          <p className="p-0">List informasi grup siswa</p>
+        </div>
         <button type="button" className='btn btn-primary' onClick={() => clickOpenModalHandle()}>Tambah Group Siswa</button>
       </div>
       <div className="card-body">

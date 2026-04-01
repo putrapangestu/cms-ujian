@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { IconX } from "@tabler/icons-react"
 import { QUESTION_CATEGORY } from "@/data/const/api_url"
 import { useMutationAction } from "@/data/hooks/api/useGlobalFetch"
-import { questioniGroupSchema, type QuestionCategoryDataType, type QuestionGroupDataType, type QuestionGroupType } from "@/data/validations/question_schema"
+import { questionCategorySchema, type QuestionCategoryDataType, type QuestionCategoryType } from "@/data/validations/question_schema"
 
 type ComponentProps = { isEdit?: boolean, questionCategory?: QuestionCategoryDataType}
 
@@ -18,20 +18,22 @@ export default function QuestionCategoryModalCreate({ isEdit = false, questionCa
     const { trigger: createTrigger, isMutating: isMutatingCreate } = useMutationAction(QUESTION_CATEGORY.CREATE, 'post', {refreshKey: QUESTION_CATEGORY.GET, onSuccess: closeForm})
     const { trigger: updateTrigger, isMutating: isMutatingUpdate } = useMutationAction(QUESTION_CATEGORY.UPDATE, 'put', {refreshKey: QUESTION_CATEGORY.GET, onSuccess: closeForm})
 
-    const defaultValues: QuestionGroupType = {
+    const defaultValues: QuestionCategoryType = {
         name: '',
         description: undefined,
         code: '',
         status: 'active',
+        start_range: 0,
+        end_range: 0
     }
 
-    const form = useForm<QuestionGroupType>({
+    const form = useForm<QuestionCategoryType>({
         mode: 'onChange',
-        resolver: zodResolver(questioniGroupSchema),
+        resolver: zodResolver(questionCategorySchema),
         defaultValues
     })
 
-    const onSubmit = (data: QuestionGroupType) => {
+    const onSubmit = (data: QuestionCategoryType) => {
         const trigger = isEdit ? updateTrigger : createTrigger
         const dataToSubmit = isEdit ? {id: questionCategory?.id, ...data} : {...data}
         trigger(dataToSubmit)
@@ -39,8 +41,21 @@ export default function QuestionCategoryModalCreate({ isEdit = false, questionCa
 
     useEffect(() => {
         if(!isEdit) form.reset(defaultValues)
-        else form.reset(questionCategory)
+        else form.reset({
+            name: questionCategory?.name || '',
+            description: questionCategory?.description || undefined,
+            code: questionCategory?.code || '',
+            status: questionCategory?.status || 'active',
+            
+        })
     }, [isEdit, questionCategory])
+
+    console.log({
+        errors: form.formState.errors,
+        values: form.getValues(),
+        isValid: form.formState.isValid,
+        isDirty: form.formState.isDirty,
+    })
 
     return (
         <div className="modal fade" tabIndex={-1} id="question-category-modal-create">
@@ -91,6 +106,38 @@ export default function QuestionCategoryModalCreate({ isEdit = false, questionCa
                                     </FormItem>
                                 )}
                             />
+                            <div className="row">
+                                <div className="col-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="start_range"
+                                        render={({ field: {value, onChange, ...field} }) => (
+                                            <FormItem>
+                                                <FormLabel required>{'Nomor Mulai'}</FormLabel>
+                                                <FormControl>
+                                                    <input className="form-control" placeholder={'Masukkan nomor mulai'} {...field} onChange={(e) => onChange(Number(e.target.value))} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className="col-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="end_range"
+                                        render={({ field: {value, onChange, ...field} }) => (
+                                            <FormItem>
+                                                <FormLabel required>{'Nomor Selesai'}</FormLabel>
+                                                <FormControl>
+                                                    <input className="form-control" placeholder={'Masukkan nomor selesai'} {...field} onChange={(e) => onChange(Number(e.target.value))} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </div>
                             <FormField
                                 control={form.control}
                                 name="status"

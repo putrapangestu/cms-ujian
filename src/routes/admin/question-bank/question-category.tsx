@@ -31,6 +31,11 @@ function RouteComponent() {
   const columns: ColumnDef<QuestionCategoryDataType>[] = [
         {header: '#', cell: (_, i) => (i+1)},
         {header: 'Nama Kategori', accessorKey: 'name'},
+        {header: 'Range Soal', cell: (v) => {
+          return (
+            <p className='mb-0'>{v.start_range} - {v.end_range}</p>
+          )
+        }},
         {header: 'Deskripsi', accessorKey: 'description'},
         {header: 'Kode', cell(row, index) {
           return (
@@ -55,8 +60,11 @@ function RouteComponent() {
     <>
     <QuestionCategoryModalCreate isEdit={isEdit} questionCategory={current} />
     <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Kategori Soal</h5>
+      <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="card-title fw-bolder">Kategori Soal</h5>
+          <p className="p-0">List informasi kategori soal</p>
+        </div>
         <button type="button" className="btn btn-primary" onClick={() => clickOpenModalHandle()}>Tambah Kategori Soal</button>
       </div>
       <div className="card-body">

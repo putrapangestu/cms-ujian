@@ -73,10 +73,10 @@ export default function AdminHeader() {
                         </div>
                         <div className="d-flex align-items-center py-9 mx-7 border-bottom">
                           <img src={user?.profile ? user.profile : "/profile/user-1.jpg"} className="rounded-circle object-fit-cover" width="80" height="80" alt="modernize-img" />
-                          <div className="ms-3">
-                            <h5 className="mb-1 fs-3">{user?.name}</h5>
+                          <div className="ms-3" style={{ minWidth: 0 }}>
+                            <h5 className="mb-1 fs-3 text-truncate">{user?.name}</h5>
                             <span className="mb-1 d-block">{roles.join(', ')}</span>
-                            <p className="mb-0 d-flex align-items-center gap-2">
+                            <p className="mb-0 d-flex align-items-center gap-2 text-truncate">
                               <i className="ti ti-mail fs-4"></i> {user?.email}
                             </p>
                           </div>

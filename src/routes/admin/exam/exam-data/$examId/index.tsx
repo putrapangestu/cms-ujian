@@ -20,9 +20,7 @@ function RouteComponent() {
   return (
     <>
     <TabPaneNavigation tabs={tab_id} activeTab={tab_id.includes(tab) ? tab : tab_id[0]} from={`/admin/exam/exam-data/$examId`} />
-    <div className="card">
-        <div className="card-body">
-          <div className="tab-content">
+    <div className="tab-content">
 
             <div
               className={cn(
@@ -49,8 +47,6 @@ function RouteComponent() {
             </div>
 
           </div>
-        </div>
-      </div>
     </>
   )
 }

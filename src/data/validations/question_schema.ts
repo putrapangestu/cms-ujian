@@ -14,14 +14,16 @@ export type QuestionGroupDataType = QuestionGroupType & DefaultDataType & {
     question_category: QuestionCategoryType,
 }
 
-export const questioniCategorySchema = z.object({
+export const questionCategorySchema = z.object({
     name: z.string().min(3).max(255),
     description: z.string().max(255).optional(),
     code: z.string().min(1).max(255),
     status: z.string().min(1).max(255),
+    start_range: z.number().min(0),
+    end_range: z.number().min(0),
 })
 
-export type QuestionCategoryType = z.infer<typeof questioniCategorySchema>
+export type QuestionCategoryType = z.infer<typeof questionCategorySchema>
 export type QuestionCategoryDataType = QuestionCategoryType & DefaultDataType
 
 export const questionOptionSchema = z.object({

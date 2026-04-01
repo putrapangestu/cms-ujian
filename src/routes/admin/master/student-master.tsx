@@ -58,8 +58,11 @@ function RouteComponent() {
     <>
     <StudentModalCreate isEdit={isEdit} student={current} />
     <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Master Siswa</h5>
+      <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+        <div>
+          <h5 className="card-title fw-bolder">Master Siswa</h5>
+          <p>List informasi siswa</p>
+        </div>
         <div className='d-flex justify-content-start gap-2'>
             <button type="button" className='btn btn-primary' onClick={() => clickOpenModalHandle()}>Tambah Siswa</button>
             <button type="button" className='btn btn-warning'>Import Siswa</button>

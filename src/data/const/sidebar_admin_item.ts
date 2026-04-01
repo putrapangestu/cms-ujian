@@ -1,22 +1,20 @@
 import { IconCategory, IconLayoutDashboard, IconNotebook } from "@tabler/icons-react";
 import type { SidebarAdminType } from "../types/sidebar_admin";
+import { ROLE_ADMIN, ROLE_STUDENT } from "../enums/Role";
 
 
 export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
     {
-        label: 'Home',
-        children: [
-            {
-                icon: IconLayoutDashboard,
-                hasAccess: [],
-                label: "Dashboard",
-                url: "/admin",
-            }
-        ]
-    }, {
         label: 'Menu',
         children: [
             {
+                icon: IconLayoutDashboard,
+                hasAccess: [ROLE_ADMIN],
+                label: "Dashboard",
+                url: "/admin",
+            },
+            {
+                hasAccess: [ROLE_ADMIN],
                 icon: IconCategory,
                 label: "Master",
                 url: "/admin/master",
@@ -32,6 +30,7 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
                 ]
             },
             {
+                hasAccess: [ROLE_ADMIN],
                 icon: IconNotebook,
                 label: "Bank Soal",
                 url: "/admin/question-bank",
@@ -51,6 +50,7 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
                 ]
             },
             {
+                hasAccess: [ROLE_ADMIN],
                 icon: IconNotebook,
                 label: "Ujian",
                 url: "/admin/question-bank",
@@ -64,6 +64,18 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
                         url: '/admin/exam/exam-monitoring',
                     },
                 ]
+            },
+            {
+                hasAccess: [ROLE_STUDENT],
+                icon: IconNotebook,
+                label: "Ujian",
+                url: "/user/exam",
+            },
+            {
+                hasAccess: [ROLE_STUDENT],
+                icon: IconNotebook,
+                label: "Riwayat Ujian",
+                url: "/user/exam-history",
             },
             // {
             //     icon: IconNotebook,

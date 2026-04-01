@@ -30,3 +30,19 @@ export const deleteDataAlert = (name: string, trigger: () => void, action: strin
         if(r.isConfirmed) trigger()
     })
 }
+
+export const confirmAlert = (title: string, trigger: () => void, message: string, onSuccess: () => void) => {
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: 'warning',
+        confirmButtonText: 'Yakin!',
+        cancelButtonText: 'Batal',
+        showCancelButton: true,
+        theme: 'bootstrap-5',
+        showLoaderOnConfirm: true,
+        preConfirm: async () => await trigger()
+    }).then(r => {
+        if(r.isConfirmed) onSuccess()
+    })
+}

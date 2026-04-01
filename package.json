@@ -44,6 +44,7 @@
     "react-hook-form": "^7.71.2",
     "react-select": "^5.10.2",
     "simplebar-react": "^3.3.2",
+    "socket.io-client": "^4.8.3",
     "sweetalert2": "^11.26.20",
     "swr": "^2.4.0",
     "tailwindcss": "^4.0.6",

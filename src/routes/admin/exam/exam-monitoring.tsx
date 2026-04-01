@@ -46,6 +46,7 @@ function RouteComponent() {
     <div className="card">
       <div className="border-bottom p-4">
         <h5 className="card-title fw-bolder">Monitoring Ujian</h5>
+        <p className="p-0">List informasi monitoring ujian</p>
       </div>
       <div className="card-body">
         <div className="d-flex flex-wrap gap-2 mb-3">

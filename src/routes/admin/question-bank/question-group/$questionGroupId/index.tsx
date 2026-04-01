@@ -39,7 +39,10 @@ function RouteComponent() {
         {header: 'Skor', accessorKey: 'score'},
         {header: 'Aksi', cell: (v) => (
             <div className='d-flex align-items-center gap-2'>
-                <button type="button" className="btn btn-md rounded-1 btn-warning" ><IconEdit size={18} /></button>
+                <button type="button" className="btn btn-md rounded-1 btn-warning" onClick={() => navigate({to: `/admin/question-bank/question-group/${questionGroupId}/create`, state: {
+                  question: v,
+                } as any
+                })}><IconEdit size={18} /></button>
                 <button type="button" className="btn btn-md rounded-1 btn-danger" onClick={() => clickDeleteHandle(v)}><IconTrash size={18} /></button>
             </div>
         )},

@@ -5,11 +5,12 @@ import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch
 import type { ApiResponseType } from '@/data/types/api_response'
 import { questionSchema, type QuestionGroupDataType, type QuestionType } from '@/data/validations/question_schema'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import TrueFalseAnswer from './-components/TrueFalseAnswer'
 import EssayAnswer from './-components/EssayAnswer'
 import ChoiceOptions from './-components/ChoiceOption'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute(
   '/admin/question-bank/question-group/$questionGroupId/create',
@@ -18,7 +19,10 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const { questionGroupId } = Route.useParams()
+  const location = useLocation()
+  const question = location.state?.question
 
     const defaultValues : QuestionType = {
       question_type: 'single_choice',
@@ -46,6 +50,19 @@ function RouteComponent() {
     const dataToSubmit = {...data, question_group_id: questionGroupId, category_id: questionGroup?.data?.question_category_id}
     trigger(dataToSubmit)
   }
+
+  useEffect(() => {
+    console.log(question)
+    if (!question) reset(defaultValues)
+    else reset({
+      question_type: question?.question_type || 'single_choice',
+      question_text: question?.question_text || '',
+      options: question?.options || [],
+      score: question?.score || 0,
+      trueFalseAnswer: question?.trueFalseAnswer || undefined,
+      correct_answer: question?.correct_answer || '',
+    })
+  }, [])
 
   return (
     <div className="">
@@ -161,7 +178,7 @@ function RouteComponent() {
 
               {/* Actions */}
               <div className="pt-4 border-top d-flex gap-3 justify-content-end">
-                <button type="button" className="btn btn-light px-4">
+                <button type="button" onClick={() => navigate({to: `/admin/question-bank/question-group/${questionGroupId}`})} className="btn btn-light px-4">
                   Batal
                 </button>
                 <button type="submit" className="btn btn-primary px-5" disabled={isMutating}>

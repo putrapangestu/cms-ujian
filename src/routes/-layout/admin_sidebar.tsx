@@ -1,6 +1,7 @@
 import { SIDEBAR_ADMIN_ITEMS } from "@/data/const/sidebar_admin_item";
 import { useAuthStore } from "@/data/store/auth_store";
 import type { SidebarItemType } from "@/data/types/sidebar_admin";
+import { hasPermission } from "@/lib/permission-helper";
 // import { hasPermission } from "@/lib/permission-helper";
 import { IconCircle, IconLogout, type Icon } from "@tabler/icons-react";
 import { Link, useLocation } from "@tanstack/react-router";
@@ -42,9 +43,11 @@ export default function AdminSidebar() {
             <div className="john-img">
               <img src="/profile/user-1.jpg" className="rounded-circle" width="40" height="40" alt="modernize-img" />
             </div>
-            <div className="john-title">
-              <h6 className="mb-0 fs-2 fw-semibold">{user?.name}</h6>
-              <span className="fs-2">{user?.email}</span>
+            <div className="john-title" style={{ minWidth: 0 }}> 
+              <h6 className="mb-0 fs-2 fw-semibold text-truncate">{user?.name}</h6>
+              <span className="fs-2 d-block text-truncate" title={user?.email}>
+                {user?.email}
+              </span>
             </div>
           </div>
         </div>
@@ -110,7 +113,7 @@ const NavItem = ({ item, level }: NavItemProps) => {
     );
   };
   
-//   if (!hasPermission(userRole, item.hasAccess)) return null;
+  if (!hasPermission(userRole, item.hasAccess)) return null;
   
   if (level === 0 && item.children && item.children.length > 0) {
     return (
