@@ -5,7 +5,7 @@ import { io } from 'socket.io-client'
 import { useAuthStore } from '@/data/store/auth_store'
 import type { ApiResponseType } from '@/data/types/api_response'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { UserSection } from './-components/UserSection'
 import { HeaderExam } from './-components/HeaderExam'
 import { TimerCard } from './-components/TimerCard'
@@ -29,6 +29,11 @@ function RouteComponent() {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [timeRemaining, setTimeRemaining] = useState(0)
+  const timeRemainingRef = useRef(timeRemaining)
+
+  useEffect(() => {
+    timeRemainingRef.current = timeRemaining
+  }, [timeRemaining])
 
   const {
     setAnswer,
@@ -66,6 +71,17 @@ function RouteComponent() {
 
   const handleAnswerSelect = (answer: string) => {
     setAnswer(examId, String(currentQuestion), answer)
+
+    if (socket) {
+      const payload = {
+        userId: user?.id,
+        examId: examId,
+        questionId: String(currentQuestion),
+        answer: answer,
+      }
+      socket.emit('submit_answer', payload)
+      console.log('Jawaban disubmit:', payload)
+    }
   }
 
   const handleNavigate = (questionNumber: number) => {
@@ -81,7 +97,10 @@ function RouteComponent() {
   useEffect(() => {
     if (!user?.id || !examId) return
 
-    const newSocket = io('https://socket-ujian.hummatech.com', {
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com'
+
+    const newSocket = io(socketUrl, {
       auth: { key: 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
       query: { userId: user?.id, examId: examId },
     })
@@ -89,9 +108,18 @@ function RouteComponent() {
     setSocket(newSocket)
 
     // Listen perintah dari admin (misal: Force Submit)
-    newSocket.on('force_submit', () => {
-      alert('Waktu habis atau admin menghentikan ujian Anda.')
-      // Panggil fungsi submit Anda di sini
+    newSocket.on('admin_action', (data: any) => {
+      if (data.action === 'force_submit') {
+        alert('Waktu habis atau admin menghentikan ujian Anda.')
+        // Panggil fungsi submit Anda di sini
+      } else if (data.action === 'unblock') {
+        alert('Ujian Anda telah dibuka kembali oleh Admin.')
+      }
+    })
+
+    newSocket.on('cheat_blocked', () => {
+      alert('Ujian Anda diblokir karena terdeteksi kecurangan.')
+      // Panggil fungsi submit/block di sini
     })
 
     return () => {
@@ -104,15 +132,14 @@ function RouteComponent() {
 
     // Fungsi untuk mengirim data
     const sendPeriodicData = () => {
-      const allAnswers = getExamAnswers(examId)
       const payload = {
         userId: user?.id,
         examId: examId,
-        answer: allAnswers,
+        time_remaining: timeRemainingRef.current,
       }
 
-      socket.emit('answer_sync', payload)
-      console.log('Data sinkronisasi dikirim:', payload)
+      socket.emit('heartbeat', payload)
+      console.log('Heartbeat dikirim:', payload)
     }
 
     // Set interval setiap 10.000 ms (10 detik)
@@ -124,31 +151,41 @@ function RouteComponent() {
       clearInterval(intervalId)
       console.log('Interval pengiriman dihentikan.')
     }
-  }, [socket, user?.id, examId, getExamAnswers])
+  }, [socket, user?.id, examId])
 
-  // useEffect(() => {
-  //   const handleVisibilityChange = () => {
-  //     if (document.visibilityState === 'hidden') {
-  //       handleUserCheating();
-  //     }
-  //   };
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        if (socket) {
+          const payload = {
+            userId: user?.id,
+            examId: examId,
+            warning_type: 'tab_switch',
+          }
+          socket.emit('cheat_warning', payload)
+          console.log('Cheat warning dikirim (pindah tab):', payload)
+        }
+      }
+    }
 
-  //   const handleFullscreenChange = () => {
-  //     if (!document.fullscreenElement) {
-  //       setTimeout(() => {
-  //         alert("Anda keluar dari mode Fullscreen! Harap klik area ujian untuk kembali fokus.");
-  //       }, 100);
-  //     }
-  //   };
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setTimeout(() => {
+          alert(
+            'Anda keluar dari mode Fullscreen! Harap klik area ujian untuk kembali fokus.',
+          )
+        }, 100)
+      }
+    }
 
-  //   document.addEventListener('visibilitychange', handleVisibilityChange);
-  //   document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
 
-  //   return () => {
-  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //     document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  //   };
-  // }, [handleUserCheating]);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [socket, user?.id, examId])
 
   // useEffect(() => {
   //   const preventShortcuts = (e: KeyboardEvent) => {
