@@ -18,9 +18,9 @@ class SocketClient {
     if (this.socket?.connected) return this.socket;
 
     const token = getToken();
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com';
     
-    this.socket = io(apiUrl + namespace, {
+    this.socket = io(socketUrl + namespace, {
       auth: { token },
       transports: ['websocket'],
       autoConnect: true,
