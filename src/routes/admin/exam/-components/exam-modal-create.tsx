@@ -112,11 +112,11 @@ export default function ExamModalCreate({
               </h5>
               <button
                 type="button"
-                className="close-btn"
+                className="btn-close"
                 data-bs-dismiss="modal"
-              >
-                <IconX />
-              </button>
+                aria-label="Close"
+                onClick={closeForm}
+              ></button>
             </div>
             <div className="modal-body row">
               <div className="col-12">

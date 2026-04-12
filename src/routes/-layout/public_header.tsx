@@ -52,9 +52,9 @@ export default function PublicHeader() {
 
                 <div className="nav-right">
                   {isAuthenticated ? (
-                    <Link to="/admin" className="nav-btn">
+                    <a href="/admin" className="nav-btn">
                       Dashboard
-                    </Link>
+                    </a>
                   ) : (
                     <Link to="/login" className="nav-btn">
                       Masuk

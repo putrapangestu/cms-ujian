@@ -13,7 +13,7 @@ export const useLogin = () => {
     onSuccess: (d) => {
       login(d.data, false)
       toaster(d.message, 'success')
-      navigate({ to: '/admin' })
+      window.location.href = '/admin'
     },
     onError: (e) => {
       console.log('Login gagal: ', e)

@@ -95,6 +95,7 @@ export default function StudentModalCreate({
                 className="btn-close"
                 data-bs-dismiss="modal"
                 aria-label="Close"
+                onClick={closeForm}
               ></button>
             </div>
             <div className="modal-body">
