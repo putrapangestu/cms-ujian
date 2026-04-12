@@ -26,6 +26,7 @@ function RouteComponent() {
   const [socket, setSocket] = useState<Socket | null>(null)
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
+  const [questionStartTime, setQuestionStartTime] = useState(Date.now())
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [answers, setAnswers] = useState<Record<number, string>>({})
   const [timeRemaining, setTimeRemaining] = useState(0)
@@ -73,11 +74,15 @@ function RouteComponent() {
     setAnswer(examId, String(currentQuestion), answer)
 
     if (socket) {
+      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000)
+
       const payload = {
-        userId: user?.id,
-        examId: examId,
-        questionId: String(currentQuestion),
+        exam_id: Number(examId),
+        student_id: Number(user?.id),
+        user_exam_id: data?.data?.user_exam.id,
+        question_id: currentQuestion,
         answer: answer,
+        time_spent: timeSpent,
       }
       socket.emit('submit_answer', payload)
       console.log('Jawaban disubmit:', payload)
@@ -86,6 +91,7 @@ function RouteComponent() {
 
   const handleNavigate = (questionNumber: number) => {
     setCurrentQuestion(questionNumber)
+    setQuestionStartTime(Date.now()) // Reset timer setiap kali ganti soal
   }
 
   const getQuestionStatus = (num: number) => {
