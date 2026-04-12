@@ -1,7 +1,7 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/admin/exam/exam-monitoring')({
@@ -9,6 +9,7 @@ export const Route = createFileRoute('/admin/exam/exam-monitoring')({
 })
 
 type StudentGroupDataType = {
+  id: string
   name: string
   date: string
   startTime: string
@@ -21,6 +22,7 @@ function RouteComponent() {
 
   const data: StudentGroupDataType[] = [
     {
+      id: 'exam-1',
       name: 'Ujian CPNS Batch 1',
       date: '2023-01-01',
       startTime: '08:00',
@@ -49,12 +51,13 @@ function RouteComponent() {
       header: 'Aksi',
       cell: (v) => (
         <div className="d-flex align-items-center gap-2">
-          <button
-            type="button"
+          <Link
+            to="/admin/exam/exam-monitoring/$examId"
+            params={{ examId: v.row.original.id }}
             className="btn btn-md px-3 rounded-1 btn-primary d-flex gap-2 align-items-center"
           >
             <IconEye size={18} /> Detail
-          </button>
+          </Link>
         </div>
       ),
     },
