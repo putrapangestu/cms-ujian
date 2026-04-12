@@ -1,11 +1,11 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 
 type GlobalState = {
-    isMounted: boolean;
-    setIsMounted: (isMounted: boolean) => void,
+  isMounted: boolean
+  setIsMounted: (isMounted: boolean) => void
 }
 
 export const useGlobalStore = create<GlobalState>((set) => ({
-    isMounted: false,
-    setIsMounted: (isMounted: boolean) => set({ isMounted }),
+  isMounted: false,
+  setIsMounted: (isMounted: boolean) => set({ isMounted }),
 }))

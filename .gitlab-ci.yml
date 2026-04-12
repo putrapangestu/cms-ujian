@@ -6,9 +6,9 @@ stages:
   REGISTRY_URL: registry.hummatech.com
   IMAGE_NAME: $REGISTRY_URL/$CI_PROJECT_PATH
   TAG: latest
-  DOCKER_TLS_CERTDIR: ""
-  DOCKER_BUILDKIT: "1"
-  BUILDKIT_PROGRESS: "plain"
+  DOCKER_TLS_CERTDIR: ''
+  DOCKER_BUILDKIT: '1'
+  BUILDKIT_PROGRESS: 'plain'
 
 # =============================
 # ✅ BUILD DEV JOB
@@ -68,7 +68,7 @@ deploy_dev:
     - echo "🔹 Cek koneksi Docker..."
     - docker ps
     - echo "🔹 Running on host (Shell Executor)..."
-    
+
     - |
       echo "🔹 Preparing deploy environment..."
 

@@ -13,7 +13,7 @@ const ResizableImage = Image.extend({
       ...this.parent?.(),
       width: {
         default: null,
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
             width: attributes.width,
           }
@@ -21,7 +21,7 @@ const ResizableImage = Image.extend({
       },
       height: {
         default: null,
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           return {
             height: attributes.height,
           }
@@ -37,16 +37,17 @@ interface TiptapEditorProps {
   placeholder?: string
 }
 
-export default function RichEditor({ 
-  content = '', 
-  onChange, 
-  placeholder = 'Mulai mengetik...' 
+export default function RichEditor({
+  content = '',
+  onChange,
+  placeholder = 'Mulai mengetik...',
 }: TiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showImageSizeModal, setShowImageSizeModal] = useState(false)
   const [imageSize, setImageSize] = useState({ width: '100%', height: 'auto' })
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({
@@ -67,8 +68,8 @@ export default function RichEditor({
       }),
     ],
     content,
-    onUpdate: ({ editor }) => {
-      onChange?.(editor.getHTML())
+    onUpdate: ({ editor: currentEditor }) => {
+      onChange?.(currentEditor.getHTML())
     },
     editorProps: {
       attributes: {
@@ -100,10 +101,10 @@ export default function RichEditor({
     const reader = new FileReader()
     reader.onloadend = () => {
       const base64String = reader.result as string
-      
+
       // Show size selection modal
       setShowImageSizeModal(true)
-      
+
       // Store the base64 for later use
       ;(window as any).pendingImageSrc = base64String
     }
@@ -114,15 +115,17 @@ export default function RichEditor({
     }
   }
 
-  const insertImageWithSize = (size: 'extra-small' | 'small' | 'medium' | 'large' | 'full') => {
+  const insertImageWithSize = (
+    size: 'extra-small' | 'small' | 'medium' | 'large' | 'full',
+  ) => {
     const src = (window as any).pendingImageSrc
     if (!src) return
 
     let width: string
-    let height = 'auto'
+    const height = 'auto'
 
     switch (size) {
-    case 'extra-small':
+      case 'extra-small':
         width = '50px'
         break
       case 'small':
@@ -141,28 +144,33 @@ export default function RichEditor({
         width = '100%'
     }
 
-    editor?.chain().focus().setImage({ 
-      src, 
-      width: Number(width.replace('px', '')),
-      height: Number(height.replace('px', '')) 
-    }).run()
+    editor
+      .chain()
+      .focus()
+      .setImage({
+        src,
+        width: Number(width.replace('px', '')),
+        height: Number(height.replace('px', '')),
+      })
+      .run()
 
     setShowImageSizeModal(false)
     delete (window as any).pendingImageSrc
   }
 
   const handleAddLink = () => {
-    const previousUrl = editor?.getAttributes('link').href
+    if (!editor) return
+    const previousUrl = editor.getAttributes('link').href
     const url = window.prompt('Masukkan URL:', previousUrl)
 
     if (url === null) return
 
     if (url === '') {
-      editor?.chain().focus().extendMarkRange('link').unsetLink().run()
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
       return
     }
 
-    editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
   }
 
   if (!editor) {
@@ -187,8 +195,8 @@ export default function RichEditor({
               type="button"
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={`btn ${
-                editor.isActive('bold') 
-                  ? 'btn-primary' 
+                editor.isActive('bold')
+                  ? 'btn-primary'
                   : 'btn-light border-0 text-primary'
               }`}
               title="Bold (Ctrl+B)"
@@ -199,8 +207,8 @@ export default function RichEditor({
               type="button"
               onClick={() => editor.chain().focus().toggleItalic().run()}
               className={`btn ${
-                editor.isActive('italic') 
-                  ? 'btn-primary' 
+                editor.isActive('italic')
+                  ? 'btn-primary'
                   : 'btn-light border-0 text-primary'
               }`}
               title="Italic (Ctrl+I)"
@@ -211,8 +219,8 @@ export default function RichEditor({
               type="button"
               onClick={() => editor.chain().focus().toggleStrike().run()}
               className={`btn ${
-                editor.isActive('strike') 
-                  ? 'btn-primary' 
+                editor.isActive('strike')
+                  ? 'btn-primary'
                   : 'btn-light border-0 text-primary'
               }`}
               title="Strikethrough"
@@ -229,8 +237,8 @@ export default function RichEditor({
               type="button"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={`btn ${
-                editor.isActive('bulletList') 
-                  ? 'btn-primary' 
+                editor.isActive('bulletList')
+                  ? 'btn-primary'
                   : 'btn-light border-0 text-primary'
               }`}
               title="Bullet List"
@@ -241,8 +249,8 @@ export default function RichEditor({
               type="button"
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               className={`btn ${
-                editor.isActive('orderedList') 
-                  ? 'btn-primary' 
+                editor.isActive('orderedList')
+                  ? 'btn-primary'
                   : 'btn-light border-0 text-primary'
               }`}
               title="Numbered List"
@@ -258,8 +266,8 @@ export default function RichEditor({
             type="button"
             onClick={handleAddLink}
             className={`btn btn-sm ${
-              editor.isActive('link') 
-                ? 'btn-primary' 
+              editor.isActive('link')
+                ? 'btn-primary'
                 : 'btn-light border-0 text-primary'
             }`}
             title="Add Link"
@@ -277,7 +285,10 @@ export default function RichEditor({
         </div>
 
         {/* Editor Content */}
-        <div className="p-3" style={{ minHeight: '160px', maxHeight: '400px', overflowY: 'auto' }}>
+        <div
+          className="p-3"
+          style={{ minHeight: '160px', maxHeight: '400px', overflowY: 'auto' }}
+        >
           <EditorContent editor={editor} />
         </div>
 
@@ -293,20 +304,24 @@ export default function RichEditor({
 
       {/* Image Size Modal */}
       {showImageSizeModal && (
-        <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Pilih Ukuran Gambar</h5>
-                <button 
-                  type="button" 
-                  className="btn-close" 
+                <button
+                  type="button"
+                  className="btn-close"
                   onClick={() => setShowImageSizeModal(false)}
                 ></button>
               </div>
               <div className="modal-body">
                 <div className="d-grid gap-2">
-                    <button
+                  <button
                     type="button"
                     className="btn btn-outline-primary text-start d-flex align-items-center justify-content-between"
                     onClick={() => insertImageWithSize('small')}
@@ -364,9 +379,9 @@ export default function RichEditor({
                 </div>
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowImageSizeModal(false)}
                 >
                   Batal

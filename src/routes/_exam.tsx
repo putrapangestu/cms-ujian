@@ -5,10 +5,9 @@ export const Route = createFileRoute('/_exam')({
 })
 
 function RouteComponent() {
-
   return (
     <div id="main_content">
-        <Outlet />
+      <Outlet />
     </div>
   )
 }

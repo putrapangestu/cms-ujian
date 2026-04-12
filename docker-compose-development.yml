@@ -26,7 +26,7 @@
 #   asset_ujian:
 #   db_data:
 
-version: "3.9"
+version: '3.9'
 
 services:
   cms-ujian:
@@ -35,7 +35,7 @@ services:
     restart: unless-stopped
     # command: bun run start
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - asset_ujian:/app/dist/client
 
@@ -44,7 +44,7 @@ services:
     container_name: ujian-nginx
     restart: unless-stopped
     ports:
-      - "8025:80"
+      - '8025:80'
     volumes:
       - asset_ujian:/app/dist/client:ro
       - ./nginx:/etc/nginx/conf.d

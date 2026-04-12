@@ -1,4 +1,3 @@
-
 import { navLinks } from '@/data/const/nav_public_items'
 import type { NoChildNavItemType } from '@/data/types/nav_public'
 import { Link, useLocation } from '@tanstack/react-router'
@@ -9,19 +8,19 @@ export default function PublicNav() {
 
   const isParentActive = (children?: NoChildNavItemType[]) => {
     if (!children) return false
-    return children.some(child => location.pathname.startsWith(child.url))
+    return children.some((child) => location.pathname.startsWith(child.url))
   }
 
   // Function to close mobile menu
   const closeMobileMenu = () => {
     const html = document.querySelector('html')
     const maskOverlay = document.querySelector('.mask-overlay')
-    
+
     if (html) {
       html.classList.remove('no-scroll', 'sidebar-open')
       html.style.height = 'auto'
     }
-    
+
     if (maskOverlay) {
       maskOverlay.remove()
     }
@@ -44,8 +43,8 @@ export default function PublicNav() {
 
           return (
             <li className="menu-item-has-children" key={index}>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className={`d-flex d-row ${isActive ? 'active' : ''}`}
                 onClick={(e) => e.preventDefault()}
               >
@@ -54,8 +53,8 @@ export default function PublicNav() {
               <ul className="sub-menu">
                 {item.children.map((child, childIndex) => (
                   <li key={childIndex}>
-                    <Link 
-                      to={child.url} 
+                    <Link
+                      to={child.url}
                       activeProps={{ className: 'active' }}
                       onClick={handleLinkClick}
                     >
@@ -70,8 +69,8 @@ export default function PublicNav() {
 
         return (
           <li key={index}>
-            <Link 
-              to={'url' in item ? item.url : '#'} 
+            <Link
+              to={'url' in item ? item.url : '#'}
               activeProps={{ className: 'active' }}
               onClick={handleLinkClick}
             >

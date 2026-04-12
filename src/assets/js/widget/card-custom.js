@@ -1,16 +1,16 @@
-document.addEventListener("DOMContentLoaded", function () {
-  "use strict";
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict'
   var card1 = {
     series: [
       {
-        name: "Weekly Sales",
+        name: 'Weekly Sales',
         data: [0, 3, 1, 2, 8, 1, 5, 1],
       },
     ],
     chart: {
       height: 75,
-      type: "area",
-      fontFamily: "inherit",
+      type: 'area',
+      fontFamily: 'inherit',
       zoom: {
         enabled: false,
       },
@@ -24,13 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dataLabels: {
       enabled: false,
     },
-    colors: ["#3699ff"],
+    colors: ['#3699ff'],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "solid",
+      type: 'solid',
       opacity: 0.2,
     },
     grid: {
@@ -43,25 +43,25 @@ document.addEventListener("DOMContentLoaded", function () {
       show: false,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
-  var chart1 = new ApexCharts(document.querySelector(".earnings-month"), card1);
-  chart1.render();
+  var chart1 = new ApexCharts(document.querySelector('.earnings-month'), card1)
+  chart1.render()
 
   // 2
   var card2 = {
     series: [
       {
-        name: "Social marketing",
+        name: 'Social marketing',
         data: [0, 3, 1, 2, 8, 1, 5, 1],
       },
     ],
     chart: {
       height: 75,
-      type: "area",
-      fontFamily: "inherit",
+      type: 'area',
+      fontFamily: 'inherit',
       zoom: {
         enabled: false,
       },
@@ -75,13 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dataLabels: {
       enabled: false,
     },
-    colors: ["#ee9d01"],
+    colors: ['#ee9d01'],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "solid",
+      type: 'solid',
       opacity: 0.2,
     },
     grid: {
@@ -94,28 +94,25 @@ document.addEventListener("DOMContentLoaded", function () {
       show: false,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
-  var chart2 = new ApexCharts(
-    document.querySelector(".earnings-month2"),
-    card2
-  );
-  chart2.render();
+  var chart2 = new ApexCharts(document.querySelector('.earnings-month2'), card2)
+  chart2.render()
 
   // 3
   var card3 = {
     series: [
       {
-        name: "Yearly Sales",
+        name: 'Yearly Sales',
         data: [0, 3, 1, 2, 8, 1, 5, 1],
       },
     ],
     chart: {
       height: 75,
-      type: "area",
-      fontFamily: "inherit",
+      type: 'area',
+      fontFamily: 'inherit',
       zoom: {
         enabled: false,
       },
@@ -129,13 +126,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dataLabels: {
       enabled: false,
     },
-    colors: ["#f64e60"],
+    colors: ['#f64e60'],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "solid",
+      type: 'solid',
       opacity: 0.2,
     },
     grid: {
@@ -148,13 +145,10 @@ document.addEventListener("DOMContentLoaded", function () {
       show: false,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
-  var chart3 = new ApexCharts(
-    document.querySelector(".earnings-month3"),
-    card3
-  );
-  chart3.render();
-});
+  var chart3 = new ApexCharts(document.querySelector('.earnings-month3'), card3)
+  chart3.render()
+})

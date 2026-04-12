@@ -23,7 +23,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
   border-radius: 2px;
 }
 
@@ -35,13 +35,13 @@
   bottom: 0;
 }
 
-.minicolors input[type=hidden] + .minicolors-swatch {
+.minicolors input[type='hidden'] + .minicolors-swatch {
   width: 28px;
   position: static;
   cursor: pointer;
 }
 
-.minicolors input[type=hidden][disabled] + .minicolors-swatch {
+.minicolors input[type='hidden'][disabled] + .minicolors-swatch {
   cursor: default;
 }
 
@@ -51,7 +51,7 @@
   width: 173px;
   background: white;
   border-radius: 2px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, .2);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   z-index: 99999;
   box-sizing: content-box;
   display: none;
@@ -93,7 +93,7 @@
   background-position: -120px 0;
   cursor: crosshair;
 }
-[dir=rtl] .minicolors .minicolors-grid {
+[dir='rtl'] .minicolors .minicolors-grid {
   right: 1px;
 }
 
@@ -137,8 +137,8 @@
   background-position: 0 0;
   cursor: row-resize;
 }
-[dir=rtl] .minicolors-slider,
-[dir=rtl] .minicolors-opacity-slider {
+[dir='rtl'] .minicolors-slider,
+[dir='rtl'] .minicolors-opacity-slider {
   right: 152px;
 }
 
@@ -159,7 +159,7 @@
   background-position: -40px 0;
   display: none;
 }
-[dir=rtl] .minicolors-opacity-slider {
+[dir='rtl'] .minicolors-opacity-slider {
   right: 173px;
 }
 
@@ -174,7 +174,7 @@
   left: 70px;
   width: 12px;
   height: 12px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
   margin-top: -6px;
   margin-left: -6px;
@@ -199,7 +199,7 @@
   width: 18px;
   height: 3px;
   background: white;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
   border-radius: 2px;
   margin-top: -2px;
   margin-left: 1px;
@@ -214,8 +214,8 @@
   list-style: none;
   overflow: hidden;
 }
-[dir=rtl] .minicolors-swatches,
-[dir=rtl] .minicolors-swatches li {
+[dir='rtl'] .minicolors-swatches,
+[dir='rtl'] .minicolors-swatches li {
   margin: 5px 5px 3px 0;
 }
 
@@ -225,7 +225,7 @@
   cursor: pointer;
   margin: 0 4px 0 0; /* LTR */
 }
-[dir=rtl] .minicolors-swatches .minicolors-swatch {
+[dir='rtl'] .minicolors-swatches .minicolors-swatch {
   float: right;
   margin: 0 0 0 4px;
 }
@@ -233,7 +233,7 @@
 .minicolors-with-opacity .minicolors-swatches .minicolors-swatch {
   margin-right: 7px; /* LTR */
 }
-[dir=rtl] .minicolors-with-opacity .minicolors-swatches .minicolors-swatch {
+[dir='rtl'] .minicolors-with-opacity .minicolors-swatches .minicolors-swatch {
   margin-right: 0;
   margin-left: 7px;
 }
@@ -259,7 +259,7 @@
   z-index: auto;
   display: inline-block;
 }
-[dir=rtl] .minicolors-inline .minicolors-panel {
+[dir='rtl'] .minicolors-inline .minicolors-panel {
   right: auto;
 }
 
@@ -270,7 +270,7 @@
   width: 18px;
   height: 18px;
 }
-[dir=rtl] .minicolors-theme-default .minicolors-swatch {
+[dir='rtl'] .minicolors-theme-default .minicolors-swatch {
   right: 5px;
 }
 .minicolors-theme-default .minicolors-swatches .minicolors-swatch {
@@ -280,14 +280,16 @@
   width: 18px;
   height: 18px;
 }
-[dir=rtl] .minicolors-theme-default .minicolors-swatches .minicolors-swatch {
+[dir='rtl'] .minicolors-theme-default .minicolors-swatches .minicolors-swatch {
   right: 0;
 }
 .minicolors-theme-default.minicolors-position-right .minicolors-swatch {
   left: auto; /* LTR */
   right: 5px; /* LTR */
 }
-[dir=rtl] .minicolors-theme-default.minicolors-position-left .minicolors-swatch {
+[dir='rtl']
+  .minicolors-theme-default.minicolors-position-left
+  .minicolors-swatch {
   right: auto;
   left: 5px;
 }
@@ -301,7 +303,7 @@
   display: inline-block;
   padding-left: 26px; /* LTR */
 }
-[dir=rtl] .minicolors-theme-default .minicolors-input {
+[dir='rtl'] .minicolors-theme-default .minicolors-input {
   text-align: right;
   unicode-bidi: plaintext;
   padding-left: 1px;
@@ -311,7 +313,9 @@
   padding-right: 26px; /* LTR */
   padding-left: inherit; /* LTR */
 }
-[dir=rtl] .minicolors-theme-default.minicolors-position-left .minicolors-input {
+[dir='rtl']
+  .minicolors-theme-default.minicolors-position-left
+  .minicolors-input {
   padding-right: inherit;
   padding-left: 26px;
 }
@@ -325,7 +329,7 @@
   height: 28px;
   border-radius: 2px;
 }
-[dir=rtl] .minicolors-theme-bootstrap .minicolors-swatch {
+[dir='rtl'] .minicolors-theme-bootstrap .minicolors-swatch {
   right: 3px;
 }
 .minicolors-theme-bootstrap .minicolors-swatches .minicolors-swatch {
@@ -335,7 +339,10 @@
   width: 20px;
   height: 20px;
 }
-[dir=rtl] .minicolors-theme-bootstrap .minicolors-swatches .minicolors-swatch {
+[dir='rtl']
+  .minicolors-theme-bootstrap
+  .minicolors-swatches
+  .minicolors-swatch {
   right: 0;
 }
 .minicolors-theme-bootstrap .minicolors-swatch-color {
@@ -345,7 +352,9 @@
   left: auto; /* LTR */
   right: 3px; /* LTR */
 }
-[dir=rtl] .minicolors-theme-bootstrap.minicolors-position-left > .minicolors-swatch {
+[dir='rtl']
+  .minicolors-theme-bootstrap.minicolors-position-left
+  > .minicolors-swatch {
   right: auto;
   left: 3px;
 }
@@ -353,7 +362,7 @@
   float: none;
   padding-left: 44px; /* LTR */
 }
-[dir=rtl] .minicolors-theme-bootstrap .minicolors-input {
+[dir='rtl'] .minicolors-theme-bootstrap .minicolors-input {
   text-align: right;
   unicode-bidi: plaintext;
   padding-left: 12px;
@@ -363,7 +372,9 @@
   padding-right: 44px; /* LTR */
   padding-left: 12px; /* LTR */
 }
-[dir=rtl] .minicolors-theme-bootstrap.minicolors-position-left .minicolors-input {
+[dir='rtl']
+  .minicolors-theme-bootstrap.minicolors-position-left
+  .minicolors-input {
   padding-right: 12px;
   padding-left: 44px;
 }
@@ -374,7 +385,10 @@
   height: 37px;
   border-radius: 5px;
 }
-[dir=rtl] .minicolors-theme-bootstrap .minicolors-input.input-lg + .minicolors-swatch {
+[dir='rtl']
+  .minicolors-theme-bootstrap
+  .minicolors-input.input-lg
+  + .minicolors-swatch {
   right: 4px;
 }
 .minicolors-theme-bootstrap .minicolors-input.input-sm + .minicolors-swatch {
@@ -389,44 +403,52 @@
   border-top-left-radius: 0; /* LTR */
   border-bottom-left-radius: 0; /* LTR */
 }
-[dir=rtl] .input-group .minicolors-theme-bootstrap .minicolors-input {
+[dir='rtl'] .input-group .minicolors-theme-bootstrap .minicolors-input {
   border-radius: 4px;
 }
-[dir=rtl] .input-group .minicolors-theme-bootstrap:not(:first-child) .minicolors-input {
+[dir='rtl']
+  .input-group
+  .minicolors-theme-bootstrap:not(:first-child)
+  .minicolors-input {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
-[dir=rtl] .input-group .minicolors-theme-bootstrap:not(:last-child) .minicolors-input {
+[dir='rtl']
+  .input-group
+  .minicolors-theme-bootstrap:not(:last-child)
+  .minicolors-input {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
 /* bootstrap input-group rtl override */
-[dir=rtl] .input-group .form-control,
-[dir=rtl] .input-group-addon,
-[dir=rtl] .input-group-btn > .btn,
-[dir=rtl] .input-group-btn > .btn-group > .btn,
-[dir=rtl] .input-group-btn > .dropdown-toggle {
+[dir='rtl'] .input-group .form-control,
+[dir='rtl'] .input-group-addon,
+[dir='rtl'] .input-group-btn > .btn,
+[dir='rtl'] .input-group-btn > .btn-group > .btn,
+[dir='rtl'] .input-group-btn > .dropdown-toggle {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-[dir=rtl] .input-group .form-control:first-child,
-[dir=rtl] .input-group-addon:first-child,
-[dir=rtl] .input-group-btn:first-child > .btn,
-[dir=rtl] .input-group-btn:first-child > .btn-group > .btn,
-[dir=rtl] .input-group-btn:first-child > .dropdown-toggle,
-[dir=rtl] .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle),
-[dir=rtl] .input-group-btn:last-child > .btn-group:not(:last-child) > .btn {
+[dir='rtl'] .input-group .form-control:first-child,
+[dir='rtl'] .input-group-addon:first-child,
+[dir='rtl'] .input-group-btn:first-child > .btn,
+[dir='rtl'] .input-group-btn:first-child > .btn-group > .btn,
+[dir='rtl'] .input-group-btn:first-child > .dropdown-toggle,
+[dir='rtl']
+  .input-group-btn:last-child
+  > .btn:not(:last-child):not(.dropdown-toggle),
+[dir='rtl'] .input-group-btn:last-child > .btn-group:not(:last-child) > .btn {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   border-left: 0;
 }
-[dir=rtl] .input-group .form-control:last-child,
-[dir=rtl] .input-group-addon:last-child,
-[dir=rtl] .input-group-btn:last-child > .btn,
-[dir=rtl] .input-group-btn:last-child > .btn-group > .btn,
-[dir=rtl] .input-group-btn:last-child > .dropdown-toggle,
-[dir=rtl] .input-group-btn:first-child > .btn:not(:first-child),
-[dir=rtl] .input-group-btn:first-child > .btn-group:not(:first-child) > .btn {
+[dir='rtl'] .input-group .form-control:last-child,
+[dir='rtl'] .input-group-addon:last-child,
+[dir='rtl'] .input-group-btn:last-child > .btn,
+[dir='rtl'] .input-group-btn:last-child > .btn-group > .btn,
+[dir='rtl'] .input-group-btn:last-child > .dropdown-toggle,
+[dir='rtl'] .input-group-btn:first-child > .btn:not(:first-child),
+[dir='rtl'] .input-group-btn:first-child > .btn-group:not(:first-child) > .btn {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
@@ -437,7 +459,7 @@
   left: 0; /* LTR */
   padding: 18px;
 }
-[dir=rtl] .minicolors-theme-semanticui .minicolors-swatch {
+[dir='rtl'] .minicolors-theme-semanticui .minicolors-swatch {
   right: 0;
 }
 .minicolors-theme-semanticui input {

@@ -1,8 +1,8 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   //
   // Carousel
   //
-  $(".collectibles-carousel").owlCarousel({
+  $('.collectibles-carousel').owlCarousel({
     loop: true,
     margin: 30,
     mouseDrag: true,
@@ -23,5 +23,5 @@ document.addEventListener("DOMContentLoaded", function () {
         items: 3,
       },
     },
-  });
-});
+  })
+})

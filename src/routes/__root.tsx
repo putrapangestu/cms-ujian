@@ -1,4 +1,9 @@
-import { HeadContent, Scripts, createRootRoute, useMatches } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRoute,
+  useMatches,
+} from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { useAuthStore } from '@/data/store/auth_store'
 import { apiClient } from '@/lib/api-client'
@@ -12,13 +17,13 @@ import customCss from '@/assets/css/custom.css?url'
 import stylesCss from '@/styles.css?url'
 
 // Bootstrap JS
-import vendorJs from "@/assets/js/vendor.min.js?url"
-import bootstrapJs from "@/assets/dependencies/bootstrap/js/bootstrap.min.js?url"
-import appInitJs from "@/assets/js/theme/app.init.js?url"
-import themeJs from "@/assets/js/theme/theme.js?url"
-import appJs from "@/assets/js/theme/app.min.js?url"
-import sidebarmenuJs from "@/assets/js/theme/sidebarmenu.js?url"
-import jqueryJs from 'jquery/dist/jquery.min.js?url'
+import vendorJs from '@/assets/js/vendor.min.js?url'
+import bootstrapJs from '@/assets/dependencies/bootstrap/js/bootstrap.min.js?url'
+import appInitJs from '@/assets/js/theme/app.init.js?url'
+import themeJs from '@/assets/js/theme/theme.js?url'
+import appJs from '@/assets/js/theme/app.min.js?url'
+import sidebarmenuJs from '@/assets/js/theme/sidebarmenu.js?url'
+import { NotFoundComponent } from '@/components/NotFound'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -28,39 +33,21 @@ export const Route = createRootRoute({
       { title: import.meta.env.VITE_APP_NAME },
     ],
   }),
+  notFoundComponent: () => <NotFoundComponent />,
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const { login, logout, isFetched, setIsFetched } = useAuthStore()
-  const setIsMounted = useGlobalStore(state => state.setIsMounted)
+  const setIsMounted = useGlobalStore((state) => state.setIsMounted)
 
-  const isLandingPage = matches.some(match => 
-    match.id === '/_public' || 
-    match.id === '/landing' ||
-    match.id.includes('_public')
+  const isLandingPage = matches.some(
+    (match) =>
+      match.id === '/_public' ||
+      match.id === '/landing' ||
+      match.id.includes('_public'),
   )
-
-  useEffect(() => {
-    if (!isLandingPage) {
-      const loadScripts = async () => {
-        // Check if jQuery already loaded
-        if (typeof window.$ === 'undefined') {
-          const script = document.createElement('script')
-          script.src = jqueryJs
-          script.async = false
-          document.body.appendChild(script)
-
-          await new Promise(resolve => {
-            script.onload = resolve
-          })
-        }
-      }
-
-      loadScripts()
-    }
-  }, [isLandingPage])
 
   useEffect(() => {
     setIsMounted(true)
@@ -68,38 +55,46 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       try {
         const userData = await apiClient.get(AUTH.ME)
         login(userData.data.data)
-      } catch(e) {
-        console.error("Session restore failed:", e)
+      } catch (e) {
+        if (import.meta.env.DEV) {
+          console.error('Session restore failed:', e)
+        }
         logout()
       }
       setIsFetched(true)
     }
 
-    if(!isFetched) fetchAuth()
+    if (!isFetched) fetchAuth()
   }, [isFetched])
 
   useEffect(() => {
     const handleImageError = (event: Event) => {
-      const img = event.target as HTMLImageElement;
+      const img = event.target as HTMLImageElement
       if (img.tagName === 'IMG') {
-        if(img.classList.contains('leaflet-tile')) return
-        const fallbackUrl = "/not-found-img.png";
+        if (img.classList.contains('leaflet-tile')) return
+        const fallbackUrl = '/not-found-img.png'
         if (img.src !== window.location.origin + fallbackUrl) {
           img.src = fallbackUrl
-          img.classList.add('img-error-fallback');
+          img.classList.add('img-error-fallback')
         }
       }
-    };
+    }
 
-    window.addEventListener('error', handleImageError, true);
-    return () => window.removeEventListener('error', handleImageError, true);
+    window.addEventListener('error', handleImageError, true)
+    return () => window.removeEventListener('error', handleImageError, true)
   }, [])
 
   return (
-    <html lang="en" dir="ltr" data-bs-theme="light" data-color-theme="Sipjaki_Theme" data-layout="vertical">
+    <html
+      lang="en"
+      dir="ltr"
+      data-bs-theme="light"
+      data-color-theme="Sipjaki_Theme"
+      data-layout="vertical"
+    >
       <head>
         <HeadContent />
-        
+
         {/* ✅ Conditional CSS Loading */}
         {isLandingPage ? (
           // Load Tailwind for landing page
@@ -112,24 +107,28 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           </>
         )}
       </head>
-      <body style={{ backgroundColor: isLandingPage ? 'transparent' : '#f5f5fc' }}>
+      <body
+        style={{ backgroundColor: isLandingPage ? 'transparent' : '#f5f5fc' }}
+      >
         {children}
         <Scripts />
 
         {/* ✅ Load Bootstrap JS only for non-landing pages */}
         {!isLandingPage && (
           <>
-            <script src={vendorJs}></script>
-            <script src={bootstrapJs}></script>
-            <script src={appInitJs}></script>
-            <script src={themeJs}></script>
-            <script src={appJs}></script>
-            <script src={jqueryJs}></script>
-            <script src={sidebarmenuJs}></script>
+            <script src={vendorJs} defer></script>
+            <script src={bootstrapJs} defer></script>
+            <script src={appInitJs} defer></script>
+            <script src={themeJs} defer></script>
+            <script src={appJs} defer></script>
+            <script src={sidebarmenuJs} defer></script>
           </>
         )}
-        
-        <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+        <script
+          src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"
+          defer
+        ></script>
       </body>
     </html>
   )

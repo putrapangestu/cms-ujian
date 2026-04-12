@@ -16,43 +16,13 @@ function RouteComponent() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const checkSession = async () => { if(!isAuthenticated) navigate({to: "/login"}) }
-    if(isFetched) checkSession()
+    const checkSession = async () => {
+      if (!isAuthenticated) navigate({ to: '/login' })
+    }
+    if (isFetched) checkSession()
   }, [isFetched, isAuthenticated])
 
-  useEffect(() => {
-    if (!isMounted) return;
-
-    const handleToggleClick = () => {
-      document.querySelectorAll(".sidebartoggler").forEach((el) => {
-        // @ts-ignore
-        el.checked = true; 
-      });
-      
-      const wrapper = document.getElementById("main-wrapper");
-      if (wrapper) wrapper.classList.toggle("show-sidebar");
-
-      document.querySelectorAll(".sidebarmenu").forEach((el) => { el.classList.toggle("close") });
-
-      const dataTheme = document.body.getAttribute("data-sidebartype")
-      if (dataTheme === "full") document.body.setAttribute("data-sidebartype", "mini-sidebar")
-      else document.body.setAttribute("data-sidebartype", "full")
-    };
-
-    const togglers = document.querySelectorAll(".sidebartoggler");
-    togglers.forEach((element) => {
-      element.addEventListener("click", handleToggleClick);
-    });
-
-    return () => {
-      togglers.forEach((element) => {
-        element.removeEventListener("click", handleToggleClick);
-      });
-    };
-
-  }, [isMounted]);
-
-//   if(!isMounted) return <PageLoader />
+  //   if(!isMounted) return <PageLoader />
 
   return (
     <>

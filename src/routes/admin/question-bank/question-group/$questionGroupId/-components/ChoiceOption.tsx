@@ -1,15 +1,20 @@
-import RichEditor from '@/components/RichEditor';
-import React from 'react';
-import { Controller, type Control, type UseFormRegister, type UseFormWatch } from 'react-hook-form';
+import RichEditor from '@/components/RichEditor'
+import React from 'react'
+import {
+  Controller,
+  type Control,
+  type UseFormRegister,
+  type UseFormWatch,
+} from 'react-hook-form'
 
 interface ChoiceOptionsProps {
-  questionType: string;
-  fields: any[];
-  append: (data: any) => void;
-  remove: (index: number) => void;
-  register: UseFormRegister<any>;
-  watch: UseFormWatch<any>;
-  control: Control<any>;
+  questionType: string
+  fields: any[]
+  append: (data: any) => void
+  remove: (index: number) => void
+  register: UseFormRegister<any>
+  watch: UseFormWatch<any>
+  control: Control<any>
 }
 
 const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
@@ -19,8 +24,9 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
   remove,
   register,
   watch,
-  control
+  control,
 }) => {
+  
   return (
     <div className="mb-5">
       {/* Header Bagian Opsi */}
@@ -28,12 +34,13 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
         <div>
           <h6 className="fw-semibold mb-1">Opsi Jawaban</h6>
           <p className="text-muted small mb-0">
-            Centang {questionType === 'single_choice' ? 'radio' : 'checkbox'} untuk menandai jawaban yang benar.
+            Centang {questionType === 'single_choice' ? 'radio' : 'checkbox'}{' '}
+            untuk menandai jawaban yang benar.
           </p>
         </div>
         <button
           type="button"
-          onClick={() => append({ text: '', is_correct: false, score: 0 })}
+          onClick={() => append({ id: undefined, option_text: '', is_correct: false, score: 0 })}
           className="btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center gap-1 shadow-sm"
         >
           <i className="ti ti-plus"></i>
@@ -45,46 +52,63 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
       <div className="d-flex flex-column gap-3">
         {fields.map((item, index) => {
           // Perhatikan: is_correct harus konsisten dengan defaultValues
-          const isCorrect = watch(`options.${index}.is_correct`);
+          const isCorrect = watch(`options.${index}.is_correct`)
 
           return (
             <div
               key={item.id}
               className={`card border-2 transition-all shadow-sm rounded-3 ${
-                isCorrect ? 'border-success bg-success bg-opacity-10' : 'border-light bg-white'
+                isCorrect
+                  ? 'border-success bg-success bg-opacity-10'
+                  : 'border-light bg-white'
               }`}
             >
               <div className="card-body p-3">
                 <div className="d-flex gap-3 align-items-start">
-                  
                   {/* Bagian Input Status (Kiri) */}
                   <div className="pt-2">
                     <input
-                      type={questionType === 'single_choice' ? 'radio' : 'checkbox'}
+                      type={
+                        questionType === 'single_choice' ? 'radio' : 'checkbox'
+                      }
                       className={`form-check-input ${isCorrect ? 'bg-success border-success' : ''}`}
-                      style={{ width: '22px', height: '22px', cursor: 'pointer' }}
+                      style={{
+                        width: '22px',
+                        height: '22px',
+                        cursor: 'pointer',
+                      }}
                       {...register(`options.${index}.is_correct`)}
                       // Logika radio group: jika single choice, beri name yang sama agar saling toggle
-                      name={questionType === 'single_choice' ? 'correctAnswerGroup' : `options.${index}.is_correct`}
+                      name={
+                        questionType === 'single_choice'
+                          ? 'correctAnswerGroup'
+                          : `options.${index}.is_correct`
+                      }
                     />
                   </div>
 
                   {/* Konten Utama (Tengah) */}
                   <div className="flex-grow-1">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <div className={`badge ${isCorrect ? 'bg-success' : 'bg-primary bg-opacity-10 text-primary'} px-3 py-2`}>
+                      <div
+                        className={`badge ${isCorrect ? 'bg-success' : 'bg-primary bg-opacity-10 text-primary'} px-3 py-2`}
+                      >
                         Opsi {String.fromCharCode(65 + index)}
                       </div>
-                      
+
                       {/* Input Skor */}
                       <div className="d-flex align-items-center gap-2">
-                        <label className="small fw-semibold text-muted mb-0">Skor:</label>
+                        <label className="small fw-semibold text-muted mb-0">
+                          Skor:
+                        </label>
                         <input
                           type="number"
                           className="form-control form-control-sm text-center border-2"
                           style={{ width: '70px' }}
                           placeholder="0"
-                          {...register(`options.${index}.score`, { valueAsNumber: true })}
+                          {...register(`options.${index}.score`, {
+                            valueAsNumber: true,
+                          })}
                         />
                       </div>
                     </div>
@@ -92,7 +116,7 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
                     {/* Editor Tiptap */}
                     <div className="bg-white rounded border overflow-hidden">
                       <Controller
-                        name={`options.${index}.text`}
+                        name={`options.${index}.option_text`}
                         control={control}
                         render={({ field }) => (
                           <RichEditor
@@ -119,12 +143,15 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
                 </div>
               </div>
             </div>
-          );
+          )
         })}
       </div>
 
       {/* Info Panduan */}
-      <div className="alert alert-info d-flex gap-2 mt-4 border-0 bg-info bg-opacity-10 text-info-emphasis rounded-3" role="alert">
+      <div
+        className="alert alert-info d-flex gap-2 mt-4 border-0 bg-info bg-opacity-10 text-info-emphasis rounded-3"
+        role="alert"
+      >
         <i className="ti ti-info-circle flex-shrink-0 fs-5 mt-1"></i>
         <div className="small">
           <strong className="d-block mb-1">Panduan Pengisian:</strong>
@@ -134,7 +161,7 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ChoiceOptions;
+export default ChoiceOptions

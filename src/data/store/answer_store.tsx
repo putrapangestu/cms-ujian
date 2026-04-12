@@ -13,9 +13,13 @@ type AnswerStoreType = {
   answers: Record<string, AnswerType> // Key: examId_questionId
   currentExamId: string | null
   lastSyncedAt: string | null
-  
+
   // Actions
-  setAnswer: (examId: string, questionId: string, answer: string | string[]) => void
+  setAnswer: (
+    examId: string,
+    questionId: string,
+    answer: string | string[],
+  ) => void
   getAnswer: (examId: string, questionId: string) => AnswerType | undefined
   getExamAnswers: (examId: string) => AnswerType[]
   clearExamAnswers: (examId: string) => void
@@ -105,6 +109,6 @@ export const useAnswerStore = create<AnswerStoreType>()(
     {
       name: 'exam-answers-storage', // localStorage key
       storage: createJSONStorage(() => localStorage),
-    }
-  )
+    },
+  ),
 )

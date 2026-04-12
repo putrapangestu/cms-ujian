@@ -1,20 +1,20 @@
-import RichEditor from '@/components/RichEditor';
-import React from 'react';
-import { Controller, type Control } from 'react-hook-form';
+import RichEditor from '@/components/RichEditor'
+import React from 'react'
+import { Controller, type Control } from 'react-hook-form'
 // Pastikan path RichEditor sudah sesuai dengan struktur project Anda
 
 interface EssayAnswerProps {
-  control: Control<any>;
-  name: string;
-  label?: string;
-  placeholder?: string;
+  control: Control<any>
+  name: string
+  label?: string
+  placeholder?: string
 }
 
-const EssayAnswer: React.FC<EssayAnswerProps> = ({ 
-  control, 
-  name, 
-  label = "Kunci Jawaban / Pedoman Penskoran",
-  placeholder = "Berikan panduan atau poin-poin penting untuk penilaian..." 
+const EssayAnswer: React.FC<EssayAnswerProps> = ({
+  control,
+  name,
+  label = 'Kunci Jawaban / Pedoman Penskoran',
+  placeholder = 'Berikan panduan atau poin-poin penting untuk penilaian...',
 }) => {
   return (
     <div className="mb-5">
@@ -24,7 +24,7 @@ const EssayAnswer: React.FC<EssayAnswerProps> = ({
           Opsional
         </span>
       </label>
-      
+
       <div className="card border-light shadow-sm overflow-hidden">
         <Controller
           name={name}
@@ -42,11 +42,12 @@ const EssayAnswer: React.FC<EssayAnswerProps> = ({
       <div className="alert alert-light border-0 py-2 px-0 mt-1 mb-0">
         <small className="text-muted d-flex align-items-center gap-1">
           <i className="ti ti-info-circle text-info"></i>
-          Berikan panduan untuk memudahkan penilaian jawaban essay secara manual maupun otomatis.
+          Berikan panduan untuk memudahkan penilaian jawaban essay secara manual
+          maupun otomatis.
         </small>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default EssayAnswer;
+export default EssayAnswer

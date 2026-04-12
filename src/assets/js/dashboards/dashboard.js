@@ -1,20 +1,19 @@
-document.addEventListener("DOMContentLoaded", function () {
-
+document.addEventListener('DOMContentLoaded', function () {
   //****************************
   // Theme Onload Toast
   //****************************
-  window.addEventListener("load", () => {
-    let myAlert = document.querySelectorAll('.toast')[0];
+  window.addEventListener('load', () => {
+    let myAlert = document.querySelectorAll('.toast')[0]
     if (myAlert) {
-      let bsAlert = new bootstrap.Toast(myAlert);
-      bsAlert.show();
+      let bsAlert = new bootstrap.Toast(myAlert)
+      bsAlert.show()
     }
   })
 
   //
   // Carousel
   //
-  $(".counter-carousel").owlCarousel({
+  $('.counter-carousel').owlCarousel({
     loop: true,
     rtl: true,
     margin: 30,
@@ -44,18 +43,18 @@ document.addEventListener("DOMContentLoaded", function () {
         loop: true,
       },
     },
-  });
+  })
   // =====================================
   // Profit
   // =====================================
   var chart = {
     series: [
       {
-        name: "Eanings this month",
+        name: 'Eanings this month',
         data: [1.5, 2.7, 2.2, 3.6, 1.5, 1.0],
       },
       {
-        name: "Expense this month",
+        name: 'Expense this month',
         data: [-1.8, -1.1, -2.5, -1.5, -0.6, -1.8],
       },
     ],
@@ -63,21 +62,21 @@ document.addEventListener("DOMContentLoaded", function () {
       toolbar: {
         show: false,
       },
-      type: "bar",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      type: 'bar',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
       height: 310,
       stacked: true,
     },
-    colors: ["var(--bs-primary)", "var(--bs-secondary)"],
+    colors: ['var(--bs-primary)', 'var(--bs-secondary)'],
     plotOptions: {
       bar: {
         horizontal: false,
-        barHeight: "60%",
-        columnWidth: "20%",
+        barHeight: '60%',
+        columnWidth: '20%',
         borderRadius: [6],
-        borderRadiusApplication: "end",
-        borderRadiusWhenStacked: "all",
+        borderRadiusApplication: 'end',
+        borderRadiusWhenStacked: 'all',
       },
     },
     dataLabels: {
@@ -87,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
       show: false,
     },
     grid: {
-      borderColor: "rgba(0,0,0,0.1)",
+      borderColor: 'rgba(0,0,0,0.1)',
       strokeDashArray: 3,
       xaxis: {
         lines: {
@@ -107,45 +106,45 @@ document.addEventListener("DOMContentLoaded", function () {
         show: false,
       },
       categories: [
-        "16/08",
-        "17/08",
-        "18/08",
-        "19/08",
-        "20/08",
-        "21/08",
-        "22/08",
+        '16/08',
+        '17/08',
+        '18/08',
+        '19/08',
+        '20/08',
+        '21/08',
+        '22/08',
       ],
     },
     yaxis: {
       tickAmount: 4,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
-  var chart = new ApexCharts(document.querySelector("#chart"), chart);
-  chart.render();
+  var chart = new ApexCharts(document.querySelector('#chart'), chart)
+  chart.render()
 
   // =====================================
   // Breakup
   // =====================================
   var breakup = {
-    color: "#adb5bd",
+    color: '#adb5bd',
     series: [38, 40, 25],
-    labels: ["2022", "2021", "2020"],
+    labels: ['2022', '2021', '2020'],
     chart: {
       width: 180,
-      type: "donut",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      type: 'donut',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
     },
     plotOptions: {
       pie: {
         startAngle: 0,
         endAngle: 360,
         donut: {
-          size: "75%",
+          size: '75%',
         },
       },
     },
@@ -160,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
     legend: {
       show: false,
     },
-    colors: ["var(--bs-primary)", "#ecf2ff", "var(--bs-card-bg)"],
+    colors: ['var(--bs-primary)', '#ecf2ff', 'var(--bs-card-bg)'],
 
     responsive: [
       {
@@ -173,42 +172,42 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     ],
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
       fillSeriesColor: false,
     },
-  };
+  }
 
-  var chart = new ApexCharts(document.querySelector("#breakup"), breakup);
-  chart.render();
+  var chart = new ApexCharts(document.querySelector('#breakup'), breakup)
+  chart.render()
 
   // =====================================
   // Earning
   // =====================================
   var earning = {
     chart: {
-      id: "sparkline3",
-      type: "area",
+      id: 'sparkline3',
+      type: 'area',
       height: 60,
       sparkline: {
         enabled: true,
       },
-      group: "sparklines",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      group: 'sparklines',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
     },
     series: [
       {
-        name: "Earnings",
-        color: "var(--bs-secondary)",
+        name: 'Earnings',
+        color: 'var(--bs-secondary)',
         data: [25, 66, 20, 40, 12, 58, 20],
       },
     ],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
         shadeIntensity: 0,
         inverseColors: false,
@@ -223,17 +222,17 @@ document.addEventListener("DOMContentLoaded", function () {
       size: 0,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
       fixed: {
         enabled: true,
-        position: "right",
+        position: 'right',
       },
       x: {
         show: false,
       },
     },
-  };
-  new ApexCharts(document.querySelector("#earning"), earning).render();
+  }
+  new ApexCharts(document.querySelector('#earning'), earning).render()
 
   // =====================================
   // Salary
@@ -241,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var salary = {
     series: [
       {
-        name: "Employee Salary",
+        name: 'Employee Salary',
         data: [20, 15, 30, 25, 10, 15],
       },
     ],
@@ -251,24 +250,24 @@ document.addEventListener("DOMContentLoaded", function () {
         show: false,
       },
       height: 260,
-      type: "bar",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      type: 'bar',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
     },
     colors: [
-      "var(--bs-primary-bg-subtle)",
-      "var(--bs-primary-bg-subtle)",
-      "var(--bs-primary)",
-      "var(--bs-primary-bg-subtle)",
-      "var(--bs-primary-bg-subtle)",
-      "var(--bs-primary-bg-subtle)",
+      'var(--bs-primary-bg-subtle)',
+      'var(--bs-primary-bg-subtle)',
+      'var(--bs-primary)',
+      'var(--bs-primary-bg-subtle)',
+      'var(--bs-primary-bg-subtle)',
+      'var(--bs-primary-bg-subtle)',
     ],
     plotOptions: {
       bar: {
         borderRadius: 4,
-        columnWidth: "45%",
+        columnWidth: '45%',
         distributed: true,
-        endingShape: "rounded",
+        endingShape: 'rounded',
       },
     },
 
@@ -291,7 +290,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     },
     xaxis: {
-      categories: [["Apr"], ["May"], ["June"], ["July"], ["Aug"], ["Sept"]],
+      categories: [['Apr'], ['May'], ['June'], ['July'], ['Aug'], ['Sept']],
       axisBorder: {
         show: false,
       },
@@ -305,41 +304,41 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
-  var chart = new ApexCharts(document.querySelector("#salary"), salary);
-  chart.render();
+  var chart = new ApexCharts(document.querySelector('#salary'), salary)
+  chart.render()
 
   // =====================================
   // Customers
   // =====================================
   var customers = {
     chart: {
-      id: "sparkline3",
-      type: "area",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      id: 'sparkline3',
+      type: 'area',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
       height: 60,
       sparkline: {
         enabled: true,
       },
-      group: "sparklines",
+      group: 'sparklines',
     },
     series: [
       {
-        name: "Customers",
-        color: "var(--bs-secondary)",
+        name: 'Customers',
+        color: 'var(--bs-secondary)',
         data: [30, 25, 35, 20, 30, 40],
       },
     ],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
         shadeIntensity: 0,
         inverseColors: false,
@@ -353,17 +352,17 @@ document.addEventListener("DOMContentLoaded", function () {
       size: 0,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
       fixed: {
         enabled: true,
-        position: "right",
+        position: 'right',
       },
       x: {
         show: false,
       },
     },
-  };
-  new ApexCharts(document.querySelector("#customers"), customers).render();
+  }
+  new ApexCharts(document.querySelector('#customers'), customers).render()
 
   // =====================================
   // Projects
@@ -371,18 +370,18 @@ document.addEventListener("DOMContentLoaded", function () {
   var projects = {
     series: [
       {
-        name: "",
+        name: '',
         data: [4, 10, 9, 7, 9, 10, 11, 8, 10, 9],
       },
     ],
     chart: {
-      type: "bar",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      type: 'bar',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
       height: 70,
 
       resize: true,
-      barColor: "#fff",
+      barColor: '#fff',
       toolbar: {
         show: false,
       },
@@ -390,18 +389,18 @@ document.addEventListener("DOMContentLoaded", function () {
         enabled: true,
       },
     },
-    colors: ["var(--bs-primary)"],
+    colors: ['var(--bs-primary)'],
     grid: {
       show: false,
     },
     plotOptions: {
       bar: {
         horizontal: false,
-        startingShape: "flat",
-        endingShape: "flat",
-        columnWidth: "60%",
-        barHeight: "20%",
-        endingShape: "rounded",
+        startingShape: 'flat',
+        endingShape: 'flat',
+        columnWidth: '60%',
+        barHeight: '20%',
+        endingShape: 'rounded',
         distributed: true,
         borderRadius: 2,
       },
@@ -412,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
     stroke: {
       show: true,
       width: 2.5,
-      colors: ["rgba(0,0,0,0.01)"],
+      colors: ['rgba(0,0,0,0.01)'],
     },
     xaxis: {
       axisBorder: {
@@ -437,50 +436,50 @@ document.addEventListener("DOMContentLoaded", function () {
       opacity: 1,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
       style: {
-        fontSize: "12px",
+        fontSize: '12px',
       },
       x: {
         show: false,
       },
     },
-  };
+  }
 
   var chart_column_basic = new ApexCharts(
-    document.querySelector("#projects"),
-    projects
-  );
-  chart_column_basic.render();
+    document.querySelector('#projects'),
+    projects,
+  )
+  chart_column_basic.render()
 
   // =====================================
   // Stats
   // =====================================
   var stats = {
     chart: {
-      id: "sparkline3",
-      type: "area",
+      id: 'sparkline3',
+      type: 'area',
       height: 180,
       sparkline: {
         enabled: true,
       },
-      group: "sparklines",
-      fontFamily: "inherit",
-      foreColor: "#adb0bb",
+      group: 'sparklines',
+      fontFamily: 'inherit',
+      foreColor: '#adb0bb',
     },
     series: [
       {
-        name: "Weekly Stats",
-        color: "var(--bs-primary)",
+        name: 'Weekly Stats',
+        color: 'var(--bs-primary)',
         data: [5, 15, 10, 20],
       },
     ],
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
       width: 2,
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
         shadeIntensity: 0,
         inverseColors: false,
@@ -494,15 +493,15 @@ document.addEventListener("DOMContentLoaded", function () {
       size: 0,
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
       fixed: {
         enabled: true,
-        position: "right",
+        position: 'right',
       },
       x: {
         show: false,
       },
     },
-  };
-  new ApexCharts(document.querySelector("#stats"), stats).render();
-});
+  }
+  new ApexCharts(document.querySelector('#stats'), stats).render()
+})

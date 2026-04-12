@@ -1,9 +1,9 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // Basic Area Chart -------> AREA CHART
   var options_area = {
     series: [
       {
-        name: "STOCK ABC",
+        name: 'STOCK ABC',
         data: [
           [1327359600000, 30.95],
           [1327446000000, 31.34],
@@ -161,8 +161,8 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     ],
     chart: {
-      fontFamily: "inherit",
-      type: "area",
+      fontFamily: 'inherit',
+      type: 'area',
       height: 350,
       zoom: {
         enabled: false,
@@ -174,25 +174,25 @@ document.addEventListener("DOMContentLoaded", function () {
     grid: {
       show: false,
     },
-    colors: ["#615dff"],
+    colors: ['#615dff'],
     dataLabels: {
       enabled: false,
     },
     stroke: {
-      curve: "straight",
+      curve: 'straight',
     },
     xaxis: {
-      type: "datetime",
+      type: 'datetime',
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -202,47 +202,47 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
     legend: {
-      horizontalAlign: "left",
+      horizontalAlign: 'left',
     },
-  };
+  }
 
   var chart_area_basic = new ApexCharts(
-    document.querySelector("#chart-area-basic"),
-    options_area
-  );
-  chart_area_basic.render();
+    document.querySelector('#chart-area-basic'),
+    options_area,
+  )
+  chart_area_basic.render()
 
   // Spline Area Chart -------> AREA CHART
   var options_spline = {
     series: [
       {
-        name: "series1",
+        name: 'series1',
         data: [31, 40, 28, 51, 42, 109, 100],
       },
       {
-        name: "series2",
+        name: 'series2',
         data: [11, 32, 45, 32, 34, 52, 41],
       },
     ],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "area",
+      type: 'area',
       toolbar: {
         show: false,
       },
@@ -250,34 +250,34 @@ document.addEventListener("DOMContentLoaded", function () {
     grid: {
       show: false,
     },
-    colors: ["#615dff", "#3dd9eb"],
+    colors: ['#615dff', '#3dd9eb'],
     dataLabels: {
       enabled: false,
     },
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
     },
     xaxis: {
-      type: "datetime",
+      type: 'datetime',
       categories: [
-        "2018-09-19T00:00:00.000Z",
-        "2018-09-19T01:30:00.000Z",
-        "2018-09-19T02:30:00.000Z",
-        "2018-09-19T03:30:00.000Z",
-        "2018-09-19T04:30:00.000Z",
-        "2018-09-19T05:30:00.000Z",
-        "2018-09-19T06:30:00.000Z",
+        '2018-09-19T00:00:00.000Z',
+        '2018-09-19T01:30:00.000Z',
+        '2018-09-19T02:30:00.000Z',
+        '2018-09-19T03:30:00.000Z',
+        '2018-09-19T04:30:00.000Z',
+        '2018-09-19T05:30:00.000Z',
+        '2018-09-19T06:30:00.000Z',
       ],
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -286,35 +286,35 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
       x: {
-        format: "dd/MM/yy HH:mm",
+        format: 'dd/MM/yy HH:mm',
       },
-      theme: "dark",
+      theme: 'dark',
     },
     legend: {
       labels: {
-        colors: ["#a1aab2"],
+        colors: ['#a1aab2'],
       },
     },
-  };
+  }
 
   var chart_area_spline = new ApexCharts(
-    document.querySelector("#chart-area-spline"),
-    options_spline
-  );
-  chart_area_spline.render();
+    document.querySelector('#chart-area-spline'),
+    options_spline,
+  )
+  chart_area_spline.render()
 
   // Real Time Area Chart -------> AREA CHART
   var options = {
@@ -600,9 +600,9 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     ],
     chart: {
-      id: "area-datetime",
-      fontFamily: "inherit",
-      type: "area",
+      id: 'area-datetime',
+      fontFamily: 'inherit',
+      type: 'area',
       height: 350,
       zoom: {
         autoScaleYaxis: true,
@@ -614,33 +614,33 @@ document.addEventListener("DOMContentLoaded", function () {
     grid: {
       show: false,
     },
-    colors: ["#615dff"],
+    colors: ['#615dff'],
     annotations: {
       yaxis: [
         {
           y: 30,
-          borderColor: "#999",
+          borderColor: '#999',
           label: {
             show: true,
-            text: "Support",
+            text: 'Support',
             style: {
-              color: "#fff",
-              background: "#39b69a",
+              color: '#fff',
+              background: '#39b69a',
             },
           },
         },
       ],
       xaxis: [
         {
-          x: new Date("14 Nov 2012").getTime(),
-          borderColor: "#999",
+          x: new Date('14 Nov 2012').getTime(),
+          borderColor: '#999',
           yAxisIndex: 0,
           label: {
             show: true,
-            text: "Rally",
+            text: 'Rally',
             style: {
-              color: "#fff",
-              background: "#6610f2",
+              color: '#fff',
+              background: '#6610f2',
             },
           },
         },
@@ -651,27 +651,27 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     markers: {
       size: 0,
-      style: "hollow",
+      style: 'hollow',
     },
     xaxis: {
-      type: "datetime",
-      min: new Date("01 Mar 2012").getTime(),
+      type: 'datetime',
+      min: new Date('01 Mar 2012').getTime(),
       tickAmount: 6,
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -680,25 +680,25 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
       x: {
-        format: "dd MMM yyyy",
+        format: 'dd MMM yyyy',
       },
-      theme: "dark",
+      theme: 'dark',
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
         shadeIntensity: 1,
         opacityFrom: 0.7,
@@ -706,20 +706,20 @@ document.addEventListener("DOMContentLoaded", function () {
         stops: [0, 100],
       },
     },
-  };
+  }
 
   var chart_area_datetime = new ApexCharts(
-    document.querySelector("#chart-area-datetime"),
-    options
-  );
-  chart_area_datetime.render();
+    document.querySelector('#chart-area-datetime'),
+    options,
+  )
+  chart_area_datetime.render()
 
   var resetCssClasses = function (activeEl) {
-    var els = document.querySelectorAll("button");
+    var els = document.querySelectorAll('button')
     Array.prototype.forEach.call(els, function (el) {
-      el.classList.remove("active");
-    });
+      el.classList.remove('active')
+    })
 
-    activeEl.target.classList.add("active");
-  };
-});
+    activeEl.target.classList.add('active')
+  }
+})

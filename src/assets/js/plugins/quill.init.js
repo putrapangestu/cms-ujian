@@ -1,3 +1,3 @@
-var quill = new Quill("#editor-feeds", {
-    theme: "snow",
-});
+var quill = new Quill('#editor-feeds', {
+  theme: 'snow',
+})
