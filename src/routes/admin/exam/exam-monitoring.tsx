@@ -1,7 +1,7 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch'
 import { EXAM_MONITORING } from '@/data/const/api_url'
@@ -75,6 +75,14 @@ function RouteComponent() {
       ),
     },
   ]
+
+  // If we are at the nested route (/$examId), we just want to render the child component.
+  // We can use the current path to conditionally render either the list or the outlet
+  const isIndex = Route.useMatch().routeId === '/admin/exam/exam-monitoring'
+
+  if (!isIndex) {
+    return <Outlet />
+  }
 
   return (
     <div className="card">
