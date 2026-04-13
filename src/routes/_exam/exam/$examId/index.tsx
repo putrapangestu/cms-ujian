@@ -41,6 +41,7 @@ function RouteComponent() {
 
   const {
     setAnswer,
+    toggleDoubtful,
     getAnswer,
     getExamAnswers,
     getAnswerCount,
@@ -117,9 +118,18 @@ function RouteComponent() {
   }, [submitExam])
 
   const handleManualSubmit = () => {
-    if (window.confirm('Apakah Anda yakin ingin mengakhiri ujian? Semua jawaban akan disubmit.')) {
-      submitExam()
+    // Check jika ada soal yang belum dijawab
+    const totalQuestions = data?.data?.questions.length || 0
+    if (answeredQuestions < totalQuestions) {
+      if (!window.confirm(`Anda baru menjawab ${answeredQuestions} dari ${totalQuestions} soal. Apakah Anda YAKIN ingin mengakhiri ujian sekarang?`)) {
+        return
+      }
+    } else {
+      if (!window.confirm('Apakah Anda yakin ingin mengakhiri ujian? Semua jawaban akan disubmit.')) {
+        return
+      }
     }
+    submitExam()
   }
 
   const handleAnswerSelect = (answer: string) => {
@@ -147,8 +157,10 @@ function RouteComponent() {
   }
 
   const getQuestionStatus = (num: number) => {
+    const isDoubtful = getAnswer(examId, String(num))?.isDoubtful
     if (num === currentQuestion) return 'active'
-    if (hasAnswer(examId, String(num))) return 'answered'
+    if (isDoubtful) return 'doubtful'
+    if (hasAnswer(examId, String(num)) && getAnswer(examId, String(num))?.answer !== '') return 'answered'
     return 'unanswered'
   }
 
@@ -275,6 +287,8 @@ function RouteComponent() {
             handleAnswerSelect={handleAnswerSelect}
             selectedAnswer={currentAnswer?.answer as string}
             totalQuestions={data?.data?.questions.length || 0}
+            isDoubtful={currentAnswer?.isDoubtful || false}
+            onToggleDoubtful={() => toggleDoubtful(examId, String(currentQuestion))}
           />
         </div>
 
@@ -306,6 +320,8 @@ function RouteComponent() {
 
                   if (status === 'active') {
                     btnClass = 'btn-dark legend-number'
+                  } else if (status === 'doubtful') {
+                    btnClass = 'btn-warning'
                   } else if (status === 'answered') {
                     btnClass = 'btn-success'
                   }

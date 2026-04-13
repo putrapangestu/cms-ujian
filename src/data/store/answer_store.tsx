@@ -6,6 +6,7 @@ export type AnswerType = {
   questionId: string
   answer: string | string[] // Single or multiple choice
   answeredAt: string
+  isDoubtful?: boolean // Flag for ragu-ragu
 }
 
 type AnswerStoreType = {
@@ -20,6 +21,7 @@ type AnswerStoreType = {
     questionId: string,
     answer: string | string[],
   ) => void
+  toggleDoubtful: (examId: string, questionId: string) => void
   getAnswer: (examId: string, questionId: string) => AnswerType | undefined
   getExamAnswers: (examId: string) => AnswerType[]
   clearExamAnswers: (examId: string) => void
@@ -45,12 +47,31 @@ export const useAnswerStore = create<AnswerStoreType>()(
           answers: {
             ...state.answers,
             [key]: {
+              ...state.answers[key],
               questionId,
               answer,
               answeredAt: new Date().toISOString(),
             },
           },
         }))
+      },
+
+      // Toggle Ragu-Ragu
+      toggleDoubtful: (examId, questionId) => {
+        const key = `${examId}_${questionId}`
+        set((state) => {
+          const currentAnswer = state.answers[key]
+          // Kita asumsikan user bisa ragu-ragu walau belum jawab,
+          // jadi kalau belum ada entry, kita buat dummy tanpa jawaban
+          return {
+            answers: {
+              ...state.answers,
+              [key]: currentAnswer 
+                ? { ...currentAnswer, isDoubtful: !currentAnswer.isDoubtful }
+                : { questionId, answer: '', answeredAt: new Date().toISOString(), isDoubtful: true },
+            }
+          }
+        })
       },
 
       // Get Single Answer

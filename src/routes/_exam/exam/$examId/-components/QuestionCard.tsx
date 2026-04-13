@@ -7,6 +7,8 @@ type QuestionCardProps = {
   handleAnswerSelect: (label: string) => void
   selectedAnswer: string | null
   totalQuestions: number
+  isDoubtful?: boolean
+  onToggleDoubtful?: () => void
 }
 export default function QuestionCard({
   currentQuestion,
@@ -15,6 +17,8 @@ export default function QuestionCard({
   handleAnswerSelect,
   selectedAnswer,
   totalQuestions,
+  isDoubtful = false,
+  onToggleDoubtful,
 }: QuestionCardProps) {
   return (
     <div
@@ -82,7 +86,12 @@ export default function QuestionCard({
             </button>
           </div>
           <div className="col-4">
-            <button className="btn btn-warning w-100">Ragu - Ragu</button>
+            <button 
+              className={`btn w-100 ${isDoubtful ? 'btn-outline-warning text-white' : 'btn-warning'}`}
+              onClick={onToggleDoubtful}
+            >
+              {isDoubtful ? 'Batal Ragu' : 'Ragu - Ragu'}
+            </button>
           </div>
           <div className="col-4">
             <button
