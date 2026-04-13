@@ -30,18 +30,18 @@ function ExamMonitoringDetail() {
     ApiResponseType<'multi', { id: string; title: string }>
   >(EXAM_MONITORING.ACTIVE);
 
-  // Ambil detail nama ujian & initial participants dari API
+  // Ambil detail participants dari API (karena struktur dari BE rupanya adalah array of participants langsung di 'data')
   const { data: monitoringData, isLoading, refetch } = useQueryDataPersistent<
-    ApiResponseType<'single', {
-      title: string;
-      participants: Participant[];
-    }>
+    ApiResponseType<'multi', Participant>
   >(EXAM_MONITORING.DETAIL.replace('{id}', examId));
 
   useEffect(() => {
     // 1. Fetch initial data from API
-    if (monitoringData?.data?.participants) {
-       setParticipants(monitoringData.data.participants);
+    // Jika data.data adalah array (format: { status: "...", data: [ { id: ..., name: ... } ] })
+    if (monitoringData?.data && Array.isArray(monitoringData.data)) {
+       // Filter jika id = null agar tidak error di store
+       const validParticipants = monitoringData.data.filter(p => p.id != null);
+       setParticipants(validParticipants);
     } else {
        // Clear old participants if loading new ones
        setParticipants([]);
@@ -104,7 +104,7 @@ function ExamMonitoringDetail() {
                ))}
                {/* Jika ujian yang di-visit tidak ada di daftar, tetap tampilkan option-nya agar dropdown tidak kosong */}
                {activeExams?.data && !activeExams.data.some(e => e.id === examId) && (
-                 <option value={examId}>{monitoringData?.data?.title || examId}</option>
+                 <option value={examId}>Ujian {examId.substring(0, 8)}...</option>
                )}
              </select>
            </div>
