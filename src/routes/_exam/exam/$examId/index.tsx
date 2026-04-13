@@ -15,6 +15,7 @@ import QuestionCard from './-components/QuestionCard'
 import styles from './styles/ExamPage.module.css'
 import dayjs from 'dayjs'
 import { useAnswerStore } from '@/data/store/answer_store'
+import Swal from 'sweetalert2'
 
 export const Route = createFileRoute('/_exam/exam/$examId/')({
   component: RouteComponent,
@@ -78,18 +79,30 @@ function RouteComponent() {
     // Listen perintah dari admin (misal: Force Submit)
     newSocket.on('admin_action', (eventData: any) => {
       if (eventData.action === 'force_submit') {
-        alert('Waktu habis atau admin menghentikan ujian Anda.')
-        // Panggil fungsi submit Anda di sini
-        if (submitExamRef.current) submitExamRef.current()
+        Swal.fire({
+          title: 'Waktu Habis!',
+          text: 'Admin telah menghentikan ujian Anda.',
+          icon: 'info',
+          confirmButtonText: 'Tutup'
+        }).then(() => {
+          // Panggil fungsi submit Anda di sini
+          if (submitExamRef.current) submitExamRef.current()
+        });
       } else if (eventData.action === 'unblock') {
-        alert('Ujian Anda telah dibuka kembali oleh Admin.')
+        Swal.fire('Ujian Dibuka', 'Ujian Anda telah dibuka kembali oleh Admin.', 'success');
       }
     })
 
     newSocket.on('cheat_blocked', () => {
-      alert('Ujian Anda diblokir karena terdeteksi kecurangan.')
-      // Panggil fungsi submit/block di sini
-      if (submitExamRef.current) submitExamRef.current()
+      Swal.fire({
+        title: 'Ujian Diblokir',
+        text: 'Ujian Anda diblokir karena terdeteksi kecurangan.',
+        icon: 'error',
+        confirmButtonText: 'Tutup'
+      }).then(() => {
+        // Panggil fungsi submit/block di sini
+        if (submitExamRef.current) submitExamRef.current()
+      });
     })
 
     return () => {
@@ -140,8 +153,16 @@ function RouteComponent() {
     if (isSubmitting.current) return
     isSubmitting.current = true
     
-    alert('Waktu ujian telah habis! Jawaban Anda akan otomatis disubmit.')
-    submitExam()
+    Swal.fire({
+      title: 'Waktu Habis!',
+      text: 'Waktu ujian telah habis! Jawaban Anda akan otomatis disubmit.',
+      icon: 'info',
+      confirmButtonText: 'Mengerti',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    }).then(() => {
+      submitExam()
+    })
   }
 
   const submitExam = () => {
@@ -189,15 +210,36 @@ function RouteComponent() {
     // Check jika ada soal yang belum dijawab
     const totalQuestions = data?.data?.questions.length || 0
     if (answeredQuestions < totalQuestions) {
-      if (!window.confirm(`Anda baru menjawab ${answeredQuestions} dari ${totalQuestions} soal. Apakah Anda YAKIN ingin mengakhiri ujian sekarang?`)) {
-        return
-      }
+      Swal.fire({
+        title: 'Anda Yakin?',
+        text: `Anda baru menjawab ${answeredQuestions} dari ${totalQuestions} soal. Apakah Anda YAKIN ingin mengakhiri ujian sekarang?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Akhiri Ujian',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          submitExam()
+        }
+      })
     } else {
-      if (!window.confirm('Apakah Anda yakin ingin mengakhiri ujian? Semua jawaban akan disubmit.')) {
-        return
-      }
+      Swal.fire({
+        title: 'Selesai Mengerjakan?',
+        text: 'Apakah Anda yakin ingin mengakhiri ujian? Semua jawaban akan disubmit.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Submit',
+        cancelButtonText: 'Batal'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          submitExam()
+        }
+      })
     }
-    submitExam()
   }
 
   const handleAnswerSelect = (answer: string) => {
@@ -276,9 +318,12 @@ function RouteComponent() {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         setTimeout(() => {
-          alert(
-            'Anda keluar dari mode Fullscreen! Harap klik area ujian untuk kembali fokus.',
-          )
+          Swal.fire({
+            title: 'Keluar Mode Fullscreen',
+            text: 'Anda keluar dari mode Fullscreen! Harap klik area ujian untuk kembali fokus.',
+            icon: 'warning',
+            confirmButtonText: 'Mengerti'
+          });
         }, 100)
       }
     }

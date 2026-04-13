@@ -5,6 +5,7 @@ import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch';
 import { EXAM_MONITORING } from '@/data/const/api_url';
 import type { ApiResponseType } from '@/data/types/api_response';
 import { IconSearch, IconRefresh } from '@tabler/icons-react';
+import Swal from 'sweetalert2';
 import {
   startMonitoringBuffer,
   stopMonitoringBuffer,
@@ -257,12 +258,28 @@ const MonitoringRow = memo(({ id, index }: { id: string; index: number }) => {
   if (!participant) return null;
 
   const handleForceSubmit = () => {
-    if (window.confirm(`Force submit ujian untuk ${participant.name}?`)) {
-      socketClient.getSocket()?.emit('admin_action', {
-        action: 'force_submit',
-        participantId: participant.id,
-      });
-    }
+    Swal.fire({
+      title: 'Force Submit',
+      text: `Apakah Anda yakin ingin melakukan force submit ujian untuk ${participant.name}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, Submit!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        socketClient.getSocket()?.emit('admin_action', {
+          action: 'force_submit',
+          participantId: participant.id,
+        });
+        Swal.fire(
+          'Terkirim!',
+          `Perintah force submit untuk ${participant.name} telah dikirim.`,
+          'success'
+        );
+      }
+    });
   };
 
   const formatTime = (seconds: number) => {
