@@ -2,12 +2,24 @@ import { create } from 'zustand';
 
 export type ParticipantStatus = 'online' | 'offline' | 'finished' | 'paused';
 
+export interface CategoryScore {
+  score: number;
+  answered: number;
+  total: number;
+}
+
 export interface Participant {
   id: string;
   name: string;
   progress: number; // percentage or answered count
   status: ParticipantStatus;
   timeRemaining: number;
+  categories?: {
+    TWK?: CategoryScore;
+    TKP?: CategoryScore;
+    TIU?: CategoryScore;
+  };
+  totalScore?: number;
 }
 
 interface MonitoringState {
