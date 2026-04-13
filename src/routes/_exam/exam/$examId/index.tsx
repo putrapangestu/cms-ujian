@@ -170,10 +170,8 @@ function RouteComponent() {
       
       // Clear answers dari local storage setelah disubmit
       clearExamAnswers(examId)
-      // DEBUG MODE: Jangan redirect dulu agar kita bisa melihat log di console!
-      console.log('--- DEBUG: Seharusnya redirect ke /user/exam terjadi di sini ---');
-      alert('DEBUG MODE: Ujian disubmit (cek console log). Redirect ditahan sementara untuk proses debugging.');
-      // window.location.href = '/user/exam'
+      // Kembalikan redirect
+      window.location.href = '/user/exam'
     }, 500)
   }
 
