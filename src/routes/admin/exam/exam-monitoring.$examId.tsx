@@ -152,6 +152,8 @@ function ExamMonitoringDetail() {
 
 function MonitoringTable({ searchQuery }: { searchQuery: string }) {
   const participantsMap = useMonitoringStore((state) => state.participants);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   
   // Filter participants based on search query
   const participantIds = Object.keys(participantsMap).filter((id) => {
@@ -160,33 +162,92 @@ function MonitoringTable({ searchQuery }: { searchQuery: string }) {
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  // Reset to page 1 if search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const totalPages = Math.ceil(participantIds.length / itemsPerPage);
+  const paginatedIds = participantIds.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
-    <table className="table table-bordered table-hover table-striped align-middle text-center">
-      <thead className="table-light">
-        <tr>
-          <th className="text-start" style={{ width: '50px' }}>No</th>
-          <th className="text-start">Nama</th>
-          <th>Menit</th>
-          <th>TWK</th>
-          <th>TKP</th>
-          <th>TIU</th>
-          <th>Total</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        {participantIds.map((id, index) => (
-          <MonitoringRow key={id} id={id} index={index} />
-        ))}
-        {participantIds.length === 0 && (
+    <div>
+      <table className="table table-bordered table-hover table-striped align-middle text-center mb-0">
+        <thead className="table-light">
           <tr>
-            <td colSpan={8} className="text-center text-muted py-4">
-              Tidak ada data
-            </td>
+            <th className="text-start" style={{ width: '50px' }}>No</th>
+            <th className="text-start">Nama</th>
+            <th>Menit</th>
+            <th>TWK</th>
+            <th>TKP</th>
+            <th>TIU</th>
+            <th>Total</th>
+            <th>Aksi</th>
           </tr>
-        )}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {paginatedIds.map((id, index) => (
+            <MonitoringRow 
+              key={id} 
+              id={id} 
+              index={(currentPage - 1) * itemsPerPage + index} 
+            />
+          ))}
+          {participantIds.length === 0 && (
+            <tr>
+              <td colSpan={8} className="text-center text-muted py-4">
+                Tidak ada data
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-between align-items-center mt-3">
+          <div className="text-muted small">
+            Menampilkan {(currentPage - 1) * itemsPerPage + 1} sampai {Math.min(currentPage * itemsPerPage, participantIds.length)} dari {participantIds.length} data
+          </div>
+          <ul className="pagination pagination-sm mb-0">
+            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+              <button 
+                className="page-link" 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+            </li>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+              .map((page, i, arr) => {
+                const showEllipsis = i > 0 && page - arr[i - 1] > 1;
+                return (
+                  <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
+                    {showEllipsis && <span className="page-link px-2">...</span>}
+                    {!showEllipsis && (
+                      <button className="page-link" onClick={() => setCurrentPage(page)}>
+                        {page}
+                      </button>
+                    )}
+                  </li>
+                );
+              })
+            }
+            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+              <button 
+                className="page-link" 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -208,7 +269,7 @@ const MonitoringRow = memo(({ id, index }: { id: string; index: number }) => {
     if (!seconds || seconds < 0) return '00:00:00';
     const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
     const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
     return `${h}:${m}:${s}`;
   };
 
