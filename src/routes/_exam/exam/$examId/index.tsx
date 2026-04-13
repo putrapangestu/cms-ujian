@@ -35,6 +35,8 @@ function RouteComponent() {
   const [timeRemaining, setTimeRemaining] = useState(0)
   const timeRemainingRef = useRef(timeRemaining)
 
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+
   useEffect(() => {
     timeRemainingRef.current = timeRemaining
   }, [timeRemaining])
@@ -170,8 +172,12 @@ function RouteComponent() {
       
       // Clear answers dari local storage setelah disubmit
       clearExamAnswers(examId)
-      // Kembalikan redirect
-      window.location.href = '/user/exam'
+      
+      // Set local state agar komponen re-render ke tampilan kosong (daripada refresh)
+      setHasSubmitted(true)
+      
+      console.log('--- DEBUG: Mencegah auto-redirect, data telah di-clear. Menunggu instruksi selanjutnya. ---')
+      // window.location.href = '/user/exam'
     }, 500)
   }
 
@@ -296,6 +302,28 @@ function RouteComponent() {
   //   window.addEventListener('keydown', preventShortcuts);
   //   return () => window.removeEventListener('keydown', preventShortcuts);
   // }, []);
+
+  if (hasSubmitted) {
+    return (
+      <div className="container py-4 text-center mt-5">
+        <div className="card shadow-sm p-5 mx-auto" style={{ maxWidth: '600px' }}>
+          <h3 className="text-success mb-3">Ujian Selesai!</h3>
+          <p className="text-muted mb-4">
+            Ujian Anda telah berhasil disubmit. Karena mode Debugging sedang aktif, Anda tidak otomatis dialihkan.
+          </p>
+          <p className="text-muted">
+            Anda dapat mengecek Network / Console log sekarang.
+          </p>
+          <button 
+            className="btn btn-primary mt-3" 
+            onClick={() => window.location.href = '/user/exam'}
+          >
+            Kembali ke Beranda
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
