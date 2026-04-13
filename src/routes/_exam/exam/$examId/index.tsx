@@ -112,15 +112,27 @@ function RouteComponent() {
         student_id: Number(user?.id),
         user_exam_id: data?.data?.user_exam?.id,
       }
+      console.log('--- DEBUG: MENGIRIM FINISH EXAM ---');
+      console.log('Payload:', payload);
+      console.log('Socket Connected?', socketRef.current.connected);
       socketRef.current.emit('finish_exam', payload)
       console.log('Ujian disubmit (finish_exam):', payload)
+    } else {
+      console.error('--- DEBUG: SOCKET REF KOSONG, TIDAK BISA EMIT FINISH EXAM ---');
     }
     
     // Memberikan waktu sedikit agar event socket sempat terkirim sebelum halaman dimatikan/redirect
     setTimeout(() => {
+      // Clean up socket sebelum redirect
+      if (socketRef.current) {
+        socketRef.current.close()
+      }
+      
       // Clear answers dari local storage setelah disubmit
       clearExamAnswers(examId)
-      // Redirect to home or exam list
+      // DEBUG MODE: Jangan redirect dulu agar kita bisa melihat log di console!
+      // console.log('--- DEBUG: Seharusnya redirect ke /user/exam terjadi di sini ---');
+      // alert('DEBUG MODE: Ujian disubmit (cek console log). Redirect ditahan sementara untuk proses debugging.');
       window.location.href = '/user/exam'
     }, 500)
   }
@@ -208,7 +220,14 @@ function RouteComponent() {
     })
 
     return () => {
-      newSocket.close()
+      // Jika kita meng-close socket saat komponen ini re-render atau unmount,
+      // kita akan kehilangan koneksi saat setTimeout untuk redirect berjalan!
+      // Jadi kita pindahkan logika close ke fungsi submitExam, atau
+      // minimal kita biarkan socket tetap hidup sampai redirect beneran terjadi.
+      
+      // Hapus listeners agar tidak double, tapi biarkan socket hidup
+      newSocket.off('admin_action')
+      newSocket.off('cheat_blocked')
     }
   }, [user, examId])
 
