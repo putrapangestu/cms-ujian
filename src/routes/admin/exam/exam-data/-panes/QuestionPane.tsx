@@ -25,8 +25,22 @@ export function QuestionPane({ examId }: { examId: string }) {
         return <div dangerouslySetInnerHTML={{ __html: v.question_text }}></div>
       },
     },
-    { header: 'Kategori Soal', accessorKey: 'question_type' },
-    { header: 'Skor', accessorKey: 'score' },
+    {
+      header: 'Kategori Soal',
+      cell: (v) => (
+        <span className="badge bg-primary-subtle text-primary px-3 py-2">
+          {v.question_type}
+        </span>
+      ),
+    },
+    {
+      header: 'Skor',
+      cell: (v) => (
+        <span className="badge bg-success-subtle text-success px-3 py-2">
+          {v.score}
+        </span>
+      ),
+    },
   ]
 
   return (

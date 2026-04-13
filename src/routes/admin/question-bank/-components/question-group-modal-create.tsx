@@ -223,7 +223,7 @@ export default function QuestionGroupModalCreate({
                 data-bs-dismiss="modal"
                 onClick={closeForm}
               >
-                Tutup
+                Tutup 
               </button>
               <button
                 type="submit"

@@ -245,7 +245,7 @@ export default function ExamModalCreate({
                   name="student_groups"
                   render={({ field: { value, onChange, ...field } }) => (
                     <FormItem>
-                      <FormLabel required>{'Grup Siswa'}</FormLabel>
+                      <FormLabel required={!isEdit}>{'Grup Siswa'}</FormLabel>
                       <FormControl>
                         <Select
                           isMulti={true}
@@ -274,6 +274,7 @@ export default function ExamModalCreate({
                 type="button"
                 className="btn btn-primary-light"
                 data-bs-dismiss="modal"
+                onClick={closeForm}
               >
                 Tutup
               </button>

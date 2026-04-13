@@ -34,9 +34,37 @@ export function StudentPane({ examId }: { examId: string }) {
     },
     { header: 'No. HP', accessorKey: 'user.student.phone' },
     { header: 'Asal Sekolah', accessorKey: 'user.student.address' },
-    { header: 'Grup', accessorKey: 'user.student.group.name' },
-    { header: 'Status', accessorKey: 'status' },
-    { header: 'Skor', accessorKey: 'score' },
+    {
+      header: 'Grup',
+      cell: (v) => (
+        <span className="badge bg-info-subtle text-info px-3 py-2">
+          {v.user?.student?.group?.name || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Status',
+      cell: (v) => {
+        const status = v.status || 'unknown'
+        let badgeClass = 'bg-primary-subtle text-primary'
+        if (status.toLowerCase() === 'selesai' || status.toLowerCase() === 'completed') badgeClass = 'bg-success-subtle text-success'
+        else if (status.toLowerCase() === 'berlangsung' || status.toLowerCase() === 'in_progress') badgeClass = 'bg-warning-subtle text-warning'
+        
+        return (
+          <span className={`badge ${badgeClass} px-3 py-2 text-capitalize`}>
+            {status}
+          </span>
+        )
+      },
+    },
+    {
+      header: 'Skor',
+      cell: (v) => (
+        <span className="badge bg-success-subtle text-success px-3 py-2">
+          {v.score ?? '-'}
+        </span>
+      ),
+    },
   ]
   console.log(data)
   return (

@@ -216,6 +216,7 @@ export default function StudentModalCreate({
                 type="button"
                 className="btn btn-primary-light"
                 data-bs-dismiss="modal"
+                onClick={closeForm}
               >
                 Tutup
               </button>

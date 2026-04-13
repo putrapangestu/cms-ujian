@@ -148,7 +148,7 @@ function RouteComponent() {
       cell: (_, i) => (page - 1) * 10 + i + 1,
     },
     {
-      header: 'Nama Siswa',
+      header: 'Pertanyaan',
       cell: (v: any) => (
         <div>
           <h6
@@ -179,7 +179,7 @@ function RouteComponent() {
     },
     { header: '#', cell: (_, i) => i + 1 },
     {
-      header: 'Nama Siswa',
+      header: 'Pertanyaan',
       cell: (v: any) => (
         <div>
           <h6
@@ -207,6 +207,7 @@ function RouteComponent() {
   const { trigger: rollMultipleTrigger, isMutating: isMutatingRollMultiple } =
     useMutationAction(EXAM.ROLL_QUESTIONS.replace('{id}', examId), 'post', {
       refreshKey: EXAM.GET,
+      onSuccess: () => navigate({ to: '..' }),
     })
 
   const handleRollMultiple = () => {
@@ -304,11 +305,11 @@ function RouteComponent() {
             </button>
           </div>
 
-          {/* TABEL KANAN: SISWA TERPILIH */}
+          {/* TABEL KANAN: SOAL TERPILIH */}
           <div className="col-md-12">
             <div className="mb-3">
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <span className="fw-bold">Siswa Terpilih</span>
+                <span className="fw-bold">Soal Terpilih</span>
                 <span className="badge bg-success rounded-pill">
                   {rightData.length} Total
                 </span>
