@@ -58,6 +58,46 @@ function RouteComponent() {
   const answeredQuestions = getAnswerCount(examId)
   const currentAnswer = getAnswer(examId, String(currentQuestion))
 
+  // 1. Inisialisasi Socket DULU agar saat timer habis, socketRef sudah terisi
+  useEffect(() => {
+    if (!user?.id || !examId) return
+
+    const socketUrl =
+      import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com'
+
+    const newSocket = io(socketUrl, {
+      auth: { key: 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
+      query: { userId: user?.id, examId: examId },
+    })
+
+    setSocket(newSocket)
+    socketRef.current = newSocket
+
+    // Listen perintah dari admin (misal: Force Submit)
+    newSocket.on('admin_action', (eventData: any) => {
+      if (eventData.action === 'force_submit') {
+        alert('Waktu habis atau admin menghentikan ujian Anda.')
+        // Panggil fungsi submit Anda di sini
+        if (submitExamRef.current) submitExamRef.current()
+      } else if (eventData.action === 'unblock') {
+        alert('Ujian Anda telah dibuka kembali oleh Admin.')
+      }
+    })
+
+    newSocket.on('cheat_blocked', () => {
+      alert('Ujian Anda diblokir karena terdeteksi kecurangan.')
+      // Panggil fungsi submit/block di sini
+      if (submitExamRef.current) submitExamRef.current()
+    })
+
+    return () => {
+      // Hapus listeners agar tidak double, tapi biarkan socket hidup
+      newSocket.off('admin_action')
+      newSocket.off('cheat_blocked')
+    }
+  }, [user, examId])
+
+  // 2. Baru inisialisasi Timer
   useEffect(() => {
     if (!data?.data?.user_exam.start_time || !data?.data?.exam.duration) return
 
@@ -131,9 +171,9 @@ function RouteComponent() {
       // Clear answers dari local storage setelah disubmit
       clearExamAnswers(examId)
       // DEBUG MODE: Jangan redirect dulu agar kita bisa melihat log di console!
-      // console.log('--- DEBUG: Seharusnya redirect ke /user/exam terjadi di sini ---');
-      // alert('DEBUG MODE: Ujian disubmit (cek console log). Redirect ditahan sementara untuk proses debugging.');
-      window.location.href = '/user/exam'
+      console.log('--- DEBUG: Seharusnya redirect ke /user/exam terjadi di sini ---');
+      alert('DEBUG MODE: Ujian disubmit (cek console log). Redirect ditahan sementara untuk proses debugging.');
+      // window.location.href = '/user/exam'
     }, 500)
   }
 
@@ -187,49 +227,6 @@ function RouteComponent() {
     if (hasAnswer(examId, String(num)) && getAnswer(examId, String(num))?.answer !== '') return 'answered'
     return 'unanswered'
   }
-
-  useEffect(() => {
-    if (!user?.id || !examId) return
-
-    const socketUrl =
-      import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com'
-
-    const newSocket = io(socketUrl, {
-      auth: { key: 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
-      query: { userId: user?.id, examId: examId },
-    })
-
-    setSocket(newSocket)
-    socketRef.current = newSocket
-
-    // Listen perintah dari admin (misal: Force Submit)
-    newSocket.on('admin_action', (eventData: any) => {
-      if (eventData.action === 'force_submit') {
-        alert('Waktu habis atau admin menghentikan ujian Anda.')
-        // Panggil fungsi submit Anda di sini
-        if (submitExamRef.current) submitExamRef.current()
-      } else if (eventData.action === 'unblock') {
-        alert('Ujian Anda telah dibuka kembali oleh Admin.')
-      }
-    })
-
-    newSocket.on('cheat_blocked', () => {
-      alert('Ujian Anda diblokir karena terdeteksi kecurangan.')
-      // Panggil fungsi submit/block di sini
-      if (submitExamRef.current) submitExamRef.current()
-    })
-
-    return () => {
-      // Jika kita meng-close socket saat komponen ini re-render atau unmount,
-      // kita akan kehilangan koneksi saat setTimeout untuk redirect berjalan!
-      // Jadi kita pindahkan logika close ke fungsi submitExam, atau
-      // minimal kita biarkan socket tetap hidup sampai redirect beneran terjadi.
-      
-      // Hapus listeners agar tidak double, tapi biarkan socket hidup
-      newSocket.off('admin_action')
-      newSocket.off('cheat_blocked')
-    }
-  }, [user, examId])
 
   useEffect(() => {
     if (!socket) return
