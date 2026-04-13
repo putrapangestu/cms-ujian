@@ -3,46 +3,59 @@ import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch'
+import { EXAM_MONITORING } from '@/data/const/api_url'
+import type { ApiResponseType } from '@/data/types/api_response'
+import dayjs from 'dayjs'
 
 export const Route = createFileRoute('/admin/exam/exam-monitoring')({
   component: RouteComponent,
 })
 
-type StudentGroupDataType = {
+type ActiveExamDataType = {
   id: string
-  name: string
-  date: string
-  startTime: string
-  endTime: string
+  title: string
+  description: string
+  start_date: string
+  end_date: string
+  duration: number
+  participant_count: number
   status: string
 }
+
 function RouteComponent() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
 
-  const data: StudentGroupDataType[] = [
-    {
-      id: 'exam-1',
-      name: 'Ujian CPNS Batch 1',
-      date: '2023-01-01',
-      startTime: '08:00',
-      endTime: '10:00',
-      status: 'Selesai',
-    },
-  ]
+  const { data: activeExams, isLoading } = useQueryDataPersistent<
+    ApiResponseType<'multi', ActiveExamDataType>
+  >(EXAM_MONITORING.ACTIVE)
 
-  const columns: ColumnDef<StudentGroupDataType>[] = [
+  const columns: ColumnDef<ActiveExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
-    { header: 'Nama Ujian', accessorKey: 'name' },
-    { header: 'Tanggal', accessorKey: 'date' },
-    { header: 'Waktu Mulai', accessorKey: 'startTime' },
-    { header: 'Waktu Selesai', accessorKey: 'endTime' },
+    { header: 'Nama Ujian', accessorKey: 'title' },
+    { 
+      header: 'Tanggal', 
+      cell: (row) => dayjs(row.start_date).format('DD MMM YYYY') 
+    },
+    { 
+      header: 'Waktu', 
+      cell: (row) => `${dayjs(row.start_date).format('HH:mm')} - ${dayjs(row.end_date).format('HH:mm')}`
+    },
+    { 
+      header: 'Durasi', 
+      cell: (row) => `${row.duration} Menit` 
+    },
+    { 
+      header: 'Peserta', 
+      accessorKey: 'participant_count' 
+    },
     {
       header: 'Status',
       cell: (row) => {
         return (
           <span className="badge bg-success-subtle text-success">
-            {row.status}
+            {row.status.toUpperCase()}
           </span>
         )
       },
@@ -84,11 +97,11 @@ function RouteComponent() {
           </div>
         </div>
         <DataTable
-          data={data}
+          data={activeExams?.data || []}
           columns={columns}
           showPageSize={false}
           pageIndex={page || 1}
-          rowCount={data.length}
+          rowCount={activeExams?.data?.length || 0}
           onPageChange={setPage}
           manualPagination
         />

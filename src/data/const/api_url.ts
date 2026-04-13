@@ -75,4 +75,8 @@ export const EXAM = {
   GET_QUESTIONS_USER: '/exams/{id}/questions-for-student/{userId}',
 } as const satisfies UrlGroupType
 
+export const EXAM_MONITORING = {
+  ACTIVE: '/exam-monitoring/active',
+} as const satisfies UrlGroupType
+
 export const SOCKET_URL = 'https://socket-ujian.hummatech.com'
