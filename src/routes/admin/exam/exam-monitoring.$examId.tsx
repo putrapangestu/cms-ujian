@@ -51,7 +51,7 @@ function ExamMonitoringDetail() {
     startMonitoringBuffer();
 
     // 3. Connect Socket
-    const socket = socketClient.connect('/admin');
+    const socket = socketClient.connect('');
 
     // Join exam room
     socket.emit('join_exam_monitor', { examId });
