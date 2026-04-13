@@ -22,7 +22,13 @@ class SocketClient {
     const socketKey = import.meta.env.VITE_SOCKET_KEY || '';
     
     this.socket = io(socketUrl + namespace, {
-      auth: { token },
+      auth: { 
+        token: token,
+        key: socketKey
+      },
+      query: {
+        key: socketKey
+      },
       extraHeaders: {
         'x-socket-key': socketKey
       },
