@@ -116,8 +116,13 @@ function RouteComponent() {
       console.log('Ujian disubmit (finish_exam):', payload)
     }
     
-    // Redirect to home or exam list
-    window.location.href = '/user/exam'
+    // Memberikan waktu sedikit agar event socket sempat terkirim sebelum halaman dimatikan/redirect
+    setTimeout(() => {
+      // Clear answers dari local storage setelah disubmit
+      clearExamAnswers(examId)
+      // Redirect to home or exam list
+      window.location.href = '/user/exam'
+    }, 500)
   }
 
   useEffect(() => {
