@@ -78,9 +78,10 @@ function RouteComponent() {
 
   // If we are at the nested route (/$examId), we just want to render the child component.
   // We can use the current path to conditionally render either the list or the outlet
-  const isIndex = Route.useMatch().routeId === '/admin/exam/exam-monitoring'
+  const match = Route.useMatch()
+  const isExact = match.pathname === '/admin/exam/exam-monitoring'
 
-  if (!isIndex) {
+  if (!isExact) {
     return <Outlet />
   }
 
