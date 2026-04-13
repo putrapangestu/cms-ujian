@@ -24,6 +24,9 @@ function RouteComponent() {
   const { examId } = Route.useParams()
   const { user } = useAuthStore()
   const [socket, setSocket] = useState<Socket | null>(null)
+  const socketRef = useRef<Socket | null>(null)
+  const isSubmitting = useRef(false)
+  const submitExamRef = useRef<() => void>()
 
   const [currentQuestion, setCurrentQuestion] = useState(1)
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
@@ -60,15 +63,64 @@ function RouteComponent() {
     const startTime = dayjs(data.data.user_exam.start_time)
     const endTime = startTime.add(data.data.exam.duration, 'minute')
 
+    let timer: NodeJS.Timeout
+
     const updateCountdown = () => {
       const now = dayjs()
-      const diff = endTime.diff(now, 'minutes')
-      setTimeRemaining(diff > 0 ? diff : 0)
+      const diff = endTime.diff(now, 'second')
+      
+      if (diff <= 0) {
+        setTimeRemaining(0)
+        handleExamTimeout()
+        if (timer) clearInterval(timer)
+      } else {
+        setTimeRemaining(diff)
+      }
     }
+    
+    // First run immediately
     updateCountdown()
-    const timer = setInterval(updateCountdown, 1000)
-    return () => clearInterval(timer)
+    
+    // Then run every second
+    timer = setInterval(updateCountdown, 1000)
+    
+    return () => {
+      if (timer) clearInterval(timer)
+    }
   }, [data])
+
+  const handleExamTimeout = () => {
+    alert('Waktu ujian telah habis! Jawaban Anda akan otomatis disubmit.')
+    submitExam()
+  }
+
+  const submitExam = () => {
+    if (isSubmitting.current) return
+    isSubmitting.current = true
+
+    if (socketRef.current) {
+      const payload = {
+        exam_id: Number(examId),
+        student_id: Number(user?.id),
+        user_exam_id: data?.data?.user_exam?.id,
+      }
+      socketRef.current.emit('finish_exam', payload)
+      console.log('Ujian disubmit (finish_exam):', payload)
+    }
+    
+    // Redirect to home or exam list
+    window.location.href = '/user/exam'
+  }
+
+  useEffect(() => {
+    submitExamRef.current = submitExam
+  }, [submitExam])
+
+  const handleManualSubmit = () => {
+    if (window.confirm('Apakah Anda yakin ingin mengakhiri ujian? Semua jawaban akan disubmit.')) {
+      submitExam()
+    }
+  }
 
   const handleAnswerSelect = (answer: string) => {
     setAnswer(examId, String(currentQuestion), answer)
@@ -112,13 +164,15 @@ function RouteComponent() {
     })
 
     setSocket(newSocket)
+    socketRef.current = newSocket
 
     // Listen perintah dari admin (misal: Force Submit)
-    newSocket.on('admin_action', (data: any) => {
-      if (data.action === 'force_submit') {
+    newSocket.on('admin_action', (eventData: any) => {
+      if (eventData.action === 'force_submit') {
         alert('Waktu habis atau admin menghentikan ujian Anda.')
         // Panggil fungsi submit Anda di sini
-      } else if (data.action === 'unblock') {
+        if (submitExamRef.current) submitExamRef.current()
+      } else if (eventData.action === 'unblock') {
         alert('Ujian Anda telah dibuka kembali oleh Admin.')
       }
     })
@@ -126,6 +180,7 @@ function RouteComponent() {
     newSocket.on('cheat_blocked', () => {
       alert('Ujian Anda diblokir karena terdeteksi kecurangan.')
       // Panggil fungsi submit/block di sini
+      if (submitExamRef.current) submitExamRef.current()
     })
 
     return () => {
@@ -226,7 +281,7 @@ function RouteComponent() {
         {/* Right Section - Info & Navigation */}
         <div className="col-lg-3 col-xl-3">
           <UserSection user={data?.data?.student} />
-          <TimerCard initialMinutes={timeRemaining} />
+          <TimerCard seconds={timeRemaining} />
 
           {/* Question Navigator */}
           <div className="card shadow-sm">
@@ -273,6 +328,7 @@ function RouteComponent() {
                 <button
                   className="btn btn-danger w-100 py-2"
                   style={{ fontSize: '0.9rem' }}
+                  onClick={handleManualSubmit}
                 >
                   Selesai & Submit ({answeredQuestions}/
                   {data?.data?.questions.length || 0})
