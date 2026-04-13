@@ -13,7 +13,13 @@ export const useLogin = () => {
     onSuccess: (d) => {
       login(d.data, false)
       toaster(d.message, 'success')
-      window.location.href = '/admin'
+
+      if (d.data?.roles?.includes('admin')) {
+        window.location.href = '/admin'
+      }
+      else {
+        window.location.href = '/user/exam'
+      }
     },
     onError: (e) => {
       console.log('Login gagal: ', e)
