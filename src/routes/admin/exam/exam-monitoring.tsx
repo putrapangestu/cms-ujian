@@ -39,7 +39,7 @@ function RouteComponent() {
     { header: 'Waktu Selesai', accessorKey: 'endTime' },
     {
       header: 'Status',
-      cell(row, index) {
+      cell: (row) => {
         return (
           <span className="badge bg-success-subtle text-success">
             {row.status}
@@ -49,11 +49,11 @@ function RouteComponent() {
     },
     {
       header: 'Aksi',
-      cell: (v) => (
+      cell: (row) => (
         <div className="d-flex align-items-center gap-2">
           <Link
             to="/admin/exam/exam-monitoring/$examId"
-            params={{ examId: v.row.original.id }}
+            params={{ examId: row.id }}
             className="btn btn-md px-3 rounded-1 btn-primary d-flex gap-2 align-items-center"
           >
             <IconEye size={18} /> Detail
