@@ -53,7 +53,7 @@ function RouteComponent() {
 
   const { data } = useQueryDataPersistent<
     ApiResponseType<'single', ExamDetailDataType>
-  >(EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id || '' })
+  >(EXAM.GET_QUESTIONS_USER, { id: examId })
   // const answeredQuestions = Object.keys(answers).length;
   const answeredQuestions = getAnswerCount(examId)
   const currentAnswer = getAnswer(examId, String(currentQuestion))

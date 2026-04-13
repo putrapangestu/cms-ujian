@@ -72,7 +72,7 @@ export const EXAM = {
   HISTORY: '/exams/history',
   DETAIL_HISTORY: '/exams/history/{id}',
   START: '/exams/{id}/start',
-  GET_QUESTIONS_USER: '/exams/{id}/questions-for-student/{userId}',
+  GET_QUESTIONS_USER: '/exams/{id}/questions-for-student',
 } as const satisfies UrlGroupType
 
 export const EXAM_MONITORING = {
