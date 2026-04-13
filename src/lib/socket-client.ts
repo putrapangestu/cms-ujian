@@ -19,7 +19,7 @@ class SocketClient {
 
     const token = getToken();
     const socketUrl = import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com';
-    const socketKey = import.meta.env.VITE_SOCKET_KEY || 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==';
+    const socketKey = import.meta.env.VITE_SOCKET_KEY || '';
     
     this.socket = io(socketUrl + namespace, {
       auth: { token },
