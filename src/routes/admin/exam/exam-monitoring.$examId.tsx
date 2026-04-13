@@ -1,11 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { socketClient } from '@/lib/socket-client';
+import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch';
+import { EXAM_MONITORING } from '@/data/const/api_url';
+import type { ApiResponseType } from '@/data/types/api_response';
 import {
   startMonitoringBuffer,
   stopMonitoringBuffer,
   queueParticipantUpdate,
   useMonitoringStore,
+  type Participant
 } from '@/store/useMonitoringStore';
 
 export const Route = createFileRoute('/admin/exam/exam-monitoring/$examId')({
@@ -16,14 +20,24 @@ function ExamMonitoringDetail() {
   const { examId } = Route.useParams();
   const setParticipants = useMonitoringStore((state) => state.setParticipants);
   const setServerTime = useMonitoringStore((state) => state.setServerTime);
+  
+  // Ambil detail nama ujian & initial participants dari API
+  // Jika endpoint berbeda, Anda bisa menyesuaikannya
+  const { data: monitoringData, isLoading } = useQueryDataPersistent<
+    ApiResponseType<'single', {
+      title: string;
+      participants: Participant[];
+    }>
+  >(EXAM_MONITORING.DETAIL.replace('{id}', examId));
 
   useEffect(() => {
-    // 1. Fetch initial data (mocked for now, should be REST API)
-    setParticipants([
-      { id: '1', name: 'Peserta A', progress: 0, status: 'offline', timeRemaining: 3600 },
-      { id: '2', name: 'Peserta B', progress: 50, status: 'online', timeRemaining: 1800 },
-      { id: '3', name: 'Peserta C', progress: 100, status: 'finished', timeRemaining: 0 },
-    ]);
+    // 1. Fetch initial data from API
+    if (monitoringData?.data?.participants) {
+       setParticipants(monitoringData.data.participants);
+    } else {
+       // Clear old participants if loading new ones
+       setParticipants([]);
+    }
 
     // 2. Start Buffer
     startMonitoringBuffer();
@@ -49,18 +63,29 @@ function ExamMonitoringDetail() {
       stopMonitoringBuffer();
       // Keep socket alive for other pages, just remove listeners
     };
-  }, [examId, setParticipants, setServerTime]);
+  }, [examId, setParticipants, setServerTime, monitoringData]);
 
   return (
     <div className="card">
       <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Live Monitoring - Ujian {examId}</h5>
+        <h5 className="card-title fw-bolder">
+          Live Monitoring - {isLoading ? 'Memuat...' : (monitoringData?.data?.title || 'Ujian Tidak Ditemukan')}
+        </h5>
         <p className="p-0">Monitoring peserta secara real-time</p>
       </div>
       <div className="card-body">
-        <div className="table-responsive">
-          <MonitoringTable />
-        </div>
+        {isLoading ? (
+          <div className="text-center py-5">
+             <div className="spinner-border text-primary" role="status">
+               <span className="visually-hidden">Loading...</span>
+             </div>
+             <p className="mt-2">Memuat data peserta...</p>
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <MonitoringTable />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -77,6 +77,7 @@ export const EXAM = {
 
 export const EXAM_MONITORING = {
   ACTIVE: '/exam-monitoring/active',
+  DETAIL: '/exam-monitoring/{id}',
 } as const satisfies UrlGroupType
 
 export const SOCKET_URL = 'https://socket-ujian.hummatech.com'
