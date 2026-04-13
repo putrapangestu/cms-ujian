@@ -72,8 +72,11 @@ function RouteComponent() {
       
       if (diff <= 0) {
         setTimeRemaining(0)
-        handleExamTimeout()
         if (timer) clearInterval(timer)
+        // Check so we don't trigger this multiple times
+        if (!isSubmitting.current) {
+          handleExamTimeout()
+        }
       } else {
         setTimeRemaining(diff)
       }
@@ -91,12 +94,16 @@ function RouteComponent() {
   }, [data])
 
   const handleExamTimeout = () => {
+    // Memastikan tidak muncul pop up berulang kali jika status sedang mensubmit
+    if (isSubmitting.current) return
+    isSubmitting.current = true
+    
     alert('Waktu ujian telah habis! Jawaban Anda akan otomatis disubmit.')
     submitExam()
   }
 
   const submitExam = () => {
-    if (isSubmitting.current) return
+    // The alert above might block thread, set flag again to be safe
     isSubmitting.current = true
 
     if (socketRef.current) {
