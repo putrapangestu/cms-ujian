@@ -17,6 +17,9 @@ import type {
   ApiResponseType,
 } from '@/data/types/api_response'
 import { deleteDataAlert } from '@/lib/toast'
+import ImportExamViewModal from './-components/ImportExamViewModal'
+import ImportExcelModal from './-components/ImportExcelModal'
+
 export const Route = createFileRoute(
   '/admin/question-bank/question-group/$questionGroupId/',
 )({
@@ -29,6 +32,7 @@ function RouteComponent() {
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [showDropdown, setShowDropdown] = useState(false)
 
   const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     QUESTION.GET,
@@ -114,6 +118,14 @@ function RouteComponent() {
 
   return (
     <>
+      <ImportExamViewModal
+        questionGroupId={questionGroupId}
+        categoryId={questionGroup?.data?.question_category_id}
+      />
+      <ImportExcelModal
+        questionGroupId={questionGroupId}
+        categoryId={questionGroup?.data?.question_category_id}
+      />
       <div className="card">
         <div className="border-bottom p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
           <div className="flex-grow-1">
@@ -165,6 +177,50 @@ function RouteComponent() {
               >
                 Tambah Soal
               </button>
+
+              <div className="dropdown">
+                <button
+                  className="btn btn-outline-primary dropdown-toggle"
+                  type="button"
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  id="dropdownImportSoal"
+                >
+                  Import Soal
+                </button>
+                {showDropdown && (
+                  <div
+                    className="position-fixed top-0 start-0 w-100 h-100"
+                    style={{ zIndex: 1040 }}
+                    onClick={() => setShowDropdown(false)}
+                  ></div>
+                )}
+                <ul className={`dropdown-menu ${showDropdown ? 'show' : ''}`} aria-labelledby="dropdownImportSoal" style={{ zIndex: 1050 }}>
+                  <li>
+                    <button 
+                      className="dropdown-item" 
+                      type="button"
+                      onClick={() => {
+                        setShowDropdown(false)
+                        ;(window as any).$('#import-excel-modal').modal('show')
+                      }}
+                    >
+                      Import Excel/CSV
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className="dropdown-item" 
+                      type="button"
+                      onClick={() => {
+                        setShowDropdown(false)
+                        ;(window as any).$('#import-examview-modal').modal('show')
+                      }}
+                    >
+                      Import ExamView (ZIP)
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
           <button

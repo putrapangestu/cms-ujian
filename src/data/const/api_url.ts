@@ -49,6 +49,9 @@ export const QUESTION_CATEGORY = {
 
 export const QUESTION_BANK = {
   GET: '/question-bank',
+  IMPORT_EXAMVIEW: '/question-bank/import-examview',
+  IMPORT_EXCEL: '/question-bank/import',
+  DOWNLOAD_TEMPLATE: '/question-bank/download-template',
 } as const satisfies UrlGroupType
 
 export const QUESTION = {
