@@ -83,4 +83,11 @@ export const EXAM_MONITORING = {
   DETAIL: '/exam-monitoring/realtime/{id}',
 } as const satisfies UrlGroupType
 
+export const DASHBOARD = {
+  SUMMARY: '/admin/dashboard/summary',
+  ACTIVE_EXAMS: '/admin/dashboard/active-exams',
+  CHARTS_STUDENTS: '/admin/dashboard/charts/students',
+  CHARTS_EXAMS: '/admin/dashboard/charts/exams',
+} as const satisfies UrlGroupType
+
 export const SOCKET_URL = 'https://socket-ujian.hummatech.com'
