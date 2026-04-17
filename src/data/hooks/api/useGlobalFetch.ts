@@ -76,7 +76,8 @@ export const useMutationAction = (
   method: 'post' | 'put' | 'delete' | 'get' | 'patch',
   config?: {
     refreshKey?: string
-    onSuccess?: () => void
+    onSuccess?: (data?: any) => void
+    onError?: (err?: any) => void
     axiosConfig?: AxiosRequestConfig
     showMessage?: boolean
   },
@@ -90,6 +91,10 @@ export const useMutationAction = (
     },
     {
       onError: (err) => {
+        if (config?.onError) {
+          config.onError(err)
+          return
+        }
         const msg =
           err?.response?.data?.message ||
           err?.response?.message ||
@@ -112,7 +117,7 @@ export const useMutationAction = (
             undefined,
             { revalidate: true },
           )
-        config?.onSuccess?.()
+        config?.onSuccess?.(data)
       },
     },
   )

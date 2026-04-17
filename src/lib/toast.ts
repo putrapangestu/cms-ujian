@@ -59,3 +59,17 @@ export const confirmAlert = (
     if (r.isConfirmed) onSuccess()
   })
 }
+
+export const errorHtmlAlert = (title: string, htmlContent: string) => {
+  Swal.fire({
+    title,
+    html: htmlContent,
+    icon: 'error',
+    confirmButtonText: 'Tutup',
+    theme: 'bootstrap-5',
+    width: '600px',
+    customClass: {
+      htmlContainer: 'text-start'
+    }
+  })
+}

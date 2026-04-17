@@ -2,7 +2,7 @@ import { IconX } from '@tabler/icons-react'
 import { useForm } from 'react-hook-form'
 import { QUESTION_BANK, QUESTION } from '@/data/const/api_url'
 import { useMutationAction } from '@/data/hooks/api/useGlobalFetch'
-import { toaster } from '@/lib/toast'
+import { toaster, errorHtmlAlert } from '@/lib/toast'
 
 type ComponentProps = {
   questionGroupId: string
@@ -20,13 +20,59 @@ export default function ImportExamViewModal({
     'post',
     {
       refreshKey: QUESTION.GET,
-      onSuccess: () => {
-        toaster('Sukses mengimport soal dari ExamView', 'success')
+      onSuccess: (res: any) => {
+        // Cek apakah ada error dari data response (walaupun status 200 OK)
+        const responseData = res?.data
+        const hasErrors = responseData?.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0
+        const totalImported = responseData?.total_imported || 0
+        const totalErrors = responseData?.total_errors || 0
+
+        if (hasErrors) {
+          // Menyiapkan daftar error untuk ditampilkan
+          const errorList = responseData.errors.map((e: string | any) => {
+            // e bisa string ("Baris 2: Grup soal tidak ditemukan") atau object
+            return `<li>${typeof e === 'string' ? e : e.message || JSON.stringify(e)}</li>`
+          }).join('')
+          
+          errorHtmlAlert(
+            'Import Selesai dengan Catatan', 
+            `
+            <div class="mb-3">
+              <span class="badge bg-success me-2">${totalImported} Berhasil</span>
+              <span class="badge bg-danger">${totalErrors} Gagal</span>
+            </div>
+            <p>Terjadi kesalahan pada item berikut:</p>
+            <div style="max-height: 200px; overflow-y: auto;" class="border rounded p-2 bg-light">
+              <ul class="text-danger mb-0 small ps-3">${errorList}</ul>
+            </div>
+            `
+          )
+        } else {
+          toaster(`Sukses mengimport ${totalImported || ''} soal dari ExamView`, 'success')
+        }
+        
         closeModal()
       },
       onError: (err: any) => {
-        const errorMsg = err?.response?.data?.message || 'Gagal mengimport soal'
-        toaster(errorMsg, 'error')
+        const errorData = err?.response?.data
+        
+        if (errorData?.data?.errors && Array.isArray(errorData.data.errors)) {
+          const errorList = errorData.data.errors.map((e: string | any) => 
+            `<li>${typeof e === 'string' ? e : e.message || JSON.stringify(e)}</li>`
+          ).join('')
+          
+          errorHtmlAlert(
+            'Gagal Mengimpor Soal', 
+            `
+            <div style="max-height: 200px; overflow-y: auto;" class="border rounded p-2 bg-light">
+              <ul class="text-danger mb-0 small ps-3">${errorList}</ul>
+            </div>
+            `
+          )
+        } else {
+          const errorMsg = errorData?.message || 'Gagal mengimport soal'
+          toaster(errorMsg, 'error')
+        }
       }
     }
   )
