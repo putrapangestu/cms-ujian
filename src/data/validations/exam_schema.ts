@@ -73,3 +73,39 @@ export type ExamDetailDataType = {
   student: StudentExamDataType
   user_exam: UserExamDataType
 }
+
+export type UserAnswerDataType = {
+  id: string
+  question_id: string
+  option_id: string | null
+  answer_text: string | null
+  is_correct: boolean
+  score: number
+  question: QuestionDataType
+}
+
+export type ExamHistoryDataType = {
+  id: string
+  exam_id: string
+  student_id: string
+  status: string
+  start_time: string | null
+  end_time: string | null
+  score: number | null
+  created_at: string
+  updated_at: string
+  user_answers_count: number
+  exam: ExamDataType
+  user_answers?: UserAnswerDataType[]
+}
+
+export type ExamHistoryDetailDataType = {
+  user_exam: ExamHistoryDataType
+  summary: {
+    total_questions: number
+    answered_questions: number
+    correct_answers: number
+    total_score: number
+  }
+}
+

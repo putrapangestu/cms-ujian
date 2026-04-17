@@ -45,6 +45,7 @@ type DataTableProps<T> = {
   onPageChange?: (page: number) => void
   onPageSizeChange?: (size: number) => void
   isSub?: boolean
+  isLoading?: boolean
 }
 
 function getNestedValue(obj: any, path: string) {
@@ -69,6 +70,7 @@ export const DataTable = <T,>({
   onPageChange,
   onPageSizeChange,
   isSub = false,
+  isLoading = false,
 }: DataTableProps<T>) => {
   // State Internal
   const [localPageIndex, setLocalPageIndex] = useState(1)
@@ -192,7 +194,19 @@ export const DataTable = <T,>({
               </tr>
             </thead>
             <tbody>
-              {currentData.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-5"
+                    style={{ '--bs-table-bg-type': 'var(--bs-white)' } as any}
+                  >
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : currentData.length > 0 ? (
                 currentData.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {columns.map((col, colIndex) => (
@@ -222,11 +236,10 @@ export const DataTable = <T,>({
                 ))
               ) : (
                 <tr>
-                  {/* @ts-ignore - td expects string or ReactNode, colSpan takes number */}
                   <td
                     colSpan={columns.length}
                     className="text-center text-muted py-4"
-                    style={{ '--bs-table-bg-type': 'var(--bs-white)' }}
+                    style={{ '--bs-table-bg-type': 'var(--bs-white)' } as any}
                   >
                     Tidak ada data
                   </td>
