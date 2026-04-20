@@ -5,6 +5,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Icon } from 'lucide-react'
 import { useState } from 'react'
 import StudentModalCreate from './-components/student-modal-create'
+import ImportStudentExcelModal from './-components/import-student-excel-modal'
 import type { StudentDataType } from '@/data/validations/student_schema'
 import {
   useMutationAction,
@@ -86,6 +87,7 @@ function RouteComponent() {
   return (
     <>
       <StudentModalCreate isEdit={isEdit} student={current} />
+      <ImportStudentExcelModal />
       <div className="card">
         <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
           <div>
@@ -100,7 +102,13 @@ function RouteComponent() {
             >
               Tambah Siswa
             </button>
-            <button type="button" className="btn btn-warning">
+            <button 
+              type="button" 
+              className="btn btn-warning"
+              onClick={() => {
+                ;(window as any).$('#import-student-excel-modal').modal('show')
+              }}
+            >
               Import Siswa
             </button>
           </div>

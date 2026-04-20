@@ -1,4 +1,5 @@
 import type { ObjectType } from '../types/object'
+
 type UrlGroupType = ObjectType<string>
 
 export const AUTH = {
@@ -20,6 +21,8 @@ export const STUDENT = {
   UPDATE: '/admin/students/{id}',
   DELETE: '/admin/students/{id}',
   GET_BY_ID: '/admin/students/{id}',
+  DOWNLOAD_TEMPLATE: '/students/download-template',
+  IMPORT_EXCEL: '/students/import',
 } as const satisfies UrlGroupType
 
 export const STUDENT_GROUP = {

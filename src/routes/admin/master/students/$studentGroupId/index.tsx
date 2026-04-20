@@ -13,6 +13,7 @@ import type {
 import { IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import ImportStudentExcelModal from '../../-components/import-student-excel-modal'
 
 export const Route = createFileRoute('/admin/master/students/$studentGroupId/')(
   {
@@ -63,6 +64,7 @@ function RouteComponent() {
 
   return (
     <>
+      <ImportStudentExcelModal preselectedGroupId={studentGroupId} />
       <div className="card">
         <div className="border-bottom p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
           <div className="flex-grow-1">
@@ -88,6 +90,15 @@ function RouteComponent() {
               <p className="text-muted mb-3 fst-italic">Tidak ada deskripsi</p>
             )}
             <div className="d-flex justify-content-start gap-2">
+              <button
+                type="button"
+                className="btn btn-warning"
+                onClick={() => {
+                  ;(window as any).$('#import-student-excel-modal').modal('show')
+                }}
+              >
+                Import Siswa
+              </button>
               <button
                 type="button"
                 className="btn btn-primary"
