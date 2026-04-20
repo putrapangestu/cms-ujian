@@ -15,7 +15,7 @@ import type {
   StudentGroupRollType,
 } from '@/data/validations/student_schema'
 import { toaster } from '@/lib/toast'
-import { IconSearch, IconTrash } from '@tabler/icons-react'
+import { IconSearch, IconTrash, IconEye } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { useEffect, useState } from 'react'

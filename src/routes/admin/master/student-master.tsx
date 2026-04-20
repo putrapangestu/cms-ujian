@@ -1,7 +1,7 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { IconEdit, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
+import { IconEdit, IconPlus, IconSearch, IconTrash, IconEye } from '@tabler/icons-react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Icon } from 'lucide-react'
 import { useState } from 'react'
 import StudentModalCreate from './-components/student-modal-create'
@@ -20,6 +20,7 @@ export const Route = createFileRoute('/admin/master/student-master')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isEdit, setIsEdit] = useState(false)
@@ -45,6 +46,14 @@ function RouteComponent() {
       header: 'Aksi',
       cell: (v) => (
         <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-info text-white"
+            onClick={() => navigate({ to: `/admin/master/student-detail/${v.id}` })}
+            title="Lihat Detail Siswa"
+          >
+            <IconEye size={18} />
+          </button>
           <button
             type="button"
             className="btn btn-md rounded-1 btn-warning"

@@ -10,7 +10,7 @@ import type {
   StudentDataType,
   StudentGroupDataType,
 } from '@/data/validations/student_schema'
-import { IconSearch, IconTrash } from '@tabler/icons-react'
+import { IconSearch, IconTrash, IconEye } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import ImportStudentExcelModal from '../../-components/import-student-excel-modal'
@@ -46,6 +46,21 @@ function RouteComponent() {
     { header: 'No. HP', accessorKey: 'phone' },
     { header: 'Asal Sekolah', accessorKey: 'address' },
     { header: 'Status', accessorKey: 'status' },
+    {
+      header: 'Aksi',
+      cell: (v) => (
+        <div className="d-flex gap-2">
+          <button
+            type="button"
+            className="btn btn-sm rounded-1 btn-info text-white"
+            onClick={() => navigate({ to: `/admin/master/student-detail/${v.id}` })}
+            title="Lihat Detail Siswa"
+          >
+            <IconEye size={18} />
+          </button>
+        </div>
+      ),
+    },
   ]
 
   const { data } = useQueryData<ApiResponsePaginationType<StudentDataType>>(

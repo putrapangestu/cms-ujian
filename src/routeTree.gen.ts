@@ -28,6 +28,7 @@ import { Route as AdminExamExamMonitoringRouteImport } from './routes/admin/exam
 import { Route as AdminQuestionBankQuestionGroupIndexRouteImport } from './routes/admin/question-bank/question-group/index'
 import { Route as AdminExamExamDataIndexRouteImport } from './routes/admin/exam/exam-data/index'
 import { Route as ExamExamExamIdIndexRouteImport } from './routes/_exam/exam/$examId/index'
+import { Route as AdminMasterStudentDetailStudentIdRouteImport } from './routes/admin/master/student-detail.$studentId'
 import { Route as AdminExamExamMonitoringExamIdRouteImport } from './routes/admin/exam/exam-monitoring.$examId'
 import { Route as AdminQuestionBankQuestionGroupQuestionGroupIdIndexRouteImport } from './routes/admin/question-bank/question-group/$questionGroupId/index'
 import { Route as AdminMasterStudentsStudentGroupIdIndexRouteImport } from './routes/admin/master/students/$studentGroupId/index'
@@ -133,6 +134,12 @@ const ExamExamExamIdIndexRoute = ExamExamExamIdIndexRouteImport.update({
   path: '/exam/$examId/',
   getParentRoute: () => ExamRoute,
 } as any)
+const AdminMasterStudentDetailStudentIdRoute =
+  AdminMasterStudentDetailStudentIdRouteImport.update({
+    id: '/master/student-detail/$studentId',
+    path: '/master/student-detail/$studentId',
+    getParentRoute: () => AdminRoute,
+  } as any)
 const AdminExamExamMonitoringExamIdRoute =
   AdminExamExamMonitoringExamIdRouteImport.update({
     id: '/$examId',
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/user/exam-history/': typeof UserExamHistoryIndexRoute
   '/user/exam/': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
   '/exam/$examId/': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data/': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group/': typeof AdminQuestionBankQuestionGroupIndexRoute
@@ -215,6 +223,7 @@ export interface FileRoutesByTo {
   '/user/exam-history': typeof UserExamHistoryIndexRoute
   '/user/exam': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
   '/exam/$examId': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group': typeof AdminQuestionBankQuestionGroupIndexRoute
@@ -244,6 +253,7 @@ export interface FileRoutesById {
   '/user/exam-history/': typeof UserExamHistoryIndexRoute
   '/user/exam/': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
   '/_exam/exam/$examId/': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data/': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group/': typeof AdminQuestionBankQuestionGroupIndexRoute
@@ -271,6 +281,7 @@ export interface FileRouteTypes {
     | '/user/exam-history/'
     | '/user/exam/'
     | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
     | '/exam/$examId/'
     | '/admin/exam/exam-data/'
     | '/admin/question-bank/question-group/'
@@ -295,6 +306,7 @@ export interface FileRouteTypes {
     | '/user/exam-history'
     | '/user/exam'
     | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
     | '/exam/$examId'
     | '/admin/exam/exam-data'
     | '/admin/question-bank/question-group'
@@ -323,6 +335,7 @@ export interface FileRouteTypes {
     | '/user/exam-history/'
     | '/user/exam/'
     | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
     | '/_exam/exam/$examId/'
     | '/admin/exam/exam-data/'
     | '/admin/question-bank/question-group/'
@@ -477,6 +490,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExamExamExamIdIndexRouteImport
       parentRoute: typeof ExamRoute
     }
+    '/admin/master/student-detail/$studentId': {
+      id: '/admin/master/student-detail/$studentId'
+      path: '/master/student-detail/$studentId'
+      fullPath: '/admin/master/student-detail/$studentId'
+      preLoaderRoute: typeof AdminMasterStudentDetailStudentIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/exam/exam-monitoring/$examId': {
       id: '/admin/exam/exam-monitoring/$examId'
       path: '/$examId'
@@ -581,6 +601,7 @@ interface AdminRouteChildren {
   AdminMasterStudentMasterRoute: typeof AdminMasterStudentMasterRoute
   AdminQuestionBankQuestionBankRoute: typeof AdminQuestionBankQuestionBankRoute
   AdminQuestionBankQuestionCategoryRoute: typeof AdminQuestionBankQuestionCategoryRoute
+  AdminMasterStudentDetailStudentIdRoute: typeof AdminMasterStudentDetailStudentIdRoute
   AdminExamExamDataIndexRoute: typeof AdminExamExamDataIndexRoute
   AdminQuestionBankQuestionGroupIndexRoute: typeof AdminQuestionBankQuestionGroupIndexRoute
   AdminExamExamDataExamIdManageQuestionsRoute: typeof AdminExamExamDataExamIdManageQuestionsRoute
@@ -599,6 +620,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminQuestionBankQuestionBankRoute: AdminQuestionBankQuestionBankRoute,
   AdminQuestionBankQuestionCategoryRoute:
     AdminQuestionBankQuestionCategoryRoute,
+  AdminMasterStudentDetailStudentIdRoute:
+    AdminMasterStudentDetailStudentIdRoute,
   AdminExamExamDataIndexRoute: AdminExamExamDataIndexRoute,
   AdminQuestionBankQuestionGroupIndexRoute:
     AdminQuestionBankQuestionGroupIndexRoute,

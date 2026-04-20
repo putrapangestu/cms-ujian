@@ -20,7 +20,9 @@ export const STUDENT = {
   CREATE: '/admin/students',
   UPDATE: '/admin/students/{id}',
   DELETE: '/admin/students/{id}',
-  GET_BY_ID: '/admin/students/{id}',
+  GET_BY_ID: '/students/{id}',
+  EXAM_HISTORY: '/students/{id}/exam-history',
+  EXAM_HISTORY_EXPORT: '/students/{id}/exam-history/export',
   DOWNLOAD_TEMPLATE: '/students/download-template',
   IMPORT_EXCEL: '/students/import',
 } as const satisfies UrlGroupType
