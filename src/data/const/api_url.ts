@@ -75,6 +75,7 @@ export const EXAM = {
   UPDATE: '/admin/exams/{id}',
   DELETE: '/admin/exams/{id}',
   USERS: '/exams/{id}/user-exams',
+  EXPORT_USERS: '/exams/{id}/user-exams/export',
   QUESTIONS: '/exams/{id}/questions',
   ROLL_QUESTIONS: '/exams/{id}/select-questions',
   TODAY: '/exams/today',

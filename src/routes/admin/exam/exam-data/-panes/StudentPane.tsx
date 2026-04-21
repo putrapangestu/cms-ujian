@@ -1,46 +1,146 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { EXAM, QUESTION } from '@/data/const/api_url'
+import { EXAM } from '@/data/const/api_url'
 import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
-import type { ApiResponsePaginationType } from '@/data/types/api_response'
-import type { QuestionDataType } from '@/data/validations/question_schema'
-import type { StudentDataType } from '@/data/validations/student_schema'
-import { IconSearch } from '@tabler/icons-react'
-import { Route, useNavigate } from '@tanstack/react-router'
+import type { ApiPaginatedResponse } from '@/data/types/api_response'
+import type { UserExamDataType } from '@/data/validations/exam_schema'
+import { IconSearch, IconDownload } from '@tabler/icons-react'
 import { useState } from 'react'
+import { getToken } from '@/lib/token-handler'
+import { toaster } from '@/lib/toast'
 
 export function StudentPane({ examId }: { examId: string }) {
-  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [isExporting, setIsExporting] = useState(false)
 
-  const { data } = useQueryData<ApiResponsePaginationType<any>>(EXAM.USERS, {
+  const { data } = useQueryData<ApiPaginatedResponse<UserExamDataType>>(EXAM.USERS, {
     id: examId,
     page: page,
     per_page: 10,
+    search: search,
   })
-  const columns: ColumnDef<any>[] = [
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const baseUrl = import.meta.env.VITE_API_URL
+      const token = getToken()
+      
+      const endpoint = EXAM.EXPORT_USERS.replace('{id}', examId)
+      const url = new URL(`${baseUrl}${endpoint}`)
+      if (search) url.searchParams.append('search', search)
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Gagal mengekspor data peserta ujian')
+      }
+
+      // Check if response is JSON (error message) instead of Blob
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const json = await response.json()
+        if (!json.success) throw new Error(json.message || 'Gagal mengekspor data')
+        
+        // Handle case where BE returns a download URL instead of blob
+        if (json.data?.download_url) {
+          window.open(json.data.download_url, '_blank')
+          toaster('Export berhasil', 'success')
+          return
+        }
+      }
+
+      // Default: Handle as Blob
+      const blob = await response.blob()
+      
+      // Get filename from Content-Disposition if available
+      let filename = 'Data_Peserta_Ujian.xlsx'
+      const disposition = response.headers.get('content-disposition')
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        const matches = filenameRegex.exec(disposition)
+        if (matches != null && matches[1]) { 
+          filename = matches[1].replace(/['"]/g, '')
+        }
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = downloadUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(downloadUrl)
+      document.body.removeChild(a)
+      
+      toaster('Berhasil mengunduh data peserta ujian', 'success')
+    } catch (error: any) {
+      console.error('Export error:', error)
+      toaster(error.message || 'Terjadi kesalahan saat export data', 'error')
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  const columns: ColumnDef<UserExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
     {
       header: 'Nama',
       cell: (v) => {
         return (
           <div>
-            <h6>{v.user.name}</h6>
-            <span className="text-muted">{v.user.email}</span>
+            <h6 className="mb-0">{v.user?.name || '-'}</h6>
+            <span className="text-muted small">{v.user?.email || '-'}</span>
           </div>
         )
       },
     },
-    { header: 'No. HP', accessorKey: 'user.student.phone' },
-    { header: 'Asal Sekolah', accessorKey: 'user.student.address' },
+    { header: 'NISN', accessorKey: 'user.nisn' },
     {
       header: 'Grup',
       cell: (v) => (
         <span className="badge bg-info-subtle text-info px-3 py-2">
-          {v.user?.student?.group?.name || '-'}
+          {v.user?.group_name || '-'}
         </span>
       ),
+    },
+    {
+      header: 'TWK',
+      cell: (v) => <span className="fw-semibold">{v.score_twk ?? '-'}</span>,
+    },
+    {
+      header: 'TIU',
+      cell: (v) => <span className="fw-semibold">{v.score_tiu ?? '-'}</span>,
+    },
+    {
+      header: 'TKP',
+      cell: (v) => <span className="fw-semibold">{v.score_tkp ?? '-'}</span>,
+    },
+    {
+      header: 'Total Skor',
+      cell: (v) => (
+        <span className="badge bg-success-subtle text-success px-3 py-2 fs-6">
+          {v.total_score ?? '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Kelulusan',
+      cell: (v) => {
+        if (v.is_passed === null || v.is_passed === undefined) return '-'
+        return v.is_passed ? (
+          <span className="badge bg-success">Lulus</span>
+        ) : (
+          <span className="badge bg-danger">Tidak Lulus</span>
+        )
+      },
     },
     {
       header: 'Status',
@@ -57,22 +157,36 @@ export function StudentPane({ examId }: { examId: string }) {
         )
       },
     },
-    {
-      header: 'Skor',
-      cell: (v) => (
-        <span className="badge bg-success-subtle text-success px-3 py-2">
-          {v.score ?? '-'}
-        </span>
-      ),
-    },
   ]
   console.log(data)
   return (
     <>
       <div className="card">
         <div className="border-bottom p-4">
-          <h5 className="card-title fw-bolder">Master Siswa</h5>
-          <p className="text-muted">Pilih soal yang akan dijawab oleh siswa</p>
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 className="card-title fw-bolder">Master Siswa</h5>
+              <p className="text-muted mb-0">Daftar siswa yang mengikuti ujian</p>
+            </div>
+            <button
+              type="button"
+              className="btn btn-success"
+              onClick={handleExport}
+              disabled={isExporting || !data?.data?.length}
+            >
+              {isExporting ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Mengekspor...
+                </>
+              ) : (
+                <>
+                  <IconDownload size={18} className="me-2" />
+                  Export Excel
+                </>
+              )}
+            </button>
+          </div>
         </div>
         <div className="card-body">
           <div className="d-flex flex-wrap gap-2 mb-3">

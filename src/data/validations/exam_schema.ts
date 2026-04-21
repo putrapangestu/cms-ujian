@@ -64,7 +64,18 @@ export type UserExamDataType = DefaultDataType & {
   start_time: string
   end_time: string
   score: number
+  total_score?: number
+  score_twk?: number
+  score_tiu?: number
+  score_tkp?: number
+  is_passed?: boolean
   status: string
+  user?: {
+    name: string
+    email: string
+    nisn: string
+    group_name: string
+  }
 }
 
 export type ExamDetailDataType = {

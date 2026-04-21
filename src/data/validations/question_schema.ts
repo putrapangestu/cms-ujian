@@ -42,5 +42,15 @@ export const questionSchema = z.object({
   correct_answer: z.string().optional(),
 })
 
+export const questionRelationSchema = z.object({
+  questionGroup: z.object({
+    questionCategory: z.object({
+      name: z.string().optional(),
+      code: z.string().optional(),
+    }),
+    name: z.string().optional(),
+  }),
+})
+
 export type QuestionType = z.infer<typeof questionSchema>
-export type QuestionDataType = QuestionType & DefaultDataType
+export type QuestionDataType = QuestionType & DefaultDataType & z.infer<typeof questionRelationSchema>

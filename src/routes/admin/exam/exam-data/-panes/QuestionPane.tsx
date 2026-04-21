@@ -1,21 +1,83 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { EXAM, QUESTION } from '@/data/const/api_url'
+import { EXAM, QUESTION_CATEGORY, QUESTION_GROUP } from '@/data/const/api_url'
 import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
-import type { QuestionDataType } from '@/data/validations/question_schema'
+import type {
+  QuestionCategoryDataType,
+  QuestionDataType,
+  QuestionGroupDataType,
+} from '@/data/validations/question_schema'
 import { IconSearch } from '@tabler/icons-react'
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import Select from 'react-select'
 
 export function QuestionPane({ examId }: { examId: string }) {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [questionGroupFilter, setQuestionGroupFilter] = useState<string>('')
+  const [questionCategoryFilter, setQuestionCategoryFilter] =
+    useState<string>('')
+
+  // Helper for question type translation
+  const getQuestionTypeLabel = (type: string | undefined) => {
+    switch (type) {
+      case 'single_choice':
+        return 'Pilihan Ganda'
+      case 'multiple_choice':
+        return 'Pilihan Ganda Kompleks'
+      case 'essay':
+        return 'Esai'
+      case 'true_false':
+        return 'Benar/Salah'
+      case 'matching':
+        return 'Menjodohkan'
+      case 'short_answer':
+        return 'Jawaban Singkat'
+      default:
+        return type || '-'
+    }
+  }
+
+  // Fetch options for filters
+  const { data: groupsData, isLoading: groupsLoading } = useQueryData<
+    ApiResponsePaginationType<QuestionGroupDataType>
+  >(QUESTION_GROUP.GET, { limit: 999999, page: 1 })
+
+  const { data: categoriesData, isLoading: categoriesLoading } = useQueryData<
+    ApiResponsePaginationType<QuestionCategoryDataType>
+  >(QUESTION_CATEGORY.GET, { limit: 999999, page: 1 })
+
+  const groupOptions = useMemo(
+    () =>
+      groupsData?.data?.map((g) => ({
+        value: g.id,
+        label: g.name,
+      })) || [],
+    [groupsData],
+  )
+
+  const categoryOptions = useMemo(
+    () =>
+      categoriesData?.data?.map((c) => ({
+        value: c.id,
+        label: c.code,
+      })) || [],
+    [categoriesData],
+  )
 
   const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     EXAM.QUESTIONS,
-    { id: examId, page: page, per_page: 10 },
+    {
+      id: examId,
+      page: page,
+      per_page: 10,
+      search: search,
+      question_group_id: questionGroupFilter || undefined,
+      question_category_id: questionCategoryFilter || undefined,
+    },
   )
   const columns: ColumnDef<QuestionDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
@@ -26,10 +88,26 @@ export function QuestionPane({ examId }: { examId: string }) {
       },
     },
     {
+      header: 'Tipe Soal',
+      cell: (v) => (
+        <span className="badge bg-primary-subtle text-primary px-3 py-2">
+          {getQuestionTypeLabel(v.question_type)}
+        </span>
+      ),
+    },
+    {
       header: 'Kategori Soal',
       cell: (v) => (
         <span className="badge bg-primary-subtle text-primary px-3 py-2">
-          {v.question_type}
+          {v.questionGroup?.questionCategory?.code || '-'}
+        </span>
+      ),
+    },
+    {
+      header: 'Grup Soal',
+      cell: (v) => (
+        <span className="badge bg-info-subtle text-info px-3 py-2">
+          {v.questionGroup?.name || '-'}
         </span>
       ),
     },
@@ -68,17 +146,47 @@ export function QuestionPane({ examId }: { examId: string }) {
           </div>
         </div>
         <div className="card-body">
-          <div className="d-flex flex-wrap gap-2 mb-3">
-            <div className="input-group input-group-sm w-auto">
+          <div className="d-flex flex-wrap gap-3 mb-3">
+            <div className="input-group input-group-sm w-auto" style={{ maxWidth: '250px' }}>
               <DebouncedInput
                 value={search}
                 onChange={(v) => setSearch(String(v))}
                 className="form-control bg-white"
-                placeholder="cari..."
+                placeholder="Cari soal..."
               />
               <button type="button" className="btn btn-primary py-2">
                 <IconSearch size={18} />
               </button>
+            </div>
+            
+            <div style={{ minWidth: '200px' }}>
+              <Select
+                options={categoryOptions}
+                isLoading={categoriesLoading}
+                placeholder="Filter Kategori Soal"
+                isClearable
+                value={categoryOptions.find((o) => o.value === questionCategoryFilter) || null}
+                onChange={(opt) => {
+                  setQuestionCategoryFilter(opt ? opt.value : '')
+                  setPage(1)
+                }}
+                styles={{ menu: (base) => ({ ...base, zIndex: 10 }) }}
+              />
+            </div>
+
+            <div style={{ minWidth: '200px' }}>
+              <Select
+                options={groupOptions}
+                isLoading={groupsLoading}
+                placeholder="Filter Grup Soal"
+                isClearable
+                value={groupOptions.find((o) => o.value === questionGroupFilter) || null}
+                onChange={(opt) => {
+                  setQuestionGroupFilter(opt ? opt.value : '')
+                  setPage(1)
+                }}
+                styles={{ menu: (base) => ({ ...base, zIndex: 10 }) }}
+              />
             </div>
           </div>
           <DataTable

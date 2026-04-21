@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import React from 'react'
 
 type componentProps = {
   tabs: readonly string[] | string[]
@@ -28,7 +29,7 @@ export function TabPaneNavigation({
             role="tablist"
           >
             {tabs.map((t) => (
-              <>
+              <React.Fragment key={t}>
                 <li className="nav-item flex-fill text-sm-center">
                   <Link
                     to="."
@@ -49,7 +50,7 @@ export function TabPaneNavigation({
                     style={{ background: '#eee', minWidth: '1px' }}
                   ></span>
                 ) : null}
-              </>
+              </React.Fragment>
             ))}
           </ul>
         </div>
