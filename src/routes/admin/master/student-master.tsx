@@ -1,6 +1,6 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { IconEdit, IconPlus, IconSearch, IconTrash, IconEye } from '@tabler/icons-react'
+import { IconEdit, IconPlus, IconSearch, IconTrash, IconEye, IconDownload, IconUpload } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Icon } from 'lucide-react'
 import { useState } from 'react'
@@ -12,8 +12,10 @@ import {
   useQueryData,
 } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
-import { STUDENT } from '@/data/const/api_url'
-import { deleteDataAlert } from '@/lib/toast'
+import { STUDENT, STUDENT_GROUP } from '@/data/const/api_url'
+import { deleteDataAlert, toaster } from '@/lib/toast'
+import type { StudentGroupDataType } from '@/data/validations/student_schema'
+import { getToken } from '@/lib/token-handler'
 
 export const Route = createFileRoute('/admin/master/student-master')({
   component: RouteComponent,
@@ -23,8 +25,11 @@ function RouteComponent() {
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [groupId, setGroupId] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<StudentDataType>()
+
+  const [isExporting, setIsExporting] = useState(false)
 
   const columns: ColumnDef<StudentDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
@@ -41,6 +46,17 @@ function RouteComponent() {
     },
     { header: 'No. HP', accessorKey: 'phone' },
     { header: 'Asal Sekolah', accessorKey: 'address' },
+    {
+      header: 'Grup',
+      cell: (v) => {
+        const groupName = (v as any).group?.name
+        return (
+          <span className="badge bg-info-subtle text-info px-3 py-2">
+            {groupName || '-'}
+          </span>
+        )
+      },
+    },
     { header: 'Status', accessorKey: 'status' },
     {
       header: 'Aksi',
@@ -78,9 +94,14 @@ function RouteComponent() {
     'delete',
     { refreshKey: STUDENT.GET },
   )
+
+  const { data: studentGroupData } = useQueryData<
+    ApiResponsePaginationType<StudentGroupDataType>
+  >(STUDENT_GROUP.GET, { per_page: 1000 })
+
   const { data } = useQueryData<ApiResponsePaginationType<StudentDataType>>(
     STUDENT.GET,
-    { per_page: 10, page: page },
+    { per_page: 10, page: page, search: search, group_id: groupId || undefined },
   )
 
   const deleteHandle = (student: StudentDataType) => {
@@ -91,6 +112,74 @@ function RouteComponent() {
     setIsEdit(student ? true : false)
     setCurrent(student)
     $('#student-modal-create').modal('show')
+  }
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true)
+      const baseUrl = import.meta.env.VITE_API_URL
+      const token = getToken()
+      
+      const url = new URL(`${baseUrl}${STUDENT.EXPORT}`)
+      if (search) url.searchParams.append('search', search)
+      if (groupId) url.searchParams.append('group_id', groupId)
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('Gagal mengekspor data siswa')
+      }
+
+      // Check if response is JSON (error message) instead of Blob
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const json = await response.json()
+        if (!json.success) throw new Error(json.message || 'Gagal mengekspor data')
+        
+        // Handle case where BE returns a download URL instead of blob
+        if (json.data?.download_url) {
+          window.open(json.data.download_url, '_blank')
+          toaster('Export berhasil', 'success')
+          return
+        }
+      }
+
+      // Default: Handle as Blob
+      const blob = await response.blob()
+      
+      // Get filename from Content-Disposition if available
+      let filename = 'Data_Siswa.xlsx'
+      const disposition = response.headers.get('content-disposition')
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        const matches = filenameRegex.exec(disposition)
+        if (matches != null && matches[1]) { 
+          filename = matches[1].replace(/['"]/g, '')
+        }
+      }
+
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = downloadUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(downloadUrl)
+      document.body.removeChild(a)
+      
+      toaster('Berhasil mengunduh data siswa', 'success')
+    } catch (error: any) {
+      console.error('Export error:', error)
+      toaster(error.message || 'Terjadi kesalahan saat export data', 'error')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -106,19 +195,27 @@ function RouteComponent() {
           <div className="d-flex justify-content-start gap-2">
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-primary d-flex align-items-center gap-1"
               onClick={() => clickOpenModalHandle()}
             >
-              Tambah Siswa
+              <IconPlus size={18} /> Tambah Siswa
             </button>
             <button 
               type="button" 
-              className="btn btn-warning"
+              className="btn btn-warning d-flex align-items-center gap-1"
               onClick={() => {
                 ;(window as any).$('#import-student-excel-modal').modal('show')
               }}
             >
-              Import Siswa
+              <IconUpload size={18} /> Import Siswa
+            </button>
+            <button 
+              type="button" 
+              className="btn btn-success d-flex align-items-center gap-1"
+              onClick={handleExport}
+              disabled={isExporting}
+            >
+              <IconDownload size={18} /> {isExporting ? 'Mengekspor...' : 'Export Excel'}
             </button>
           </div>
         </div>
@@ -134,6 +231,21 @@ function RouteComponent() {
               <button type="button" className="btn btn-primary py-2">
                 <IconSearch size={18} />
               </button>
+            </div>
+            
+            <div className="input-group input-group-sm w-auto">
+              <select
+                className="form-select bg-white"
+                value={groupId}
+                onChange={(e) => setGroupId(e.target.value)}
+              >
+                <option value="">Semua Grup</option>
+                {studentGroupData?.data?.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <DataTable

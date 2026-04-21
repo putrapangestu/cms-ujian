@@ -25,6 +25,7 @@ export const STUDENT = {
   EXAM_HISTORY_EXPORT: '/students/{id}/exam-history/export',
   DOWNLOAD_TEMPLATE: '/students/download-template',
   IMPORT_EXCEL: '/students/import',
+  EXPORT: '/admin/students/export',
 } as const satisfies UrlGroupType
 
 export const STUDENT_GROUP = {
