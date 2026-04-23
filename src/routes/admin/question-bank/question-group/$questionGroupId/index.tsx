@@ -36,7 +36,7 @@ function RouteComponent() {
 
   const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     QUESTION.GET,
-    { group_id: questionGroupId, page: page, per_page: 10 },
+    { question_group_id: questionGroupId, page: page, per_page: 10 },
   )
   const { data: questionGroup } = useQueryData<
     ApiResponseType<'single', QuestionGroupDataType>
@@ -60,10 +60,10 @@ function RouteComponent() {
         return <div dangerouslySetInnerHTML={{ __html: v.question_text }}></div>
       },
     },
-    { 
-      header: 'Jenis Soal', 
+    {
+      header: 'Jenis Soal',
       cell: (v) => {
-        switch(v.question_type) {
+        switch (v.question_type) {
           case 'multiple_choice':
           case 'single_choice':
             return 'Pilihan Ganda'
@@ -74,17 +74,17 @@ function RouteComponent() {
           default:
             return v.question_type
         }
-      } 
+      }
     },
-    { 
-      header: 'Skor', 
+    {
+      header: 'Skor',
       cell: (v) => {
         return (
           <span className="badge bg-info-subtle text-info fw-bold">
             {v.score}
           </span>
         )
-      } 
+      }
     },
     {
       header: 'Aksi',
@@ -137,11 +137,10 @@ function RouteComponent() {
               </h5>
               {questionGroup?.data?.status && (
                 <span
-                  className={`badge ${
-                    questionGroup.data.status === 'active'
-                      ? 'bg-success-subtle text-success'
-                      : 'bg-danger-subtle text-danger'
-                  }`}
+                  className={`badge ${questionGroup.data.status === 'active'
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-danger-subtle text-danger'
+                    }`}
                 >
                   {questionGroup.data.status === 'active'
                     ? 'Aktif'
@@ -196,24 +195,24 @@ function RouteComponent() {
                 )}
                 <ul className={`dropdown-menu ${showDropdown ? 'show' : ''}`} aria-labelledby="dropdownImportSoal" style={{ zIndex: 1050 }}>
                   <li>
-                    <button 
-                      className="dropdown-item" 
+                    <button
+                      className="dropdown-item"
                       type="button"
                       onClick={() => {
                         setShowDropdown(false)
-                        ;(window as any).$('#import-excel-modal').modal('show')
+                          ; (window as any).$('#import-excel-modal').modal('show')
                       }}
                     >
                       Import Excel/CSV
                     </button>
                   </li>
                   <li>
-                    <button 
-                      className="dropdown-item" 
+                    <button
+                      className="dropdown-item"
                       type="button"
                       onClick={() => {
                         setShowDropdown(false)
-                        ;(window as any).$('#import-examview-modal').modal('show')
+                          ; (window as any).$('#import-examview-modal').modal('show')
                       }}
                     >
                       Import ExamView (ZIP)

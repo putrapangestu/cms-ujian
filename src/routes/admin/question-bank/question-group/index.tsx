@@ -113,8 +113,8 @@ function RouteComponent() {
       <div className="card">
         <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
           <div>
-            <h5 className="card-title fw-bolder">Tipe Soal</h5>
-            <p>List informasi tipe soal</p>
+            <h5 className="card-title fw-bolder">Tipe Soal / Grup Soal</h5>
+            <p>List informasi tipe / grup soal</p>
           </div>
           <button
             type="button"
