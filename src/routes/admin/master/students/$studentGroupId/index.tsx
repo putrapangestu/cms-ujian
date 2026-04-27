@@ -13,6 +13,7 @@ import type {
 import { IconSearch, IconTrash, IconEye } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import dayjs from 'dayjs'
 import ImportStudentExcelModal from '../../-components/import-student-excel-modal'
 
 export const Route = createFileRoute('/admin/master/students/$studentGroupId/')(
@@ -43,7 +44,12 @@ function RouteComponent() {
         )
       },
     },
-    { header: 'No. HP', accessorKey: 'phone' },
+    {
+      header: 'Password',
+      cell: (v) => (
+        <span className="text-truncate w-100 d-block">{v?.birth_date ? dayjs(v.birth_date).format('DD-MM-YYYY') : ''}</span>
+      ),
+    },
     { header: 'Asal Sekolah', accessorKey: 'address' },
     { header: 'Status', accessorKey: 'status' },
     {
@@ -87,11 +93,10 @@ function RouteComponent() {
               <h5 className="card-title fw-bolder mb-0">{`${studentGroup?.data?.name || ''}`}</h5>
               {studentGroup?.data?.status && (
                 <span
-                  className={`badge ${
-                    studentGroup.data.status === 'active'
-                      ? 'bg-success-subtle text-success'
-                      : 'bg-danger-subtle text-danger'
-                  }`}
+                  className={`badge ${studentGroup.data.status === 'active'
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-danger-subtle text-danger'
+                    }`}
                 >
                   {studentGroup.data.status === 'active'
                     ? 'Aktif'
@@ -109,7 +114,7 @@ function RouteComponent() {
                 type="button"
                 className="btn btn-warning"
                 onClick={() => {
-                  ;(window as any).$('#import-student-excel-modal').modal('show')
+                  ; (window as any).$('#import-student-excel-modal').modal('show')
                 }}
               >
                 Import Siswa

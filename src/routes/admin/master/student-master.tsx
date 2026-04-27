@@ -44,7 +44,12 @@ function RouteComponent() {
         )
       },
     },
-    { header: 'No. HP', accessorKey: 'phone' },
+    {
+      header: 'Password',
+      cell: (v) => (
+        <span className="text-truncate w-100 d-block">{v?.birth_date?.replaceAll('-', '')}</span>
+      ),
+    },
     { header: 'Asal Sekolah', accessorKey: 'address' },
     {
       header: 'Grup',
@@ -119,7 +124,7 @@ function RouteComponent() {
       setIsExporting(true)
       const baseUrl = import.meta.env.VITE_API_URL
       const token = getToken()
-      
+
       const url = new URL(`${baseUrl}${STUDENT.EXPORT}`)
       if (search) url.searchParams.append('search', search)
       if (groupId) url.searchParams.append('group_id', groupId)
@@ -140,7 +145,7 @@ function RouteComponent() {
       if (contentType && contentType.includes('application/json')) {
         const json = await response.json()
         if (!json.success) throw new Error(json.message || 'Gagal mengekspor data')
-        
+
         // Handle case where BE returns a download URL instead of blob
         if (json.data?.download_url) {
           window.open(json.data.download_url, '_blank')
@@ -151,14 +156,14 @@ function RouteComponent() {
 
       // Default: Handle as Blob
       const blob = await response.blob()
-      
+
       // Get filename from Content-Disposition if available
       let filename = 'Data_Siswa.xlsx'
       const disposition = response.headers.get('content-disposition')
       if (disposition && disposition.indexOf('attachment') !== -1) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
         const matches = filenameRegex.exec(disposition)
-        if (matches != null && matches[1]) { 
+        if (matches != null && matches[1]) {
           filename = matches[1].replace(/['"]/g, '')
         }
       }
@@ -172,7 +177,7 @@ function RouteComponent() {
       a.click()
       window.URL.revokeObjectURL(downloadUrl)
       document.body.removeChild(a)
-      
+
       toaster('Berhasil mengunduh data siswa', 'success')
     } catch (error: any) {
       console.error('Export error:', error)
@@ -200,17 +205,17 @@ function RouteComponent() {
             >
               <IconPlus size={18} /> Tambah Siswa
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-warning d-flex align-items-center gap-1"
               onClick={() => {
-                ;(window as any).$('#import-student-excel-modal').modal('show')
+                ; (window as any).$('#import-student-excel-modal').modal('show')
               }}
             >
               <IconUpload size={18} /> Import Siswa
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-success d-flex align-items-center gap-1"
               onClick={handleExport}
               disabled={isExporting}
@@ -232,7 +237,7 @@ function RouteComponent() {
                 <IconSearch size={18} />
               </button>
             </div>
-            
+
             <div className="input-group input-group-sm w-auto">
               <select
                 className="form-select bg-white"
