@@ -16,7 +16,7 @@ type Path<T> = T extends object
   : never
 
 export type ColumnDef<T> = {
-  header: string
+  header: string | React.ReactNode
   accessorKey?: Path<T>
   cell?: (row: T, index: number) => React.ReactNode
   classNameHead?: string

@@ -20,6 +20,7 @@ export const STUDENT = {
   CREATE: '/admin/students',
   UPDATE: '/admin/students/{id}',
   DELETE: '/admin/students/{id}',
+  BULK_DELETE: '/admin/students/bulk-delete',
   GET_BY_ID: '/students/{id}',
   EXAM_HISTORY: '/students/{id}/exam-history',
   EXAM_HISTORY_EXPORT: '/students/{id}/exam-history/export',

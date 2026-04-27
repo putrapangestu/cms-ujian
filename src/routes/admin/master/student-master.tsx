@@ -28,10 +28,67 @@ function RouteComponent() {
   const [groupId, setGroupId] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<StudentDataType>()
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const [isExporting, setIsExporting] = useState(false)
 
+  const { trigger: deleteTrigger } = useMutationAction(
+    STUDENT.DELETE,
+    'delete',
+    { refreshKey: STUDENT.GET },
+  )
+
+  const { trigger: bulkDeleteTrigger } = useMutationAction(
+    STUDENT.BULK_DELETE,
+    'post',
+    { refreshKey: STUDENT.GET },
+  )
+
+  const { data: studentGroupData } = useQueryData<
+    ApiResponsePaginationType<StudentGroupDataType>
+  >(STUDENT_GROUP.GET, { per_page: 1000 })
+
+  const { data } = useQueryData<ApiResponsePaginationType<StudentDataType>>(
+    STUDENT.GET,
+    { per_page: 10, page: page, search: search, group_id: groupId || undefined },
+  )
+
   const columns: ColumnDef<StudentDataType>[] = [
+    {
+      header: (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={data?.data && data.data.length > 0 && selectedIds.length === data.data.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds(data?.data?.map((s) => s.id as string) || [])
+              } else {
+                setSelectedIds([])
+              }
+            }}
+          />
+        </div>
+      ),
+      cell: (v) => (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={selectedIds.includes(v.id as string)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds((prev) => [...prev, v.id as string])
+              } else {
+                setSelectedIds((prev) => prev.filter((id) => id !== v.id))
+              }
+            }}
+          />
+        </div>
+      ),
+      width: '5%',
+    },
     { header: '#', cell: (_, i) => i + 1 },
     {
       header: 'Nama',
@@ -94,23 +151,16 @@ function RouteComponent() {
     },
   ]
 
-  const { trigger: deleteTrigger } = useMutationAction(
-    STUDENT.DELETE,
-    'delete',
-    { refreshKey: STUDENT.GET },
-  )
-
-  const { data: studentGroupData } = useQueryData<
-    ApiResponsePaginationType<StudentGroupDataType>
-  >(STUDENT_GROUP.GET, { per_page: 1000 })
-
-  const { data } = useQueryData<ApiResponsePaginationType<StudentDataType>>(
-    STUDENT.GET,
-    { per_page: 10, page: page, search: search, group_id: groupId || undefined },
-  )
-
   const deleteHandle = (student: StudentDataType) => {
     deleteDataAlert(student.name, () => deleteTrigger({ id: student.id }))
+  }
+
+  const handleBulkDelete = () => {
+    deleteDataAlert(`${selectedIds.length} Siswa Terpilih`, () => {
+      bulkDeleteTrigger({ student_ids: selectedIds }).then(() => {
+        setSelectedIds([])
+      })
+    })
   }
 
   const clickOpenModalHandle = (student?: StudentDataType) => {
@@ -198,6 +248,15 @@ function RouteComponent() {
             <p>List informasi siswa</p>
           </div>
           <div className="d-flex justify-content-start gap-2">
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                className="btn btn-danger d-flex align-items-center gap-1"
+                onClick={handleBulkDelete}
+              >
+                <IconTrash size={18} /> Hapus Terpilih ({selectedIds.length})
+              </button>
+            )}
             <button
               type="button"
               className="btn btn-primary d-flex align-items-center gap-1"
