@@ -1,6 +1,6 @@
 import { EXAM } from '@/data/const/api_url'
 import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
-import type { ApiResponsePaginationType } from '@/data/types/api_response'
+import type { ApiPaginatedResponse } from '@/data/types/api_response'
 import type { ExamHistoryDataType } from '@/data/validations/exam_schema'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -62,7 +62,7 @@ function RouteComponent() {
   }
 
   const { data, isLoading } = useQueryData<
-    ApiResponsePaginationType<ExamHistoryDataType>
+    ApiPaginatedResponse<ExamHistoryDataType>
   >(
     EXAM.HISTORY,
     {
@@ -95,21 +95,31 @@ function RouteComponent() {
       header: 'Waktu Ujian',
       cell: (row) => (
         <div>
-          <div className="text-muted small">Mulai: {formatDate(row.start_time)} {formatTime(row.start_time)}</div>
-          <div className="text-muted small">Selesai: {formatDate(row.end_time)} {formatTime(row.end_time)}</div>
+          <div className="text-muted small">Mulai: {formatDate(row.exam?.start_date)} {formatTime(row.exam?.start_date)}</div>
+          <div className="text-muted small">Selesai: {formatDate(row.exam?.end_date)} {formatTime(row.exam?.end_date)}</div>
         </div>
       ),
     },
     {
       accessorKey: 'status',
       header: 'Status',
-      cell: (row) => (
-        <span
-          className={`badge ${getStatusBadge(row.status)} rounded-pill`}
-        >
-          {getStatusText(row.status)}
-        </span>
-      ),
+      cell: (row) => {
+        let effectiveStatus = row.status
+        if (
+          effectiveStatus !== 'completed' &&
+          row.exam?.end_date &&
+          new Date(row.exam.end_date) < new Date()
+        ) {
+          effectiveStatus = 'expired'
+        }
+        return (
+          <span
+            className={`badge ${getStatusBadge(effectiveStatus)} rounded-pill`}
+          >
+            {getStatusText(effectiveStatus)}
+          </span>
+        )
+      },
     },
     {
       accessorKey: 'score',
@@ -157,10 +167,10 @@ function RouteComponent() {
 
           <DataTable
             columns={columns}
-            data={data?.data?.data || []}
+            data={data?.data || []}
             showPageSize={false}
             pageIndex={page}
-            rowCount={data?.data?.pagination?.total || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={(p) => setPage(p)}
             manualPagination
             isLoading={isLoading}

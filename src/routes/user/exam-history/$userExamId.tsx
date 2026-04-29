@@ -69,6 +69,13 @@ function RouteComponent() {
     }
   }
 
+  const getEffectiveStatus = (status: string, endDate: string | null) => {
+    if (status !== 'completed' && endDate && new Date(endDate) < new Date()) {
+      return 'expired'
+    }
+    return status
+  }
+
   if (isLoading) {
     return (
       <div className="container-fluid py-4 d-flex justify-content-center">
@@ -111,9 +118,17 @@ function RouteComponent() {
             <div className="card-body p-4">
               <h5 className="fw-bold mb-3">{detail.user_exam?.exam?.title}</h5>
               <div className="mb-3">
-                <span className={`badge ${getStatusBadge(detail.user_exam?.status)}`}>
-                  {getStatusText(detail.user_exam?.status)}
-                </span>
+                {(() => {
+                  const effectiveStatus = getEffectiveStatus(
+                    detail.user_exam?.status || '',
+                    detail.user_exam?.exam?.end_date || null
+                  )
+                  return (
+                    <span className={`badge ${getStatusBadge(effectiveStatus)}`}>
+                      {getStatusText(effectiveStatus)}
+                    </span>
+                  )
+                })()}
               </div>
               
               <hr className="my-4" />
@@ -122,13 +137,13 @@ function RouteComponent() {
                 <div className="d-flex justify-content-between">
                   <span className="text-muted">Waktu Mulai</span>
                   <span className="fw-semibold">
-                    {formatDate(detail.user_exam?.start_time)} {formatTime(detail.user_exam?.start_time)}
+                    {formatDate(detail.user_exam?.exam?.start_date)} {formatTime(detail.user_exam?.exam?.start_date)}
                   </span>
                 </div>
                 <div className="d-flex justify-content-between">
                   <span className="text-muted">Waktu Selesai</span>
                   <span className="fw-semibold">
-                    {formatDate(detail.user_exam?.end_time)} {formatTime(detail.user_exam?.end_time)}
+                    {formatDate(detail.user_exam?.exam?.end_date)} {formatTime(detail.user_exam?.exam?.end_date)}
                   </span>
                 </div>
               </div>
