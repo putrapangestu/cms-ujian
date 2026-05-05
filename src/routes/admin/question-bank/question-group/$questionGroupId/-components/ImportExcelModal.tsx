@@ -1,5 +1,6 @@
-import { IconX, IconDownload } from '@tabler/icons-react'
+import { IconX, IconDownload, IconPhoto, IconTrash } from '@tabler/icons-react'
 import { useForm } from 'react-hook-form'
+import { useState, useRef } from 'react'
 import { QUESTION_BANK, QUESTION } from '@/data/const/api_url'
 import { useMutationAction } from '@/data/hooks/api/useGlobalFetch'
 import { toaster, errorHtmlAlert } from '@/lib/toast'

@@ -83,6 +83,7 @@ export default function QuestionGroupModalCreate({
     code: '',
     question_category_id: '',
     status: 'active',
+    display_question_count: 0,
   }
 
   const form = useForm<QuestionGroupType>({
@@ -191,6 +192,29 @@ export default function QuestionGroupModalCreate({
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="display_question_count"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{'Jumlah Soal Ditampilkan'}</FormLabel>
+                    <FormControl>
+                      <input
+                        type="number"
+                        min={0}
+                        className="form-control"
+                        placeholder={'0'}
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <div className="form-text">
+                      Berapa soal dari grup ini yang ditampilkan saat ujian. Isi 0 untuk tampilkan semua.
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
