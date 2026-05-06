@@ -1,6 +1,6 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { EXAM, QUESTION, STUDENT, STUDENT_GROUP } from '@/data/const/api_url'
+import { EXAM, QUESTION, QUESTION_CATEGORY, QUESTION_GROUP } from '@/data/const/api_url'
 import {
   useQueryData,
   useMutationAction,
@@ -13,17 +13,15 @@ import type {
   ExamDataType,
   ExamQuestionRollType,
 } from '@/data/validations/exam_schema'
-import type { QuestionDataType } from '@/data/validations/question_schema'
 import type {
-  StudentDataType,
-  StudentGroupDataType,
-  StudentGroupRollType,
-} from '@/data/validations/student_schema'
-import { IconTrash, IconSearch } from '@tabler/icons-react'
+  QuestionDataType,
+  QuestionCategoryDataType,
+  QuestionGroupDataType,
+} from '@/data/validations/question_schema'
+import { IconTrash, IconSearch, IconFilter } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ChevronsRight, ChevronsLeft } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { da } from 'zod/v4/locales'
 
 export const Route = createFileRoute(
   '/admin/exam/exam-data/$examId/manage-questions',
@@ -39,6 +37,8 @@ function RouteComponent() {
   // --- STATE MANAGEMENT ---
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [selectedCategoryId, setSelectedCategoryId] = useState('')
+  const [selectedGroupId, setSelectedGroupId] = useState('')
 
   // State untuk menampung sementara siswa yang dicentang di tabel kiri (Keranjang)
   const [checkedLeft, setCheckedLeft] = useState<QuestionDataType[]>([])
@@ -50,15 +50,44 @@ function RouteComponent() {
   const [checkedRightIds, setCheckedRightIds] = useState<string[]>([])
 
   // --- DATA FETCHING ---
+  // Fetch semua kategori soal untuk dropdown
+  const { data: categoriesData } = useQueryData<
+    ApiResponsePaginationType<QuestionCategoryDataType>
+  >(QUESTION_CATEGORY.GET, { per_page: 9999 })
+
+  // Fetch grup soal berdasarkan kategori yang dipilih
+  const { data: groupsData } = useQueryData<
+    ApiResponsePaginationType<QuestionGroupDataType>
+  >(
+    QUESTION_GROUP.GET,
+    selectedCategoryId
+      ? { per_page: 9999, question_category_id: selectedCategoryId }
+      : { per_page: 9999 },
+  )
+
   const { data, isLoading } = useQueryData<
     ApiResponsePaginationType<QuestionDataType>
   >(QUESTION.GET, {
     page,
     search,
-    per_page: 10, // Sesuaikan dengan limit backend Anda
+    per_page: 10,
+    ...(selectedCategoryId ? { question_category_id: selectedCategoryId } : {}),
+    ...(selectedGroupId ? { question_group_id: selectedGroupId } : {}),
   })
+
+  // Reset grup jika kategori berubah
+  useEffect(() => {
+    setSelectedGroupId('')
+    setPage(1)
+  }, [selectedCategoryId])
+
+  // Reset halaman jika grup atau search berubah
+  useEffect(() => {
+    setPage(1)
+  }, [selectedGroupId, search])
+
   const { data: currentData, isLoading: currentIsLoading } = useQueryData<
-    ApiResponsePaginationType<StudentDataType>
+    ApiResponsePaginationType<QuestionDataType>
   >(EXAM.QUESTIONS, {
     id: examId,
     page: 1,
@@ -243,11 +272,56 @@ function RouteComponent() {
                   value={search}
                   onChange={(v) => setSearch(String(v))}
                   className="form-control"
-                  placeholder="Cari nama atau email..."
+                  placeholder="Cari soal..."
                 />
                 <span className="input-group-text bg-white">
                   <IconSearch size={16} />
                 </span>
+              </div>
+
+              {/* Filter Kategori & Grup Soal */}
+              <div className="row g-2">
+                <div className="col-sm-6">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text bg-white">
+                      <IconFilter size={14} />
+                    </span>
+                    <select
+                      id="filterCategory"
+                      className="form-select form-select-sm"
+                      value={selectedCategoryId}
+                      onChange={(e) => setSelectedCategoryId(e.target.value)}
+                    >
+                      <option value="">Semua Kategori</option>
+                      {(categoriesData?.data || []).map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text bg-white">
+                      <IconFilter size={14} />
+                    </span>
+                    <select
+                      id="filterGroup"
+                      className="form-select form-select-sm"
+                      value={selectedGroupId}
+                      onChange={(e) => setSelectedGroupId(e.target.value)}
+                      disabled={!selectedCategoryId}
+                    >
+                      <option value="">Semua Grup</option>
+                      {(groupsData?.data || []).map((grp) => (
+                        <option key={grp.id} value={grp.id}>
+                          {grp.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
 
               <div className="form-check d-flex align-items-center gap-2 border rounded p-2 bg-light">
