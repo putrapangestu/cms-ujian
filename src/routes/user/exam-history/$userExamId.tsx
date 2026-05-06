@@ -130,20 +130,32 @@ function RouteComponent() {
                   )
                 })()}
               </div>
-              
+
               <hr className="my-4" />
-              
+
               <div className="d-flex flex-column gap-3">
                 <div className="d-flex justify-content-between">
-                  <span className="text-muted">Waktu Mulai</span>
+                  <span className="text-muted">Tanggal Mulai Ujian</span>
                   <span className="fw-semibold">
                     {formatDate(detail.user_exam?.exam?.start_date)} {formatTime(detail.user_exam?.exam?.start_date)}
                   </span>
                 </div>
                 <div className="d-flex justify-content-between">
-                  <span className="text-muted">Waktu Selesai</span>
+                  <span className="text-muted">Tanggal Selesai Ujian</span>
                   <span className="fw-semibold">
                     {formatDate(detail.user_exam?.exam?.end_date)} {formatTime(detail.user_exam?.exam?.end_date)}
+                  </span>
+                </div>
+                <div className="d-flex justify-content-between">
+                  <span className="text-muted">Mulai Ujian</span>
+                  <span className="fw-semibold">
+                    {formatDate(detail.user_exam?.start_time)} {formatTime(detail.user_exam?.start_time)}
+                  </span>
+                </div>
+                <div className="d-flex justify-content-between">
+                  <span className="text-muted">Selesai Ujian</span>
+                  <span className="fw-semibold">
+                    {formatDate(detail.user_exam?.end_time)} {formatTime(detail.user_exam?.end_time)}
                   </span>
                 </div>
               </div>
@@ -153,7 +165,7 @@ function RouteComponent() {
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Ringkasan Nilai</h6>
-              
+
               <div className="text-center mb-4">
                 <div className="display-4 fw-bold text-primary mb-2">
                   {detail.summary?.total_score ?? '-'}
@@ -184,7 +196,7 @@ function RouteComponent() {
           <div className="card border-0 shadow-sm">
             <div className="card-body p-4">
               <h5 className="fw-bold mb-4">Laporan Pengerjaan</h5>
-              
+
               {detail.user_exam?.user_answers && detail.user_exam.user_answers.length > 0 ? (
                 <div className="d-flex flex-column gap-4">
                   {detail.user_exam.user_answers.map((ans, idx) => (
@@ -200,7 +212,7 @@ function RouteComponent() {
                               __html: ans.question?.question_text || '',
                             }}
                           />
-                          
+
                           {/* Options if available */}
                           {ans.question?.options && ans.question.options.length > 0 ? (
                             <div className="d-flex flex-column gap-2 mt-3">
@@ -208,15 +220,15 @@ function RouteComponent() {
                                 const isSelected = ans.option_id === opt.id
                                 const isCorrect = opt.id === ans.question.options.find(o => (o as any).is_correct)?.id // Assuming there's a way to know correct option, or maybe just based on the user's answer being correct and selected.
                                 // If the backend doesn't send the correct option id, we can just show what user selected.
-                                
+
                                 let badgeClass = 'bg-light text-dark'
                                 if (isSelected) {
                                   badgeClass = ans.is_correct ? 'bg-success text-white' : 'bg-danger text-white'
                                 }
 
                                 return (
-                                  <div 
-                                    key={opt.id} 
+                                  <div
+                                    key={opt.id}
                                     className={`p-2 rounded border d-flex align-items-center justify-content-between ${isSelected ? 'border-primary' : ''}`}
                                   >
                                     <div dangerouslySetInnerHTML={{ __html: opt.option_text }} />

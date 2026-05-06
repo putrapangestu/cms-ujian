@@ -1,5 +1,5 @@
 import { EXAM } from '@/data/const/api_url'
-import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch'
+import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch'
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
 import { useAuthStore } from '@/data/store/auth_store'
@@ -60,6 +60,20 @@ function RouteComponent() {
   // const answeredQuestions = Object.keys(answers).length;
   const answeredQuestions = getAnswerCount(examId)
   const currentAnswer = getAnswer(examId, String(currentQuestion))
+
+  const { trigger: triggerFinish } = useMutationAction(EXAM.FINISH, 'post', {
+    showMessage: false,
+    onSuccess: () => {
+      // Clear answers dari local storage setelah disubmit
+      clearExamAnswers(examId)
+      // Set local state agar komponen re-render ke tampilan selesai
+      setHasSubmitted(true)
+    },
+    onError: () => {
+      Swal.fire('Gagal!', 'Terjadi kesalahan saat mensubmit ujian. Silakan coba lagi.', 'error')
+      isSubmitting.current = false
+    }
+  })
 
   // 1. Inisialisasi Socket DULU agar saat timer habis, socketRef sudah terisi
   useEffect(() => {
@@ -124,7 +138,7 @@ function RouteComponent() {
     const updateCountdown = () => {
       const now = dayjs()
       const diff = endTime.diff(now, 'second')
-      
+
       if (diff <= 0) {
         setTimeRemaining(0)
         if (timer) clearInterval(timer)
@@ -136,13 +150,13 @@ function RouteComponent() {
         setTimeRemaining(diff)
       }
     }
-    
+
     // First run immediately
     updateCountdown()
-    
+
     // Then run every second
     timer = setInterval(updateCountdown, 1000)
-    
+
     return () => {
       if (timer) clearInterval(timer)
     }
@@ -152,7 +166,7 @@ function RouteComponent() {
     // Memastikan tidak muncul pop up berulang kali jika status sedang mensubmit
     if (isSubmitting.current) return
     isSubmitting.current = true
-    
+
     Swal.fire({
       title: 'Waktu Habis!',
       text: 'Waktu ujian telah habis! Jawaban Anda akan otomatis disubmit.',
@@ -169,37 +183,22 @@ function RouteComponent() {
     // The alert above might block thread, set flag again to be safe
     isSubmitting.current = true
 
+    // Format answers untuk failsafe di API
+    const questions = getExamAnswers(examId).map((ans) => ({
+      question_id: ans.questionId,
+      answer: ans.answer,
+    }))
+
+    // 1. Panggil REST API Finish (Source of Truth untuk kalkulasi)
+    triggerFinish({
+      id: examId, // Untuk URL replacement {id}
+      questions
+    })
+
+    // 2. Tutup socket karena ujian sudah selesai
     if (socketRef.current) {
-      const payload = {
-        exam_id: Number(examId),
-        student_id: Number(user?.id),
-        user_exam_id: data?.data?.user_exam?.id,
-      }
-      console.log('--- DEBUG: MENGIRIM FINISH EXAM ---');
-      console.log('Payload:', payload);
-      console.log('Socket Connected?', socketRef.current.connected);
-      socketRef.current.emit('finish_exam', payload)
-      console.log('Ujian disubmit (finish_exam):', payload)
-    } else {
-      console.error('--- DEBUG: SOCKET REF KOSONG, TIDAK BISA EMIT FINISH EXAM ---');
+      socketRef.current.close()
     }
-    
-    // Memberikan waktu sedikit agar event socket sempat terkirim sebelum halaman dimatikan/redirect
-    setTimeout(() => {
-      // Clean up socket sebelum redirect
-      if (socketRef.current) {
-        socketRef.current.close()
-      }
-      
-      // Clear answers dari local storage setelah disubmit
-      clearExamAnswers(examId)
-      
-      // Set local state agar komponen re-render ke tampilan kosong (daripada refresh)
-      setHasSubmitted(true)
-      
-      console.log('--- DEBUG: Mencegah auto-redirect, data telah di-clear. Menunggu instruksi selanjutnya. ---')
-      // window.location.href = '/user/exam'
-    }, 500)
   }
 
   useEffect(() => {
@@ -354,13 +353,13 @@ function RouteComponent() {
         <div className="card shadow-sm p-5 mx-auto" style={{ maxWidth: '600px' }}>
           <h3 className="text-success mb-3">Ujian Selesai!</h3>
           <p className="text-muted mb-4">
-            Ujian Anda telah berhasil disubmit. Karena mode Debugging sedang aktif, Anda tidak otomatis dialihkan.
+            Ujian Anda telah berhasil disubmit. Selamat Telah Menyelesaikan Ujian Ini!
           </p>
           <p className="text-muted">
-            Anda dapat mengecek Network / Console log sekarang.
+            Silahkan menunggu Informasi Selanjutnya
           </p>
-          <button 
-            className="btn btn-primary mt-3" 
+          <button
+            className="btn btn-primary mt-3"
             onClick={() => window.location.href = '/user/exam'}
           >
             Kembali ke Beranda

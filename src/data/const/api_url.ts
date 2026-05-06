@@ -84,6 +84,7 @@ export const EXAM = {
   DETAIL_HISTORY: '/exams/history/{id}',
   START: '/exams/{id}/start',
   GET_QUESTIONS_USER: '/exams/{id}/questions-for-student/{userId}',
+  FINISH: '/exams/{id}/finish',
 } as const satisfies UrlGroupType
 
 export const EXAM_MONITORING = {
