@@ -66,6 +66,7 @@ export const QUESTION = {
   CREATE: '/questions',
   UPDATE: '/questions/{id}',
   DELETE: '/questions/{id}',
+  BULK_DELETE: '/questions/bulk-delete',
   GET_BY_ID: '/admin/questions/{id}',
 } as const satisfies UrlGroupType
 

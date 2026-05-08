@@ -33,6 +33,7 @@ function RouteComponent() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<number[]>([])
 
   const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     QUESTION.GET,
@@ -48,11 +49,60 @@ function RouteComponent() {
     { refreshKey: QUESTION.GET },
   )
 
+  const { trigger: bulkDeleteTrigger } = useMutationAction(
+    QUESTION.BULK_DELETE,
+    'post',
+    { refreshKey: QUESTION.GET },
+  )
+
   const clickDeleteHandle = (question: QuestionDataType) => {
     deleteDataAlert('Hapus Soal', () => deleteTrigger({ id: question.id }))
   }
 
+  const handleBulkDelete = () => {
+    deleteDataAlert(`${selectedIds.length} Soal Terpilih`, () => {
+      bulkDeleteTrigger({ question_ids: selectedIds }).then(() => {
+        setSelectedIds([])
+      })
+    })
+  }
+
   const columns: ColumnDef<QuestionDataType>[] = [
+    {
+      header: (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={!!(data?.data && data.data.length > 0 && selectedIds.length === data.data.length)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds(data?.data?.map((s) => s.id as number) || [])
+              } else {
+                setSelectedIds([])
+              }
+            }}
+          />
+        </div>
+      ),
+      cell: (v) => (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={selectedIds.includes(v.id as number)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds((prev) => [...prev, v.id as number])
+              } else {
+                setSelectedIds((prev) => prev.filter((id) => id !== v.id))
+              }
+            }}
+          />
+        </div>
+      ),
+      width: '5%',
+    },
     { header: '#', cell: (_, i) => i + 1 },
     {
       header: 'Soal',
@@ -165,6 +215,15 @@ function RouteComponent() {
             )}
 
             <div className="d-flex justify-content-start gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-danger d-flex align-items-center gap-1"
+                  onClick={handleBulkDelete}
+                >
+                  <IconTrash size={18} /> Hapus Terpilih ({selectedIds.length})
+                </button>
+              )}
               <button
                 type="button"
                 className="btn btn-primary"
@@ -251,7 +310,7 @@ function RouteComponent() {
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={data?.data?.length || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
           />
