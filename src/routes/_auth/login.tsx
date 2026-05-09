@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_auth/login')({
 })
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  username: z.string().min(1, 'Username is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 type LoginFormData = z.infer<typeof loginSchema>
@@ -33,7 +33,7 @@ function RouteComponent() {
     mode: 'onChange',
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   })
@@ -50,15 +50,15 @@ function RouteComponent() {
             <form onSubmit={form.handleSubmit((data) => trigger(data))}>
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Username</FormLabel>
                     <FormControl>
                       <input
                         className="form-control"
-                        placeholder="Masukkkan email"
-                        type="email"
+                        placeholder="Masukkan username"
+                        type="text"
                         {...field}
                       />
                     </FormControl>
