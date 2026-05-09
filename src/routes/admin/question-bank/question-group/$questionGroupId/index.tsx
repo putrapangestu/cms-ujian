@@ -74,12 +74,13 @@ function RouteComponent() {
           <input
             className="form-check-input"
             type="checkbox"
-            checked={!!(data?.data && data.data.length > 0 && selectedIds.length === data.data.length)}
+            checked={!!(data?.data && data.data.length > 0 && data.data.every(s => selectedIds.includes(s.id as number)))}
             onChange={(e) => {
+              const currentPageIds = data?.data?.map((s) => s.id as number) || []
               if (e.target.checked) {
-                setSelectedIds(data?.data?.map((s) => s.id as number) || [])
+                setSelectedIds((prev) => Array.from(new Set([...prev, ...currentPageIds])))
               } else {
-                setSelectedIds([])
+                setSelectedIds((prev) => prev.filter((id) => !currentPageIds.includes(id)))
               }
             }}
           />
