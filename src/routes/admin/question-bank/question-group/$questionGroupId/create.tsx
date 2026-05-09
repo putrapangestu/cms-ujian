@@ -22,6 +22,7 @@ import TrueFalseAnswer from './-components/TrueFalseAnswer'
 import EssayAnswer from './-components/EssayAnswer'
 import ChoiceOptions from './-components/ChoiceOption'
 import { useEffect } from 'react'
+import { toaster } from '@/lib/toast'
 
 export const Route = createFileRoute(
   '/admin/question-bank/question-group/$questionGroupId/create',
@@ -155,6 +156,30 @@ function RouteComponent() {
             <form
               onSubmit={handleSubmit(onSubmit, (errors) => {
                 console.log('Form validation errors:', errors)
+                const firstErrorKey = Object.keys(errors)[0] as keyof QuestionType;
+                if (firstErrorKey) {
+                  const errorObj = errors[firstErrorKey] as any;
+                  let message = "Terdapat kesalahan pada form";
+                  if (errorObj?.message) {
+                    message = errorObj.message;
+                  } else if (Array.isArray(errorObj) && errorObj.length > 0) {
+                     const firstArrError = errorObj.find(e => e !== undefined);
+                     if (firstArrError) {
+                        const innerKey = Object.keys(firstArrError)[0];
+                        if (firstArrError[innerKey]?.message) {
+                           message = `Opsi: ${firstArrError[innerKey].message}`;
+                        }
+                     }
+                  } else if (typeof errorObj === 'object' && Object.keys(errorObj).length > 0) {
+                     const innerKey = Object.keys(errorObj)[0];
+                     if (errorObj[innerKey]?.message) {
+                        message = errorObj[innerKey].message;
+                     }
+                  }
+                  toaster(message, 'error')
+                } else {
+                  toaster('Pastikan semua field terisi dengan benar', 'error')
+                }
               })}
               className="card-body p-4 p-md-5"
             >
@@ -230,6 +255,7 @@ function RouteComponent() {
                   register={register}
                   watch={watch}
                   control={control}
+                  setValue={setValue}
                 />
               )}
 

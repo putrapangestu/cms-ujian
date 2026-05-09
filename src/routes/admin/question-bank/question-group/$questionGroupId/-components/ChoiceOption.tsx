@@ -5,6 +5,7 @@ import {
   type Control,
   type UseFormRegister,
   type UseFormWatch,
+  type UseFormSetValue,
 } from 'react-hook-form'
 
 interface ChoiceOptionsProps {
@@ -15,6 +16,7 @@ interface ChoiceOptionsProps {
   register: UseFormRegister<any>
   watch: UseFormWatch<any>
   control: Control<any>
+  setValue: UseFormSetValue<any>
 }
 
 const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
@@ -25,6 +27,7 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
   register,
   watch,
   control,
+  setValue,
 }) => {
   
   return (
@@ -78,12 +81,15 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
                         cursor: 'pointer',
                       }}
                       {...register(`options.${index}.is_correct`)}
-                      // Logika radio group: jika single choice, beri name yang sama agar saling toggle
-                      name={
-                        questionType === 'single_choice'
-                          ? 'correctAnswerGroup'
-                          : `options.${index}.is_correct`
-                      }
+                      onChange={(e) => {
+                        if (questionType === 'single_choice') {
+                          fields.forEach((_, i) => {
+                            setValue(`options.${i}.is_correct`, i === index, { shouldValidate: true })
+                          })
+                        } else {
+                          setValue(`options.${index}.is_correct`, e.target.checked, { shouldValidate: true })
+                        }
+                      }}
                     />
                   </div>
 
