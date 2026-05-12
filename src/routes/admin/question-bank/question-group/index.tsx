@@ -68,6 +68,14 @@ function RouteComponent() {
       },
     },
     {
+      header: 'No. Soal',
+      cell: (v) => (
+        <span className="badge bg-primary-subtle text-primary px-2 py-1">
+          {v.number_start ?? '-'} s/d {v.number_end ?? '-'}
+        </span>
+      ),
+    },
+    {
       header: 'Deskripsi',
       cell: (v) => (
         <span className="text-truncate w-100 d-block">

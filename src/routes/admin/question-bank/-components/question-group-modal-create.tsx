@@ -84,6 +84,8 @@ export default function QuestionGroupModalCreate({
     question_category_id: '',
     status: 'active',
     display_question_count: 0,
+    number_start: undefined,
+    number_end: undefined,
   }
 
   const form = useForm<QuestionGroupType>({
@@ -219,6 +221,52 @@ export default function QuestionGroupModalCreate({
                   </FormItem>
                 )}
               />
+              <div className="row">
+                <div className="col-md-6">
+                  <FormField
+                    control={form.control}
+                    name="number_start"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{'No. Mulai'}</FormLabel>
+                        <FormControl>
+                          <input
+                            type="number"
+                            className="form-control"
+                            placeholder={'Contoh: 1'}
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-md-6">
+                  <FormField
+                    control={form.control}
+                    name="number_end"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{'No. Selesai'}</FormLabel>
+                        <FormControl>
+                          <input
+                            type="number"
+                            className="form-control"
+                            placeholder={'Contoh: 30'}
+                            {...field}
+                            value={field.value ?? ''}
+                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
               <FormField
                 control={form.control}
                 name="status"

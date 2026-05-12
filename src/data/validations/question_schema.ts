@@ -8,6 +8,8 @@ export const questioniGroupSchema = z.object({
   status: z.string().min(1).max(255),
   question_category_id: z.string().min(1).max(255),
   display_question_count: z.coerce.number().int().min(0).optional(),
+  number_start: z.coerce.number().int().min(0).optional(),
+  number_end: z.coerce.number().int().min(0).optional(),
 })
 
 export type QuestionGroupType = z.infer<typeof questioniGroupSchema>
