@@ -8,7 +8,7 @@ export default function DashboardSummaryCards() {
     success: boolean
     data: {
       total_students: number
-      total_questions: number
+      total_question_banks: number
       total_exams: number
     }
   }>(DASHBOARD.SUMMARY)
@@ -29,7 +29,7 @@ export default function DashboardSummaryCards() {
     },
     {
       title: 'Total Bank Soal',
-      value: summaryData?.total_questions || 0,
+      value: summaryData?.total_question_banks || 0,
       Icon: FileText,
       bgClass: 'bg-success text-white',
       textClass: 'text-success'

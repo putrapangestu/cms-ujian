@@ -30,6 +30,21 @@ export const Route = createFileRoute(
   component: RouteComponent,
 })
 
+// Fungsi bantuan untuk menerjemahkan pesan error bawaan Zod ke Bahasa Indonesia
+const translateErrorMsg = (msg: string) => {
+  if (!msg) return 'Wajib diisi';
+  const lowerMsg = msg.toLowerCase();
+  if (lowerMsg === 'required') return 'Wajib diisi';
+  if (lowerMsg.includes('expected') || lowerMsg.includes('invalid type')) return 'Format tidak valid';
+  if (lowerMsg.includes('string must contain at least')) {
+    const match = msg.match(/\d+/);
+    const min = match ? match[0] : '1';
+    return `Minimal harus diisi ${min} karakter`;
+  }
+  if (lowerMsg.includes('too small')) return 'Karakter terlalu pendek atau belum diisi';
+  return msg;
+}
+
 function RouteComponent() {
   const navigate = useNavigate()
   const { questionGroupId } = Route.useParams()
@@ -161,19 +176,19 @@ function RouteComponent() {
                   const errorObj = errors[firstErrorKey] as any;
                   let message = "Terdapat kesalahan pada form";
                   if (errorObj?.message) {
-                    message = errorObj.message;
+                    message = translateErrorMsg(errorObj.message);
                   } else if (Array.isArray(errorObj) && errorObj.length > 0) {
                      const firstArrError = errorObj.find(e => e !== undefined);
                      if (firstArrError) {
                         const innerKey = Object.keys(firstArrError)[0];
                         if (firstArrError[innerKey]?.message) {
-                           message = `Opsi: ${firstArrError[innerKey].message}`;
+                           message = `Opsi: ${translateErrorMsg(firstArrError[innerKey].message)}`;
                         }
                      }
                   } else if (typeof errorObj === 'object' && Object.keys(errorObj).length > 0) {
                      const innerKey = Object.keys(errorObj)[0];
                      if (errorObj[innerKey]?.message) {
-                        message = errorObj[innerKey].message;
+                        message = translateErrorMsg(errorObj[innerKey].message);
                      }
                   }
                   toaster(message, 'error')

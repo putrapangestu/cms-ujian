@@ -24,13 +24,18 @@ function RouteComponent() {
   const navigate = useNavigate()
 
   const [page, setPage] = useState(1)
+  const [perPage] = useState(10)
   const [search, setSearch] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<QuestionGroupDataType>()
 
   const { data } = useQueryData<
     ApiResponsePaginationType<QuestionGroupDataType>
-  >(QUESTION_GROUP.GET)
+  >(QUESTION_GROUP.GET, {
+    per_page: perPage,
+    page: page,
+    search: search || undefined,
+  })
   const { trigger: deleteTrigger } = useMutationAction(
     QUESTION_GROUP.DELETE,
     'delete',
@@ -143,7 +148,7 @@ function RouteComponent() {
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={data?.data?.length || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
           />
