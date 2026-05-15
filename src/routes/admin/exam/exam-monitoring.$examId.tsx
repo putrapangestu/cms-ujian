@@ -154,7 +154,7 @@ function ExamMonitoringDetail() {
 function MonitoringTable({ searchQuery }: { searchQuery: string }) {
   const participantsMap = useMonitoringStore((state) => state.participants);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 1000;
   
   // Filter participants based on search query
   const participantIds = Object.keys(participantsMap).filter((id) => {
