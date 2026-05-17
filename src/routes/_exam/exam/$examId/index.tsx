@@ -64,7 +64,10 @@ function RouteComponent() {
     ApiResponseType<'single', ExamDetailDataType>
   >(EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id || '' })
   // const answeredQuestions = Object.keys(answers).length;
-  const answeredQuestions = getAnswerCount(examId)
+  // const answeredQuestions = getAnswerCount(examId)
+  const answeredQuestions = getExamAnswers(examId).filter(
+    (ans) => ans.answer !== '' && ans.answer !== '[]'
+  ).length
   const currentAnswer = getAnswer(examId, String(currentQuestion))
 
   const { trigger: triggerFinish } = useMutationAction(EXAM.FINISH, 'post', {
@@ -312,10 +315,11 @@ function RouteComponent() {
   }
 
   const getQuestionStatus = (num: number) => {
-    const isDoubtful = getAnswer(examId, String(num))?.isDoubtful
+    // const isDoubtful = getAnswer(examId, String(num))?.isDoubtful
     if (num === currentQuestion) return 'active'
-    if (isDoubtful) return 'doubtful'
-    if (hasAnswer(examId, String(num)) && getAnswer(examId, String(num))?.answer !== '') return 'answered'
+    // if (isDoubtful) return 'doubtful'
+    const ans = getAnswer(examId, String(num))?.answer
+    if (hasAnswer(examId, String(num)) && ans !== '' && ans !== '[]') return 'answered'
     return 'unanswered'
   }
 
@@ -431,14 +435,14 @@ function RouteComponent() {
             handleAnswerSelect={handleAnswerSelect}
             selectedAnswer={currentAnswer?.answer as string}
             totalQuestions={data?.data?.questions.length || 0}
-            isDoubtful={currentAnswer?.isDoubtful || false}
-            onToggleDoubtful={() => toggleDoubtful(examId, String(currentQuestion))}
+            // isDoubtful={currentAnswer?.isDoubtful || false}
+            // onToggleDoubtful={() => toggleDoubtful(examId, String(currentQuestion))}
           />
         </div>
 
         {/* Right Section - Info & Navigation */}
         <div className="col-lg-3 col-xl-3">
-          <UserSection user={data?.data?.user?.student} />
+          <UserSection user={data?.data?.user_exam?.user?.student} />
           <TimerCard seconds={timeRemaining} />
 
           {/* Question Navigator */}
@@ -464,8 +468,8 @@ function RouteComponent() {
 
                   if (status === 'active') {
                     btnClass = 'btn-dark legend-number'
-                  } else if (status === 'doubtful') {
-                    btnClass = 'btn-warning'
+                  // } else if (status === 'doubtful') {
+                  //   btnClass = 'btn-warning'
                   } else if (status === 'answered') {
                     btnClass = 'btn-success'
                   }

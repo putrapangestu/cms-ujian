@@ -9,7 +9,7 @@ export function UserSection({ user }: { user?: any }) {
           <strong>Nama:</strong> {user?.name || 'N/A'}
         </div>
         <div className="mb-2">
-          <strong>NIS:</strong> {user?.nisn || 'N/A'}
+          <strong>Sekolah:</strong> {user?.address || 'N/A'}
         </div>
         <div className="mb-0">
           <strong>Kelas:</strong> {user?.group?.name || 'N/A'}

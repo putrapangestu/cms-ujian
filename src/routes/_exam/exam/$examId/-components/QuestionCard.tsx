@@ -7,8 +7,8 @@ type QuestionCardProps = {
   handleAnswerSelect: (label: string) => void
   selectedAnswer: string | null
   totalQuestions: number
-  isDoubtful?: boolean
-  onToggleDoubtful?: () => void
+  // isDoubtful?: boolean
+  // onToggleDoubtful?: () => void
 }
 export default function QuestionCard({
   currentQuestion,
@@ -17,8 +17,8 @@ export default function QuestionCard({
   handleAnswerSelect,
   selectedAnswer,
   totalQuestions,
-  isDoubtful = false,
-  onToggleDoubtful,
+  // isDoubtful = false,
+  // onToggleDoubtful,
 }: QuestionCardProps) {
   const question = questions?.[currentQuestion - 1]
   const qType = (question as any)?.type || (question as any)?.question_type || 'single_choice'
@@ -131,11 +131,23 @@ export default function QuestionCard({
             </button>
           </div>
           <div className="col-4">
-            <button 
+            {/* <button 
               className={`btn w-100 ${isDoubtful ? 'btn-outline-warning text-white' : 'btn-warning'}`}
               onClick={onToggleDoubtful}
             >
               {isDoubtful ? 'Batal Ragu' : 'Ragu - Ragu'}
+            </button> */}
+            <button 
+              className="btn btn-warning w-100 text-white"
+              onClick={() => {
+                if (qType === 'multiple_choice') {
+                  handleAnswerSelect('[]')
+                } else {
+                  handleAnswerSelect('')
+                }
+              }}
+            >
+              Hapus Jawaban
             </button>
           </div>
           <div className="col-4">

@@ -8,7 +8,8 @@ export const examSchema = z.object({
   passing_score: z.number().min(0),
   start_date: z.string().min(1).max(255),
   end_date: z.string().min(1).max(255),
-  student_groups: z.array(z.string().min(1).max(255)),
+  student_groups: z.array(z.string().min(1).max(255)).optional(),
+  total_questions: z.number().min(1),
 })
 
 export type ExamType = z.infer<typeof examSchema>
@@ -39,10 +40,13 @@ export type OptionDataType = {
   option_text: string
 }
 
-export type UserExamDataType = {
+export type UserDataType = {
   id: string,
   name: string,
-  email: string
+  email: string,
+  nisn?: string, 
+  address?: string,
+  group_name?: string,
   student?: StudentExamDataType
 }
 
@@ -77,12 +81,7 @@ export type UserExamDataType = DefaultDataType & {
   score_tkp?: number
   is_passed?: boolean
   status: string
-  user?: {
-    name: string
-    email: string
-    nisn: string
-    group_name: string
-  }
+  user?: UserDataType
 }
 
 export type ExamDetailDataType = {
@@ -90,7 +89,6 @@ export type ExamDetailDataType = {
   questions: QuestionDataType[]
   student: StudentExamDataType
   user_exam: UserExamDataType
-  user: UserExamDataType
 }
 
 export type UserAnswerDataType = {
