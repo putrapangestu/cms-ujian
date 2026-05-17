@@ -1,7 +1,7 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { EXAM } from '@/data/const/api_url'
-import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
+import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { ExamDataType } from '@/data/validations/exam_schema'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import ExamModalCreate from '../-components/exam-modal-create'
 import dayjs from 'dayjs'
 import { formatDate, formatTime } from '@/lib/date-format'
+import { confirmAlert } from '@/lib/toast'
 
 export const Route = createFileRoute('/admin/exam/exam-data/')({
   component: RouteComponent,
@@ -38,10 +39,27 @@ function RouteComponent() {
     setPage(1)
   }, [search])
 
-  const { data, isLoading } = useQueryData<ApiResponsePaginationType<ExamDataType>>(
+  const { data, isLoading, refetch } = useQueryData<ApiResponsePaginationType<ExamDataType>>(
     EXAM.GET,
     { page: page, per_page: 10, search: search },
   )
+
+  const { trigger: deleteExam } = useMutationAction(
+    EXAM.DELETE,
+    'delete',
+    { refreshKey: EXAM.GET }
+  )
+
+  const handleDelete = (exam: ExamDataType) => {
+    confirmAlert(
+      'Hapus Ujian',
+      async () => await deleteExam({ id: exam.id }),
+      `Apakah Anda yakin ingin menghapus ujian "${exam.title}"?`,
+      () => {
+        if (refetch) refetch()
+      }
+    )
+  }
 
   const columns: ColumnDef<ExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
@@ -97,7 +115,11 @@ function RouteComponent() {
           >
             <IconEdit size={18} />
           </button>
-          <button type="button" className="btn btn-md rounded-1 btn-danger">
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-danger"
+            onClick={() => handleDelete(v)}
+          >
             <IconTrash size={18} />
           </button>
         </div>
