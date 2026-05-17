@@ -39,6 +39,13 @@ export type OptionDataType = {
   option_text: string
 }
 
+export type UserExamDataType = {
+  id: string,
+  name: string,
+  email: string
+  student?: StudentExamDataType
+}
+
 export type QuestionDataType = {
   id: string
   question_number: number
@@ -83,6 +90,7 @@ export type ExamDetailDataType = {
   questions: QuestionDataType[]
   student: StudentExamDataType
   user_exam: UserExamDataType
+  user: UserExamDataType
 }
 
 export type UserAnswerDataType = {

@@ -432,7 +432,7 @@ function RouteComponent() {
 
         {/* Right Section - Info & Navigation */}
         <div className="col-lg-3 col-xl-3">
-          <UserSection user={data?.data?.student} />
+          <UserSection user={data?.data?.user?.student} />
           <TimerCard seconds={timeRemaining} />
 
           {/* Question Navigator */}
