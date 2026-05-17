@@ -10,7 +10,7 @@ import type {
 } from '@/data/validations/question_schema'
 import { IconSearch } from '@tabler/icons-react'
 import { useNavigate } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Select from 'react-select'
 
 export function QuestionPane({ examId }: { examId: string }) {
@@ -20,6 +20,10 @@ export function QuestionPane({ examId }: { examId: string }) {
   const [questionGroupFilter, setQuestionGroupFilter] = useState<string>('')
   const [questionCategoryFilter, setQuestionCategoryFilter] =
     useState<string>('')
+
+  useEffect(() => {
+    setPage(1)
+  }, [search])
 
   // Helper for question type translation
   const getQuestionTypeLabel = (type: string | undefined) => {
@@ -68,7 +72,7 @@ export function QuestionPane({ examId }: { examId: string }) {
     [categoriesData],
   )
 
-  const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
+  const { data, isLoading } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     EXAM.QUESTIONS,
     {
       id: examId,
@@ -194,9 +198,10 @@ export function QuestionPane({ examId }: { examId: string }) {
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={data?.data?.length || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
+            isLoading={isLoading}
           />
         </div>
       </div>

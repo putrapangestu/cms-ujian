@@ -21,7 +21,7 @@ import type {
 import { IconTrash, IconSearch, IconFilter } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ChevronsRight, ChevronsLeft } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 export const Route = createFileRoute(
   '/admin/exam/exam-data/$examId/manage-questions',
@@ -39,6 +39,11 @@ function RouteComponent() {
   const [search, setSearch] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
   const [selectedGroupId, setSelectedGroupId] = useState('')
+
+  // State filter untuk tabel kanan (Soal Terpilih)
+  const [searchRight, setSearchRight] = useState('')
+  const [selectedCategoryIdRight, setSelectedCategoryIdRight] = useState('')
+  const [selectedGroupIdRight, setSelectedGroupIdRight] = useState('')
 
   // State untuk menampung sementara siswa yang dicentang di tabel kiri (Keranjang)
   const [checkedLeft, setCheckedLeft] = useState<QuestionDataType[]>([])
@@ -62,6 +67,16 @@ function RouteComponent() {
     QUESTION_GROUP.GET,
     selectedCategoryId
       ? { per_page: 9999, question_category_id: selectedCategoryId }
+      : { per_page: 9999 },
+  )
+
+  // Fetch grup soal untuk dropdown filter tabel kanan
+  const { data: groupsDataRight } = useQueryData<
+    ApiResponsePaginationType<QuestionGroupDataType>
+  >(
+    QUESTION_GROUP.GET,
+    selectedCategoryIdRight
+      ? { per_page: 9999, question_category_id: selectedCategoryIdRight }
       : { per_page: 9999 },
   )
 
@@ -108,12 +123,37 @@ function RouteComponent() {
     }
   }, [currentData])
 
+  // --- LOGIC: FILTER LOKAL TABEL KANAN ---
+  const filteredRightData = useMemo(() => {
+    return rightData.filter((item: any) => {
+      const textMatch = (item.question_text || '')
+        .toLowerCase()
+        .includes(searchRight.toLowerCase())
+      const groupMatch = selectedGroupIdRight
+        ? item.question_group_id === selectedGroupIdRight
+        : true
+      const catId =
+        item.questionGroup?.question_category_id ||
+        item.questionGroup?.questionCategory?.id
+      const catMatch =
+        selectedCategoryIdRight && catId
+          ? catId === selectedCategoryIdRight
+          : true
+
+      return textMatch && groupMatch && catMatch
+    })
+  }, [rightData, searchRight, selectedGroupIdRight, selectedCategoryIdRight])
+
   // --- LOGIC: SELECT ALL (DI LUAR TABEL) ---
 
-  // Cek apakah semua item di halaman saat ini sudah ada di checkedLeft
+  // Filter data halaman saat ini yang belum ada di rightData (soal yang bisa dipilih)
+  const availablePageData = currentPageData.filter(
+    (question) => !rightData.some((r) => r.id === question.id),
+  )
+
   const isAllCurrentPageChecked =
-    currentPageData.length > 0 &&
-    currentPageData.every((question) =>
+    availablePageData.length > 0 &&
+    availablePageData.every((question) =>
       checkedLeft.some((s) => s.id === question.id),
     )
 
@@ -121,21 +161,22 @@ function RouteComponent() {
     if (isChecked) {
       setCheckedLeft((prev) => {
         const existingIds = new Set(prev.map((s) => s.id))
-        const toAdd = currentPageData.filter((s) => !existingIds.has(s.id))
+        const toAdd = availablePageData.filter((s) => !existingIds.has(s.id))
         return [...prev, ...toAdd]
       })
     } else {
-      const currentPageIds = new Set(currentPageData.map((s) => s.id))
-      setCheckedLeft((prev) => prev.filter((s) => !currentPageIds.has(s.id)))
+      const pageIds = new Set(availablePageData.map((s) => s.id))
+      setCheckedLeft((prev) => prev.filter((s) => !pageIds.has(s.id)))
     }
   }
 
   const isAllRightChecked =
-    rightData.length > 0 && checkedRightIds.length === rightData.length
+    filteredRightData.length > 0 &&
+    checkedRightIds.length === filteredRightData.length
 
   const handleToggleAllRight = (isChecked: boolean) => {
     if (isChecked) {
-      setCheckedRightIds(rightData.map((s) => s.id))
+      setCheckedRightIds(filteredRightData.map((s) => s.id))
     } else {
       setCheckedRightIds([])
     }
@@ -160,32 +201,42 @@ function RouteComponent() {
   const leftColumns: ColumnDef<QuestionDataType>[] = [
     {
       header: 'Pilih',
-      cell: (v: any) => (
-        <input
-          type="checkbox"
-          className="form-check-input shadow-none"
-          checked={checkedLeft.some((s) => s.id === v.id)}
-          onChange={(e) => {
-            if (e.target.checked) setCheckedLeft((prev) => [...prev, v])
-            else setCheckedLeft((prev) => prev.filter((s) => s.id !== v.id))
-          }}
-        />
-      ),
+      cell: (v: any) => {
+        const isSelected = rightData.some((r) => r.id === v.id)
+        return (
+          <input
+            type="checkbox"
+            className="form-check-input shadow-none"
+            checked={isSelected || checkedLeft.some((s) => s.id === v.id)}
+            disabled={isSelected}
+            onChange={(e) => {
+              if (e.target.checked) setCheckedLeft((prev) => [...prev, v])
+              else setCheckedLeft((prev) => prev.filter((s) => s.id !== v.id))
+            }}
+          />
+        )
+      },
     },
     {
       header: '#',
-      cell: (_, i) => (page - 1) * 10 + i + 1,
+      cell: (_, i) => i + 1,
     },
     {
       header: 'Pertanyaan',
-      cell: (v: any) => (
-        <div>
-          <h6
-            className="mb-0"
-            dangerouslySetInnerHTML={{ __html: v.question_text }}
-          ></h6>
-        </div>
-      ),
+      cell: (v: any) => {
+        const isSelected = rightData.some((r) => r.id === v.id)
+        return (
+          <div>
+            {isSelected && (
+              <span className="badge bg-success mb-2">Sudah Terpilih</span>
+            )}
+            <h6
+              className={`mb-0 ${isSelected ? 'text-success' : ''}`}
+              dangerouslySetInnerHTML={{ __html: v.question_text }}
+            ></h6>
+          </div>
+        )
+      },
     },
     { header: 'Jenis Soal', cell: (v: any) => v.question_type },
     { header: 'Skor', cell: (v: any) => v.score },
@@ -388,6 +439,66 @@ function RouteComponent() {
                   {rightData.length} Total
                 </span>
               </div>
+
+              {/* Filter Kategori & Grup Soal Tabel Kanan */}
+              <div className="row g-2 mb-3">
+                <div className="col-sm-4">
+                  <div className="input-group input-group-sm">
+                    <DebouncedInput
+                      value={searchRight}
+                      onChange={(v) => setSearchRight(String(v))}
+                      className="form-control"
+                      placeholder="Cari soal terpilih..."
+                    />
+                    <span className="input-group-text bg-white">
+                      <IconSearch size={16} />
+                    </span>
+                  </div>
+                </div>
+                <div className="col-sm-4">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text bg-white">
+                      <IconFilter size={14} />
+                    </span>
+                    <select
+                      className="form-select form-select-sm"
+                      value={selectedCategoryIdRight}
+                      onChange={(e) => {
+                        setSelectedCategoryIdRight(e.target.value)
+                        setSelectedGroupIdRight('')
+                      }}
+                    >
+                      <option value="">Semua Kategori</option>
+                      {(categoriesData?.data || []).map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="col-sm-4">
+                  <div className="input-group input-group-sm">
+                    <span className="input-group-text bg-white">
+                      <IconFilter size={14} />
+                    </span>
+                    <select
+                      className="form-select form-select-sm"
+                      value={selectedGroupIdRight}
+                      onChange={(e) => setSelectedGroupIdRight(e.target.value)}
+                      disabled={!selectedCategoryIdRight}
+                    >
+                      <option value="">Semua Grup</option>
+                      {(groupsDataRight?.data || []).map((grp) => (
+                        <option key={grp.id} value={grp.id}>
+                          {grp.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div className="form-check d-flex align-items-center gap-2 border rounded p-2 bg-light">
                 <input
                   type="checkbox"
@@ -406,7 +517,7 @@ function RouteComponent() {
             </div>
 
             <DataTable
-              data={rightData}
+              data={filteredRightData}
               columns={rightColumns}
               showPageSize={false}
             />

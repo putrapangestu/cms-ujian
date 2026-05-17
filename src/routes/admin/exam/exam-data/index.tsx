@@ -6,7 +6,7 @@ import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { ExamDataType } from '@/data/validations/exam_schema'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ExamModalCreate from '../-components/exam-modal-create'
 import dayjs from 'dayjs'
 import { formatDate, formatTime } from '@/lib/date-format'
@@ -23,9 +23,25 @@ function RouteComponent() {
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<ExamDataType>()
 
-  const { data } = useQueryData<ApiResponsePaginationType<ExamDataType>>(
+  useEffect(() => {
+    const modal = document.getElementById('exam-modal-create')
+    const handleHidden = () => {
+      setCurrent(undefined)
+      setIsEdit(false)
+    }
+    modal?.addEventListener('hidden.bs.modal', handleHidden)
+    return () => {
+      modal?.removeEventListener('hidden.bs.modal', handleHidden)
+    }
+  }, [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [search])
+
+  const { data, isLoading } = useQueryData<ApiResponsePaginationType<ExamDataType>>(
     EXAM.GET,
-    { page: page, per_page: 10 },
+    { page: page, per_page: 10, search: search },
   )
 
   const columns: ColumnDef<ExamDataType>[] = [
@@ -34,22 +50,32 @@ function RouteComponent() {
     { header: 'Tanggal', cell: (v) => formatDate(v.start_date) },
     { header: 'Waktu Mulai', cell: (v) => formatTime(v.start_date) },
     { header: 'Waktu Selesai', cell: (v) => formatTime(v.end_date) },
+    // {
+    //   header: 'Nilai Minimum',
+    //   cell(row, index) {
+    //     return (
+    //       <span className="badge bg-success-subtle text-success">
+    //         {row.passing_score}
+    //       </span>
+    //     )
+    //   },
+    // },
     {
-      header: 'Nilai Minimum',
+      header: 'Jumlah Soal Ujian',
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
-            {row.passing_score}
+            {row.total_questions}
           </span>
         )
       },
     },
     {
-      header: 'Jumlah Soal',
+      header: 'Jumlah Bank Soal',
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
-            {row.total_questions}
+            {row.question_exams_count}
           </span>
         )
       },
@@ -125,6 +151,7 @@ function RouteComponent() {
             rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
+            isLoading={isLoading}
           />
         </div>
       </div>

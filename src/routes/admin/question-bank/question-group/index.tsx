@@ -84,6 +84,14 @@ function RouteComponent() {
       ),
     },
     {
+      header: 'Total Soal',
+      cell: (v) => (
+        <span className="badge bg-primary-subtle text-primary px-2 py-1">
+          {v.total_questions ?? '-'}
+        </span>
+      ),
+    },
+    {
       header: 'Aksi',
       cell: (v) => (
         <div className="d-flex align-items-center gap-2">

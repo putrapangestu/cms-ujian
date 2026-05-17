@@ -24,6 +24,7 @@ import Select from 'react-select'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { StudentGroupDataType } from '@/data/validations/student_schema'
 import { findSelectOption } from '@/lib/select-utils'
+import dayjs from 'dayjs'
 
 type ComponentProps = { isEdit?: boolean; exam?: ExamDataType }
 
@@ -87,12 +88,13 @@ export default function ExamModalCreate({
         title: exam?.title || '',
         description: exam?.description || undefined,
         duration: exam?.duration || 0,
+        total_questions: exam?.total_questions || 0,
         passing_score: exam?.passing_score || 0,
         start_date: exam
-          ? new Date(exam.start_date).toISOString().slice(0, 16)
+          ? dayjs(exam.start_date).format('YYYY-MM-DDTHH:mm')
           : '',
         end_date: exam
-          ? new Date(exam.end_date).toISOString().slice(0, 16)
+          ? dayjs(exam.end_date).format('YYYY-MM-DDTHH:mm')
           : '',
         student_groups: exam?.student_groups || [],
       })
@@ -157,7 +159,7 @@ export default function ExamModalCreate({
                   )}
                 />
               </div>
-              <div className="col-6">
+              <div className="col-4">
                 <FormField
                   control={form.control}
                   name="duration"
@@ -178,7 +180,28 @@ export default function ExamModalCreate({
                   )}
                 />
               </div>
-              <div className="col-6">
+              <div className="col-4">
+                <FormField
+                  control={form.control}
+                  name="total_questions"
+                  render={({ field: { onChange, ...field } }) => (
+                    <FormItem>
+                      <FormLabel required>{'Jumlah Soal'}</FormLabel>
+                      <FormControl>
+                        <input
+                          type="number"
+                          className="form-control"
+                          onChange={(e) => onChange(Number(e.target.value))}
+                          placeholder={'Masukkan jumlah soal'}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-4">
                 <FormField
                   control={form.control}
                   name="passing_score"
