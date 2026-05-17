@@ -184,10 +184,29 @@ function RouteComponent() {
     isSubmitting.current = true
 
     // Format answers untuk failsafe di API
-    const questions = getExamAnswers(examId).map((ans) => ({
-      question_id: ans.questionId,
-      answer: ans.answer,
-    }))
+    const questions = getExamAnswers(examId).map((ans) => {
+      const questionData = data?.data?.questions.find(
+        (q: any) => String(q.id) === String(ans.questionId)
+      )
+      // Mencari tipe soal (gunakan .type atau .question_type sesuai struktur BE)
+      const qType = questionData?.type || questionData?.question_type || 'single_choice'
+
+      const formattedPayload: any = {
+        question_id: ans.questionId,
+      }
+
+      if (qType === 'essay') {
+        formattedPayload.answer = ans.answer
+      } else if (qType === 'multiple_choice') {
+        // Handle parsing array jika multiple choice (misal tersimpan "12,13" atau "['12','13']")
+        formattedPayload.question_option_id = typeof ans.answer === 'string' && ans.answer.startsWith('[')
+          ? JSON.parse(ans.answer)
+          : (Array.isArray(ans.answer) ? ans.answer : ans.answer.split(',').filter(Boolean))
+      } else {
+        formattedPayload.question_option_id = ans.answer
+      }
+      return formattedPayload
+    })
 
     // 1. Panggil REST API Finish (Source of Truth untuk kalkulasi)
     triggerFinish({
@@ -247,14 +266,35 @@ function RouteComponent() {
     if (socket) {
       const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000)
 
-      const payload = {
+        const questionData = data?.data?.questions.find(
+          (q: any) => String(q.id) === String(currentQuestion)
+        )
+        const qType = questionData?.type || questionData?.question_type || 'single_choice'
+
+        let payloadAnswer: any = null
+        let payloadOptionId: any = null
+
+        if (qType === 'essay') {
+          payloadAnswer = answer
+        } else if (qType === 'multiple_choice') {
+          payloadOptionId = typeof answer === 'string' && answer.startsWith('[')
+            ? JSON.parse(answer)
+            : (Array.isArray(answer) ? answer : answer.split(',').filter(Boolean))
+        } else {
+          payloadOptionId = answer
+        }
+
+        const payload: any = {
         exam_id: Number(examId),
         student_id: Number(user?.id),
         user_exam_id: data?.data?.user_exam.id,
         question_id: currentQuestion,
-        answer: answer,
         time_spent: timeSpent,
       }
+        
+        if (payloadAnswer !== null) payload.answer = payloadAnswer
+        if (payloadOptionId !== null) payload.question_option_id = payloadOptionId
+
       socket.emit('submit_answer', payload)
       console.log('Jawaban disubmit:', payload)
     }
