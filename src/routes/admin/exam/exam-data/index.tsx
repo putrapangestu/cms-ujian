@@ -24,14 +24,13 @@ function RouteComponent() {
   const [current, setCurrent] = useState<ExamDataType>()
 
   useEffect(() => {
-    const modal = document.getElementById('exam-modal-create')
     const handleHidden = () => {
       setCurrent(undefined)
       setIsEdit(false)
     }
-    modal?.addEventListener('hidden.bs.modal', handleHidden)
+    $('#exam-modal-create').on('hidden.bs.modal', handleHidden)
     return () => {
-      modal?.removeEventListener('hidden.bs.modal', handleHidden)
+      $('#exam-modal-create').off('hidden.bs.modal', handleHidden)
     }
   }, [])
 
@@ -108,7 +107,7 @@ function RouteComponent() {
 
   const clickOpenModalHandle = (exam?: ExamDataType) => {
     setIsEdit(exam ? true : false)
-    setCurrent(exam)
+    setCurrent(exam ? { ...exam } : undefined)
     $('#exam-modal-create').modal('show')
   }
 

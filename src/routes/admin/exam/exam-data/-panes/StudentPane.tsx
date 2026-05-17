@@ -97,12 +97,12 @@ export function StudentPane({ examId }: { examId: string }) {
         return (
           <div>
             <h6 className="mb-0">{v.user?.name || '-'}</h6>
-            <span className="text-muted small">{v.user?.email || '-'}</span>
+            {/* <span className="text-muted small">{v.user?.email || '-'}</span> */}
           </div>
         )
       },
     },
-    { header: 'NISN', accessorKey: 'user.nisn' },
+    { header: 'Sekolah', accessorKey: 'user.address' },
     {
       header: 'Grup',
       cell: (v) => (
