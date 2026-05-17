@@ -54,6 +54,17 @@ function RouteComponent() {
     clearExamAnswers,
   } = useAnswerStore()
 
+  useEffect(() => {
+    if (user?.id && examId) {
+      const storageKey = `last_user_exam_${examId}`
+      const lastUserId = localStorage.getItem(storageKey)
+      if (lastUserId && lastUserId !== String(user.id)) {
+        clearExamAnswers(examId)
+      }
+      localStorage.setItem(storageKey, String(user.id))
+    }
+  }, [user?.id, examId, clearExamAnswers])
+
   const { data } = useQueryDataPersistent<
     ApiResponseType<'single', ExamDetailDataType>
   >(EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id || '' })
