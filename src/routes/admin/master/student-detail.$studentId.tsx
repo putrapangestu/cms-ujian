@@ -44,6 +44,9 @@ function RouteComponent() {
 
   const student = studentRes?.data
   const examHistory = examHistoryRes
+  const totalExamUser = student?.user_exams?.filter((item: any) => item.status == 'completed').length ?? 0
+  const scoreSummary = student?.user_exam?.reduce((acc: number, cur: any) => acc + cur.score, 0)
+  const averageScore = scoreSummary > 0 ? scoreSummary / totalExamUser : 0
   
   const [isExporting, setIsExporting] = useState(false)
 
@@ -116,14 +119,14 @@ function RouteComponent() {
       header: 'Total Skor', 
       cell: (v) => <span className="fw-bold text-primary">{v.total_score}</span>
     },
-    { 
-      header: 'Status Lulus', 
-      cell: (v) => (
-        <span className={`badge ${v.is_passed ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
-          {v.is_passed ? 'Lulus' : 'Tidak Lulus'}
-        </span>
-      )
-    },
+    // { 
+    //   header: 'Status Lulus', 
+    //   cell: (v) => (
+    //     <span className={`badge ${v.is_passed ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>
+    //       {v.is_passed ? 'Lulus' : 'Tidak Lulus'}
+    //     </span>
+    //   )
+    // },
   ]
 
   if (studentLoading) {
@@ -202,7 +205,7 @@ function RouteComponent() {
                 </div>
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase">Total Ujian Selesai</div>
-                  <h3 className="fw-bold mb-0">{student?.summary?.total_exam_completed || 0}</h3>
+                  <h3 className="fw-bold mb-0">{totalExamUser}</h3>
                 </div>
               </div>
             </div>
@@ -213,7 +216,7 @@ function RouteComponent() {
                 </div>
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai</div>
-                  <h3 className="fw-bold mb-0">{student?.summary?.average_score || 0}</h3>
+                  <h3 className="fw-bold mb-0">{averageScore}</h3>
                 </div>
               </div>
             </div>
@@ -270,11 +273,11 @@ function RouteComponent() {
 
           {/* Table */}
           <DataTable
-            data={examHistory?.data || []}
+            data={examHistory?.data?.data || []}
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={examHistory?.pagination?.total_items || 0}
+            rowCount={examHistory?.data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
           />

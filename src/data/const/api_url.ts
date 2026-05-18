@@ -23,6 +23,7 @@ export const STUDENT = {
   BULK_DELETE: '/admin/students/bulk-delete',
   GET_BY_ID: '/students/{id}',
   EXAM_HISTORY: '/students/{id}/exam-history',
+  EXAM_SUMMARY: '/students/{id}/exam-summary',
   EXAM_HISTORY_EXPORT: '/students/{id}/exam-history/export',
   DOWNLOAD_TEMPLATE: '/students/download-template',
   IMPORT_EXCEL: '/students/import',
