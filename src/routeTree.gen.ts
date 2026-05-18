@@ -19,6 +19,8 @@ import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as UserExamIndexRouteImport } from './routes/user/exam/index'
 import { Route as UserExamHistoryIndexRouteImport } from './routes/user/exam-history/index'
+import { Route as UserEbooksIndexRouteImport } from './routes/user/ebooks/index'
+import { Route as AdminEbooksIndexRouteImport } from './routes/admin/ebooks/index'
 import { Route as UserExamHistoryUserExamIdRouteImport } from './routes/user/exam-history/$userExamId'
 import { Route as AdminQuestionBankQuestionCategoryRouteImport } from './routes/admin/question-bank/question-category'
 import { Route as AdminQuestionBankQuestionBankRouteImport } from './routes/admin/question-bank/question-bank'
@@ -83,6 +85,16 @@ const UserExamHistoryIndexRoute = UserExamHistoryIndexRouteImport.update({
   id: '/exam-history/',
   path: '/exam-history/',
   getParentRoute: () => UserRoute,
+} as any)
+const UserEbooksIndexRoute = UserEbooksIndexRouteImport.update({
+  id: '/ebooks/',
+  path: '/ebooks/',
+  getParentRoute: () => UserRoute,
+} as any)
+const AdminEbooksIndexRoute = AdminEbooksIndexRouteImport.update({
+  id: '/ebooks/',
+  path: '/ebooks/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const UserExamHistoryUserExamIdRoute =
   UserExamHistoryUserExamIdRouteImport.update({
@@ -195,6 +207,8 @@ export interface FileRoutesByFullPath {
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
   '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks/': typeof AdminEbooksIndexRoute
+  '/user/ebooks/': typeof UserEbooksIndexRoute
   '/user/exam-history/': typeof UserExamHistoryIndexRoute
   '/user/exam/': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
@@ -220,6 +234,8 @@ export interface FileRoutesByTo {
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
   '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks': typeof AdminEbooksIndexRoute
+  '/user/ebooks': typeof UserEbooksIndexRoute
   '/user/exam-history': typeof UserExamHistoryIndexRoute
   '/user/exam': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
@@ -250,6 +266,8 @@ export interface FileRoutesById {
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
   '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks/': typeof AdminEbooksIndexRoute
+  '/user/ebooks/': typeof UserEbooksIndexRoute
   '/user/exam-history/': typeof UserExamHistoryIndexRoute
   '/user/exam/': typeof UserExamIndexRoute
   '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
@@ -278,6 +296,8 @@ export interface FileRouteTypes {
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
     | '/user/exam-history/$userExamId'
+    | '/admin/ebooks/'
+    | '/user/ebooks/'
     | '/user/exam-history/'
     | '/user/exam/'
     | '/admin/exam/exam-monitoring/$examId'
@@ -303,6 +323,8 @@ export interface FileRouteTypes {
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
     | '/user/exam-history/$userExamId'
+    | '/admin/ebooks'
+    | '/user/ebooks'
     | '/user/exam-history'
     | '/user/exam'
     | '/admin/exam/exam-monitoring/$examId'
@@ -332,6 +354,8 @@ export interface FileRouteTypes {
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
     | '/user/exam-history/$userExamId'
+    | '/admin/ebooks/'
+    | '/user/ebooks/'
     | '/user/exam-history/'
     | '/user/exam/'
     | '/admin/exam/exam-monitoring/$examId'
@@ -426,6 +450,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/user/exam-history/'
       preLoaderRoute: typeof UserExamHistoryIndexRouteImport
       parentRoute: typeof UserRoute
+    }
+    '/user/ebooks/': {
+      id: '/user/ebooks/'
+      path: '/ebooks'
+      fullPath: '/user/ebooks/'
+      preLoaderRoute: typeof UserEbooksIndexRouteImport
+      parentRoute: typeof UserRoute
+    }
+    '/admin/ebooks/': {
+      id: '/admin/ebooks/'
+      path: '/ebooks'
+      fullPath: '/admin/ebooks/'
+      preLoaderRoute: typeof AdminEbooksIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/user/exam-history/$userExamId': {
       id: '/user/exam-history/$userExamId'
@@ -601,6 +639,7 @@ interface AdminRouteChildren {
   AdminMasterStudentMasterRoute: typeof AdminMasterStudentMasterRoute
   AdminQuestionBankQuestionBankRoute: typeof AdminQuestionBankQuestionBankRoute
   AdminQuestionBankQuestionCategoryRoute: typeof AdminQuestionBankQuestionCategoryRoute
+  AdminEbooksIndexRoute: typeof AdminEbooksIndexRoute
   AdminMasterStudentDetailStudentIdRoute: typeof AdminMasterStudentDetailStudentIdRoute
   AdminExamExamDataIndexRoute: typeof AdminExamExamDataIndexRoute
   AdminQuestionBankQuestionGroupIndexRoute: typeof AdminQuestionBankQuestionGroupIndexRoute
@@ -620,6 +659,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminQuestionBankQuestionBankRoute: AdminQuestionBankQuestionBankRoute,
   AdminQuestionBankQuestionCategoryRoute:
     AdminQuestionBankQuestionCategoryRoute,
+  AdminEbooksIndexRoute: AdminEbooksIndexRoute,
   AdminMasterStudentDetailStudentIdRoute:
     AdminMasterStudentDetailStudentIdRoute,
   AdminExamExamDataIndexRoute: AdminExamExamDataIndexRoute,
@@ -642,12 +682,14 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface UserRouteChildren {
   UserExamHistoryUserExamIdRoute: typeof UserExamHistoryUserExamIdRoute
+  UserEbooksIndexRoute: typeof UserEbooksIndexRoute
   UserExamHistoryIndexRoute: typeof UserExamHistoryIndexRoute
   UserExamIndexRoute: typeof UserExamIndexRoute
 }
 
 const UserRouteChildren: UserRouteChildren = {
   UserExamHistoryUserExamIdRoute: UserExamHistoryUserExamIdRoute,
+  UserEbooksIndexRoute: UserEbooksIndexRoute,
   UserExamHistoryIndexRoute: UserExamHistoryIndexRoute,
   UserExamIndexRoute: UserExamIndexRoute,
 }

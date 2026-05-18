@@ -69,6 +69,12 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
         ],
       },
       {
+        hasAccess: [ROLE_ADMIN],
+        icon: IconNotebook,
+        label: 'Materi / Ebook',
+        url: '/admin/ebooks',
+      },
+      {
         hasAccess: [ROLE_STUDENT],
         icon: IconNotebook,
         label: 'Ujian',
@@ -79,6 +85,12 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
         icon: IconNotebook,
         label: 'Riwayat Ujian',
         url: '/user/exam-history',
+      },
+      {
+        hasAccess: [ROLE_STUDENT],
+        icon: IconNotebook,
+        label: 'Materi / Ebook',
+        url: '/user/ebooks',
       },
       // {
       //     icon: IconNotebook,

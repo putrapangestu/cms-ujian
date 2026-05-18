@@ -22,12 +22,12 @@ export function LegendExam() {
             <span>Aktif</span>
           </div>
         </div>
-        <div className="col-6">
+        {/* <div className="col-6">
           <div className="d-flex align-items-center gap-2">
             <div className="btn btn-warning btn-sm legend-number">4</div>
             <span>Ragu-ragu</span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

@@ -70,6 +70,16 @@ export const QUESTION = {
   GET_BY_ID: '/admin/questions/{id}',
 } as const satisfies UrlGroupType
 
+export const EBOOK = {
+  GET: '/ebooks',
+  CREATE: '/ebooks',
+  UPDATE: '/ebooks/{id}',
+  DELETE: '/ebooks/{id}',
+  BULK_DELETE: '/ebooks/bulk-delete',
+  GET_BY_ID: '/ebooks/{id}',
+  DOWNLOAD: '/ebooks/{id}/download',
+} as const satisfies UrlGroupType
+
 export const EXAM = {
   GET: '/exams',
   GET_BY_ID: '/exams/{id}',
