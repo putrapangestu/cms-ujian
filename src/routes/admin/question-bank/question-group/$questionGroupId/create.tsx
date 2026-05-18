@@ -212,16 +212,16 @@ function RouteComponent() {
                     id="questionType"
                     className="form-select form-select"
                   >
-                    <option value="single_choice" disabled>
+                    <option value="single_choice">
                       Pilihan Ganda (Satu Jawaban)
                     </option>
-                    <option value="multiple_choice" disabled>
+                    <option value="multiple_choice">
                       Pilihan Ganda (Banyak Jawaban)
                     </option>
-                    <option value="true_false" disabled>
+                    <option value="true_false">
                       Benar / Salah
                     </option>
-                    <option value="essay" disabled>
+                    <option value="essay">
                       Essay / Uraian
                     </option>
                   </select>
