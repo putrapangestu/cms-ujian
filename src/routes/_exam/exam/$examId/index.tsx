@@ -37,6 +37,7 @@ function RouteComponent() {
   const timeRemainingRef = useRef(timeRemaining)
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [summary, setSummary] = useState<any>(null)
 
   useEffect(() => {
     timeRemainingRef.current = timeRemaining
@@ -68,14 +69,19 @@ function RouteComponent() {
   const answeredQuestions = getExamAnswers(examId).filter(
     (ans) => ans.answer !== '' && ans.answer !== '[]'
   ).length
-  const currentAnswer = getAnswer(examId, String(currentQuestion))
+  const currentQuestionObject = data?.data?.questions?.[currentQuestion - 1]
+  const currentAnswer = currentQuestionObject
+    ? getAnswer(examId, currentQuestionObject.question_id)
+    : undefined
 
   const { trigger: triggerFinish } = useMutationAction(EXAM.FINISH, 'post', {
     showMessage: false,
-    onSuccess: () => {
+    onSuccess: (response) => {
       // Clear answers dari local storage setelah disubmit
       clearExamAnswers(examId)
       // Set local state agar komponen re-render ke tampilan selesai
+      console.log("responseFinish", response.data)
+      setSummary(response.data)
       setHasSubmitted(true)
     },
     onError: () => {
@@ -194,23 +200,27 @@ function RouteComponent() {
 
     // Format answers untuk failsafe di API
     const questions = getExamAnswers(examId).map((ans) => {
-      const questionData = data?.data?.questions.find(
-        (q: any) => String(q.id) === String(ans.questionId)
+      // Karena `ans.questionId` sekarang adalah UUID, kita bisa langsung menggunakannya.
+      // Kita hanya perlu mencari tipe soal untuk logika parsing jawaban.
+      const questionObject = data?.data?.questions.find(
+        (q) => q.question_id === ans.questionId
       )
-      // Mencari tipe soal (gunakan .type atau .question_type sesuai struktur BE)
-      const qType = questionData?.type || questionData?.question_type || 'single_choice'
+      const qType = questionObject?.type || questionObject?.question_type || 'single_choice'
 
       const formattedPayload: any = {
-        question_id: ans.questionId,
+        question_id: ans.questionId, // ✅ ans.questionId sekarang sudah UUID
       }
 
       if (qType === 'essay') {
         formattedPayload.answer = ans.answer
       } else if (qType === 'multiple_choice') {
-        // Handle parsing array jika multiple choice (misal tersimpan "12,13" atau "['12','13']")
-        formattedPayload.question_option_id = typeof ans.answer === 'string' && ans.answer.startsWith('[')
-          ? JSON.parse(ans.answer)
-          : (Array.isArray(ans.answer) ? ans.answer : ans.answer.split(',').filter(Boolean))
+        // Handle parsing array jika multiple choice
+        formattedPayload.question_option_id =
+          typeof ans.answer === 'string' && ans.answer.startsWith('[')
+            ? JSON.parse(ans.answer)
+            : Array.isArray(ans.answer)
+              ? ans.answer
+              : ans.answer.split(',').filter(Boolean)
       } else {
         formattedPayload.question_option_id = ans.answer
       }
@@ -220,7 +230,7 @@ function RouteComponent() {
     // 1. Panggil REST API Finish (Source of Truth untuk kalkulasi)
     triggerFinish({
       id: examId, // Untuk URL replacement {id}
-      questions
+      questions,
     })
 
     // 2. Tutup socket karena ujian sudah selesai
@@ -270,39 +280,43 @@ function RouteComponent() {
   }
 
   const handleAnswerSelect = (answer: string) => {
-    setAnswer(examId, String(currentQuestion), answer)
+    const questionObject = data?.data?.questions?.[currentQuestion - 1]
+    if (!questionObject) return
+
+    // Gunakan question_id (UUID) untuk menyimpan jawaban di store
+    setAnswer(examId, questionObject.question_id, answer)
 
     if (socket) {
       const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000)
 
-        const questionData = data?.data?.questions.find(
-          (q: any) => String(q.id) === String(currentQuestion)
-        )
-        const qType = questionData?.type || questionData?.question_type || 'single_choice'
+      const qType = questionObject?.type || questionObject?.question_type || 'single_choice'
 
-        let payloadAnswer: any = null
-        let payloadOptionId: any = null
+      let payloadAnswer: any = null
+      let payloadOptionId: any = null
 
-        if (qType === 'essay') {
-          payloadAnswer = answer
-        } else if (qType === 'multiple_choice') {
-          payloadOptionId = typeof answer === 'string' && answer.startsWith('[')
+      if (qType === 'essay') {
+        payloadAnswer = answer
+      } else if (qType === 'multiple_choice') {
+        payloadOptionId =
+          typeof answer === 'string' && answer.startsWith('[')
             ? JSON.parse(answer)
-            : (Array.isArray(answer) ? answer : answer.split(',').filter(Boolean))
-        } else {
-          payloadOptionId = answer
-        }
+            : Array.isArray(answer)
+              ? answer
+              : answer.split(',').filter(Boolean)
+      } else {
+        payloadOptionId = answer
+      }
 
-        const payload: any = {
+      const payload: any = {
         exam_id: Number(examId),
         student_id: Number(user?.id),
         user_exam_id: data?.data?.user_exam.id,
-        question_id: currentQuestion,
+        question_id: questionObject.question_id, // ✅ Kirim UUID ke socket
         time_spent: timeSpent,
       }
-        
-        if (payloadAnswer !== null) payload.answer = payloadAnswer
-        if (payloadOptionId !== null) payload.question_option_id = payloadOptionId
+
+      if (payloadAnswer !== null) payload.answer = payloadAnswer
+      if (payloadOptionId !== null) payload.question_option_id = payloadOptionId
 
       socket.emit('submit_answer', payload)
       console.log('Jawaban disubmit:', payload)
@@ -315,11 +329,15 @@ function RouteComponent() {
   }
 
   const getQuestionStatus = (num: number) => {
+    const questionObject = data?.data?.questions?.[num - 1]
+    if (!questionObject) return 'unanswered'
+
+    const questionId = questionObject.question_id
     // const isDoubtful = getAnswer(examId, String(num))?.isDoubtful
     if (num === currentQuestion) return 'active'
     // if (isDoubtful) return 'doubtful'
-    const ans = getAnswer(examId, String(num))?.answer
-    if (hasAnswer(examId, String(num)) && ans !== '' && ans !== '[]') return 'answered'
+    const ans = getAnswer(examId, questionId)?.answer
+    if (hasAnswer(examId, questionId) && ans !== '' && ans !== '[]') return 'answered'
     return 'unanswered'
   }
 
@@ -405,6 +423,54 @@ function RouteComponent() {
           <p className="text-muted mb-4">
             Ujian Anda telah berhasil disubmit. Selamat Telah Menyelesaikan Ujian Ini!
           </p>
+
+          {summary && (
+            <div className="card my-4">
+              <div className="card-header fw-bold">Ringkasan Hasil</div>
+              <div className="card-body text-start">
+                <ul className="list-group list-group-flush">
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    Total Soal
+                    <span className="badge bg-primary rounded-pill">{summary?.summary?.total_questions}</span>
+                  </li>
+                  {/* <li className="list-group-item d-flex justify-content-between align-items-center">
+                    Jawaban Diproses
+                    <span className="badge bg-info rounded-pill">{summary?.summary?.processed_answers}</span>
+                  </li> */}
+                  <li className="list-group-item d-flex justify-content-between align-items-center">
+                    Total Dijawab
+                    <span className="badge bg-dark rounded-pill">
+                      {summary?.summary?.answered_questions}
+                    </span>
+                  </li>
+
+                  {["twk", "tiu", "tkp"].map((type) => (
+                    <li
+                      key={type}
+                      className="list-group-item d-flex justify-content-between align-items-center"
+                    >
+                      Nilai {type.toUpperCase()}
+                      <span className="badge bg-success rounded-pill">
+                        {
+                          summary?.summary?.category_scores?.find(
+                            (item) => item.category_name.toLowerCase() === type
+                          )?.total_score || 0
+                        }
+                      </span>
+                    </li>
+                  ))}
+
+                  <li className="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                    Total Nilai
+                    <span className="badge bg-success rounded-pill fs-6">
+                      {summary?.summary?.total_score}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          )}
+
           <p className="text-muted">
             Silahkan menunggu Informasi Selanjutnya
           </p>

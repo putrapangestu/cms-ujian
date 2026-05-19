@@ -214,27 +214,22 @@ function RouteComponent() {
                           />
 
                           {/* Options if available */}
-                          {ans.question?.options && ans.question.options.length > 0 ? (
+                          {ans.selected_options && ans.selected_options.length > 0 ? (
                             <div className="d-flex flex-column gap-2 mt-3">
-                              {ans.question.options.map((opt) => {
-                                const isSelected = ans.option_id === opt.id
-                                const isCorrect = opt.id === ans.question.options.find(o => (o as any).is_correct)?.id // Assuming there's a way to know correct option, or maybe just based on the user's answer being correct and selected.
-                                // If the backend doesn't send the correct option id, we can just show what user selected.
-
-                                let badgeClass = 'bg-light text-dark'
-                                if (isSelected) {
-                                  badgeClass = ans.is_correct ? 'bg-success text-white' : 'bg-danger text-white'
-                                }
+                              <span>Jawaban Anda:</span>
+                              {ans.selected_options.map((opt) => {
+                                // let badgeClass = 'bg-light text-dark'
+                                const badgeClass = opt.is_correct ? 'bg-success text-white' : 'bg-danger text-white'
 
                                 return (
                                   <div
                                     key={opt.id}
-                                    className={`p-2 rounded border d-flex align-items-center justify-content-between ${isSelected ? 'border-primary' : ''}`}
+                                    className={`p-2 rounded border d-flex align-items-center justify-content-between ${opt.is_correct ? 'border-primary' : ''}`}
                                   >
                                     <div dangerouslySetInnerHTML={{ __html: opt.option_text }} />
-                                    {isSelected && (
-                                      <span className={`badge ${badgeClass}`}>Jawaban Anda</span>
-                                    )}
+                                    {/* {isSelected && (
+                                    )} */}
+                                    <span className={`badge ${badgeClass}`}>{opt.is_correct ? 'Benar' : 'Salah'}</span>
                                   </div>
                                 )
                               })}
@@ -242,7 +237,12 @@ function RouteComponent() {
                           ) : (
                             <div className="mt-3">
                               <strong>Jawaban Anda:</strong>
-                              <p className="text-muted mb-0">{ans.answer_text || '-'}</p>
+                              <p
+                                className="text-muted mb-0"
+                                dangerouslySetInnerHTML={{
+                                  __html: ans?.question_option?.option_text || '-',
+                                }}
+                              ></p>
                               <div className="mt-2">
                                 <span className={`badge ${ans.is_correct ? 'bg-success' : 'bg-danger'}`}>
                                   {ans.is_correct ? 'Benar' : 'Salah'}
