@@ -313,13 +313,20 @@ const MonitoringRow = memo(({ id, index }: { id: string; index: number }) => {
       <td className="fw-bold text-success" style={{ fontSize: '1.1rem' }}>
         {participant.totalScore || 0}
       </td>
-      <td>
+      <td className="d-flex gap-2">
         <button
           onClick={handleForceSubmit}
           className="btn btn-sm btn-danger"
           disabled={participant.status === 'finished'}
         >
-          Force Submit
+          Keluar Ujian
+        </button>
+
+        <button
+          className="btn btn-sm btn-success"
+          disabled={participant.status !== 'finished'}
+        >
+          Reset Ujian
         </button>
       </td>
     </tr>

@@ -44,9 +44,9 @@ function RouteComponent() {
 
   const student = studentRes?.data
   const examHistory = examHistoryRes
-  const totalExamUser = student?.user_exams?.filter((item: any) => item.status == 'completed').length ?? 0
-  const scoreSummary = student?.user_exam?.reduce((acc: number, cur: any) => acc + cur.score, 0)
-  const averageScore = scoreSummary > 0 ? scoreSummary / totalExamUser : 0
+  const totalExamUser = student?.user_exams?.filter((item: any) => item.status == 'completed') || []
+  const scoreSummary = totalExamUser?.reduce((acc: number, cur: any) => acc + cur.score, 0)
+  const averageScore = scoreSummary > 0 ? scoreSummary / totalExamUser.length : 0
   
   const [isExporting, setIsExporting] = useState(false)
 
@@ -205,7 +205,7 @@ function RouteComponent() {
                 </div>
                 <div>
                   <div className="text-muted small fw-semibold text-uppercase">Total Ujian Selesai</div>
-                  <h3 className="fw-bold mb-0">{totalExamUser}</h3>
+                  <h3 className="fw-bold mb-0">{totalExamUser.length || 0}</h3>
                 </div>
               </div>
             </div>

@@ -1,11 +1,11 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { QUESTION_GROUP } from '@/data/const/api_url'
+import { QUESTION_CATEGORY, QUESTION_GROUP } from '@/data/const/api_url'
 import {
   useMutationAction,
   useQueryData,
 } from '@/data/hooks/api/useGlobalFetch'
-import type { ApiResponsePaginationType } from '@/data/types/api_response'
+import type { ApiResponsePaginationType, ApiResponseType } from '@/data/types/api_response'
 import type {
   QuestionGroupDataType,
   QuestionGroupType,
@@ -28,6 +28,13 @@ function RouteComponent() {
   const [search, setSearch] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<QuestionGroupDataType>()
+  const [categoryId, setCategoryId] = useState('')
+  const [numberStart, setNumberStart] = useState('')
+  const [numberEnd, setNumberEnd] = useState('')
+
+  const { data: categoriesData } = useQueryData<
+    ApiResponseType<'list', { id: string; name: string }>
+  >(QUESTION_CATEGORY.GET)
 
   const { data } = useQueryData<
     ApiResponsePaginationType<QuestionGroupDataType>
