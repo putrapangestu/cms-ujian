@@ -96,9 +96,7 @@ function RouteComponent() {
       </div>
     )
   }
-
-  console.log(detail.summary?.category_scores)
-
+  
   return (
     <div className="container-fluid py-4">
       {/* Header */}

@@ -87,7 +87,7 @@ export const useMutationAction = (
     async (key: string, { arg }: { arg: any }) => {
       const options = config?.axiosConfig
       if (method === 'get') return fetcher['get'](key, arg, options)
-      return fetcher[method](key, { arg }, options)
+      return fetcher[method](key, arg, options)
     },
     {
       onError: (err) => {

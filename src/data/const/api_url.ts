@@ -102,6 +102,9 @@ export const EXAM = {
 export const EXAM_MONITORING = {
   ACTIVE: '/exam-monitoring/active',
   DETAIL: '/exam-monitoring/realtime/{id}',
+  FORCE_SUBMIT: '/exam-monitoring/force-submit',
+  UNBLOCK: '/exam-monitoring/unblock',
+  RESET: '/exam-monitoring/reset',
 } as const satisfies UrlGroupType
 
 export const DASHBOARD = {

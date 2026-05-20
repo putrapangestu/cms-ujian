@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, memo } from 'react';
 import { socketClient } from '@/lib/socket-client';
-import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch';
+import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch';
 import { EXAM_MONITORING } from '@/data/const/api_url';
 import type { ApiResponseType } from '@/data/types/api_response';
 import { IconSearch, IconRefresh } from '@tabler/icons-react';
@@ -31,20 +31,17 @@ function ExamMonitoringDetail() {
     ApiResponseType<'multi', { id: string; title: string }>
   >(EXAM_MONITORING.ACTIVE);
 
-  // Ambil detail participants dari API (karena struktur dari BE rupanya adalah array of participants langsung di 'data')
+  // Ambil detail participants dari API
   const { data: monitoringData, isLoading, refetch } = useQueryDataPersistent<
     ApiResponseType<'multi', Participant>
   >(EXAM_MONITORING.DETAIL.replace('{id}', examId));
 
   useEffect(() => {
     // 1. Fetch initial data from API
-    // Jika data.data adalah array (format: { status: "...", data: [ { id: ..., name: ... } ] })
     if (monitoringData?.data && Array.isArray(monitoringData.data)) {
-       // Filter jika id = null agar tidak error di store
        const validParticipants = monitoringData.data.filter(p => p.id != null);
        setParticipants(validParticipants);
     } else {
-       // Clear old participants if loading new ones
        setParticipants([]);
     }
 
@@ -55,7 +52,7 @@ function ExamMonitoringDetail() {
     const socket = socketClient.connect('');
 
     // Join exam room
-    socket.emit('join_exam_monitor', { examId });
+    socket.emit('join', { room: `exam:${examId}` });
 
     socket.on('exam:progress_update', (data: { id: string; update: any }) => {
       queueParticipantUpdate(data.id, data.update);
@@ -68,9 +65,8 @@ function ExamMonitoringDetail() {
     return () => {
       socket.off('exam:progress_update');
       socket.off('exam:tick');
-      socket.emit('leave_exam_monitor', { examId });
+      socket.emit('leave', { room: `exam:${examId}` }); 
       stopMonitoringBuffer();
-      // Keep socket alive for other pages, just remove listeners
     };
   }, [examId, setParticipants, setServerTime, monitoringData]);
 
@@ -91,7 +87,6 @@ function ExamMonitoringDetail() {
         <p className="p-0">List informasi monitoring ujian</p>
       </div>
       <div className="card-body">
-        {/* Top Controls: Dropdown and Search */}
         <div className="d-flex justify-content-between align-items-center mb-4">
            <div>
              <select 
@@ -103,7 +98,6 @@ function ExamMonitoringDetail() {
                {activeExams?.data?.map((exam) => (
                  <option key={exam.id} value={exam.id}>{exam.title}</option>
                ))}
-               {/* Jika ujian yang di-visit tidak ada di daftar, tetap tampilkan option-nya agar dropdown tidak kosong */}
                {activeExams?.data && !activeExams.data.some(e => e.id === examId) && (
                  <option value={examId}>Ujian {examId.substring(0, 8)}...</option>
                )}
@@ -143,7 +137,7 @@ function ExamMonitoringDetail() {
           </div>
         ) : (
           <div className="table-responsive">
-            <MonitoringTable searchQuery={searchQuery} />
+            <MonitoringTable searchQuery={searchQuery} examId={examId} />
           </div>
         )}
       </div>
@@ -151,19 +145,17 @@ function ExamMonitoringDetail() {
   );
 }
 
-function MonitoringTable({ searchQuery }: { searchQuery: string }) {
+function MonitoringTable({ searchQuery, examId }: { searchQuery: string; examId: string }) {
   const participantsMap = useMonitoringStore((state) => state.participants);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 1000;
   
-  // Filter participants based on search query
   const participantIds = Object.keys(participantsMap).filter((id) => {
     if (!searchQuery) return true;
     const name = participantsMap[id]?.name || '';
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // Reset to page 1 if search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
@@ -195,6 +187,7 @@ function MonitoringTable({ searchQuery }: { searchQuery: string }) {
               key={id} 
               id={id} 
               index={(currentPage - 1) * itemsPerPage + index} 
+              examId={examId}
             />
           ))}
           {participantIds.length === 0 && (
@@ -252,32 +245,49 @@ function MonitoringTable({ searchQuery }: { searchQuery: string }) {
   );
 }
 
-const MonitoringRow = memo(({ id, index }: { id: string; index: number }) => {
+const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; examId: string }) => {
   const participant = useMonitoringStore((state) => state.participants[id]);
   
+  const { trigger: forceSubmit } = useMutationAction(EXAM_MONITORING.FORCE_SUBMIT, 'post', {
+    refreshKey: EXAM_MONITORING.DETAIL.replace('{id}', examId),
+  });
+
+  const { trigger: resetExam } = useMutationAction(EXAM_MONITORING.RESET, 'post', {
+    refreshKey: EXAM_MONITORING.DETAIL.replace('{id}', examId),
+  });
+
   if (!participant) return null;
 
   const handleForceSubmit = () => {
     Swal.fire({
-      title: 'Force Submit',
-      text: `Apakah Anda yakin ingin melakukan force submit ujian untuk ${participant.name}?`,
+      title: 'Keluar Ujian',
+      text: `Apakah Anda yakin ingin menghentikan paksa ujian untuk ${participant.name}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Ya, Submit!',
+      confirmButtonText: 'Ya, Keluar!',
       cancelButtonText: 'Batal'
     }).then((result) => {
       if (result.isConfirmed) {
-        socketClient.getSocket()?.emit('admin_action', {
-          action: 'force_submit',
-          participantId: participant.id,
-        });
-        Swal.fire(
-          'Terkirim!',
-          `Perintah force submit untuk ${participant.name} telah dikirim.`,
-          'success'
-        );
+        forceSubmit({ user_exam_id: participant.id });
+      }
+    });
+  };
+
+  const handleReset = () => {
+    Swal.fire({
+      title: 'Reset Ujian',
+      text: `Apakah Anda yakin ingin mereset ujian untuk ${participant.name}? Semua jawaban akan dihapus.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Ya, Reset!',
+      cancelButtonText: 'Batal'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resetExam({ user_exam_id: participant.id });
       }
     });
   };
@@ -324,7 +334,8 @@ const MonitoringRow = memo(({ id, index }: { id: string; index: number }) => {
 
         <button
           className="btn btn-sm btn-success"
-          disabled={participant.status !== 'finished'}
+          onClick={handleReset}
+          disabled={participant.status === 'in_progress'}
         >
           Reset Ujian
         </button>
