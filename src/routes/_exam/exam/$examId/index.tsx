@@ -417,69 +417,179 @@ function RouteComponent() {
 
   if (hasSubmitted) {
     return (
-      <div className="container py-4 text-center mt-5">
-        <div className="card shadow-sm p-5 mx-auto" style={{ maxWidth: '600px' }}>
-          <h3 className="text-success mb-3">Ujian Selesai!</h3>
-          <p className="text-muted mb-4">
-            Ujian Anda telah berhasil disubmit. Selamat Telah Menyelesaikan Ujian Ini!
-          </p>
+      <div
+        className="container-fluid d-flex justify-content-center align-items-center py-5"
+        style={{ minHeight: '100vh', background: '#f4f6fb' }}
+      >
+        <div
+          className="card border-0 shadow-lg rounded-4 p-4 p-md-5"
+          style={{
+            width: '100%',
+            maxWidth: '850px',
+            backgroundColor: '#fff',
+          }}
+        >
+          {/* Header */}
+          <div className="text-center mb-5">
+            <div
+              className="mx-auto mb-3 d-flex justify-content-center align-items-center rounded-circle"
+              style={{
+                width: '90px',
+                height: '90px',
+                background: '#d1fae5',
+                fontSize: '40px',
+              }}
+            >
+              ✅
+            </div>
 
+            <h1
+              className="fw-bold text-success mb-3"
+              style={{ fontSize: '2.5rem' }}
+            >
+              Ujian Selesai!
+            </h1>
+
+            <p
+              className="text-muted mx-auto"
+              style={{
+                maxWidth: '600px',
+                fontSize: '1.1rem',
+                lineHeight: '1.8',
+              }}
+            >
+              Ujian Anda telah berhasil disubmit.
+              <br />
+              Selamat telah menyelesaikan ujian ini!
+            </p>
+          </div>
+
+          {/* Biodata */}
           {summary && (
-            <div className="card my-4">
-              <div className="card-header fw-bold">Ringkasan Hasil</div>
-              <div className="card-body text-start">
-                <ul className="list-group list-group-flush">
-                  <li className="list-group-item d-flex justify-content-between align-items-center">
-                    Total Soal
-                    <span className="badge bg-primary rounded-pill">{summary?.summary?.total_questions}</span>
-                  </li>
-                  {/* <li className="list-group-item d-flex justify-content-between align-items-center">
-                    Jawaban Diproses
-                    <span className="badge bg-info rounded-pill">{summary?.summary?.processed_answers}</span>
-                  </li> */}
-                  <li className="list-group-item d-flex justify-content-between align-items-center">
-                    Total Dijawab
-                    <span className="badge bg-dark rounded-pill">
-                      {summary?.summary?.answered_questions}
-                    </span>
-                  </li>
+            <>
+              <div className="row g-4 mb-4">
+                <div className="col-md-6">
+                  <div className="border rounded-4 p-4 h-100 bg-light">
+                    <small className="text-muted d-block mb-2">
+                      Nama Peserta
+                    </small>
 
-                  {["twk", "tiu", "tkp"].map((type) => (
-                    <li
-                      key={type}
-                      className="list-group-item d-flex justify-content-between align-items-center"
-                    >
-                      Nilai {type.toUpperCase()}
-                      <span className="badge bg-success rounded-pill">
-                        {
-                          summary?.summary?.category_scores?.find(
-                            (item) => item.category_name.toLowerCase() === type
-                          )?.total_score || 0
-                        }
+                    <h5 className="fw-bold mb-0">
+                      {summary?.user_exam?.student?.name || '-'}
+                    </h5>
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <div className="border rounded-4 p-4 h-100 bg-light">
+                    <small className="text-muted d-block mb-2">
+                      Sekolah
+                    </small>
+
+                    <h5 className="fw-bold mb-0">
+                      {summary?.user_exam?.student?.address || '-'}
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div
+                  className="card-header border-0 text-center fw-bold py-4"
+                  style={{
+                    background: '#f8fafc',
+                    fontSize: '1.3rem',
+                  }}
+                >
+                  Ringkasan Hasil
+                </div>
+
+                <div className="card-body p-0">
+                  <ul className="list-group list-group-flush">
+                    <li className="list-group-item py-4 px-4 d-flex justify-content-between align-items-center">
+                      <span className="fs-5">Total Soal</span>
+
+                      <span className="badge bg-primary rounded-pill px-4 py-2 fs-6">
+                        {summary?.summary?.total_questions}
                       </span>
                     </li>
-                  ))}
 
-                  <li className="list-group-item d-flex justify-content-between align-items-center fw-bold">
-                    Total Nilai
-                    <span className="badge bg-success rounded-pill fs-6">
-                      {summary?.summary?.total_score}
-                    </span>
-                  </li>
-                </ul>
+                    <li className="list-group-item py-4 px-4 d-flex justify-content-between align-items-center">
+                      <span className="fs-5">Total Dijawab</span>
+
+                      <span className="badge bg-dark rounded-pill px-4 py-2 fs-6">
+                        {summary?.summary?.answered_questions}
+                      </span>
+                    </li>
+
+                    {['twk', 'tiu', 'tkp'].map((type) => (
+                      <li
+                        key={type}
+                        className="list-group-item py-4 px-4 d-flex justify-content-between align-items-center"
+                      >
+                        <span className="fs-5">
+                          Nilai {type.toUpperCase()}
+                        </span>
+
+                        <span className="badge bg-success rounded-pill px-4 py-2 fs-6">
+                          {
+                            summary?.summary?.category_scores?.find(
+                              (item) =>
+                                item.category_name.toLowerCase() === type
+                            )?.total_score || 0
+                          }
+                        </span>
+                      </li>
+                    ))}
+
+                    <li className="list-group-item py-4 px-4 d-flex justify-content-between align-items-center fw-bold bg-light">
+                      <span
+                        style={{
+                          fontSize: '1.3rem',
+                        }}
+                      >
+                        Total Nilai
+                      </span>
+
+                      <span
+                        className="badge bg-success rounded-pill px-4 py-3"
+                        style={{
+                          fontSize: '1.2rem',
+                        }}
+                      >
+                        {summary?.summary?.total_score}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
+            </>
           )}
 
-          <p className="text-muted">
-            Silahkan menunggu Informasi Selanjutnya
-          </p>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={() => window.location.href = '/user/exam'}
-          >
-            Kembali ke Beranda
-          </button>
+          {/* Footer */}
+          <div className="text-center mt-2">
+            <p
+              className="text-muted mb-4"
+              style={{
+                fontSize: '1.05rem',
+              }}
+            >
+              Silahkan menunggu informasi selanjutnya
+            </p>
+
+            <button
+              className="btn btn-lg px-5 py-3 rounded-4 fw-semibold"
+              style={{
+                backgroundColor: '#0f3d3e',
+                color: '#fff',
+                minWidth: '280px',
+              }}
+              onClick={() => (window.location.href = '/user/exam')}
+            >
+              Kembali ke Beranda
+            </button>
+          </div>
         </div>
       </div>
     )

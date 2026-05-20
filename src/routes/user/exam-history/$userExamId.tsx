@@ -97,6 +97,8 @@ function RouteComponent() {
     )
   }
 
+  console.log(detail.summary?.category_scores)
+
   return (
     <div className="container-fluid py-4">
       {/* Header */}
@@ -182,10 +184,16 @@ function RouteComponent() {
                   <span className="text-muted">Soal Dijawab</span>
                   <span className="badge bg-info-subtle text-info fs-6">{detail.summary?.answered_questions}</span>
                 </div>
-                <div className="d-flex justify-content-between align-items-center">
+                {Object.entries(detail.summary?.category_scores ?? {}).map(([key, value]) => (
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted">Nilai {key}</span>
+                    <span className="badge bg-light text-dark fs-6">{value}</span>
+                  </div>
+                ))}
+                {/* <div className="d-flex justify-content-between align-items-center">
                   <span className="text-muted">Jawaban Benar</span>
                   <span className="badge bg-success-subtle text-success fs-6">{detail.summary?.correct_answers}</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -216,37 +224,65 @@ function RouteComponent() {
                           {/* Options if available */}
                           {ans.selected_options && ans.selected_options.length > 0 ? (
                             <div className="d-flex flex-column gap-2 mt-3">
-                              <span>Jawaban Anda:</span>
+                              <strong>Jawaban Anda:</strong>
+
                               {ans.selected_options.map((opt) => {
-                                // let badgeClass = 'bg-light text-dark'
-                                const badgeClass = opt.is_correct ? 'bg-success text-white' : 'bg-danger text-white'
+                                const badgeClass = opt.is_correct
+                                  ? 'bg-success text-white'
+                                  : 'bg-danger text-white'
 
                                 return (
                                   <div
                                     key={opt.id}
-                                    className={`p-2 rounded border d-flex align-items-center justify-content-between ${opt.is_correct ? 'border-primary' : ''}`}
+                                    className={`p-3 rounded border d-flex justify-content-between align-items-start ${
+                                      opt.is_correct
+                                        ? 'border-success bg-success-subtle'
+                                        : 'border-danger bg-danger-subtle'
+                                    }`}
                                   >
-                                    <div dangerouslySetInnerHTML={{ __html: opt.option_text }} />
-                                    {/* {isSelected && (
-                                    )} */}
-                                    <span className={`badge ${badgeClass}`}>{opt.is_correct ? 'Benar' : 'Salah'}</span>
+                                    <div
+                                      className="me-3"
+                                      dangerouslySetInnerHTML={{
+                                        __html: opt.option_text,
+                                      }}
+                                    />
+
+                                    <div className="d-flex flex-column align-items-end gap-1">
+                                      <span className={`badge ${badgeClass}`}>
+                                        {opt.is_correct ? 'Benar' : 'Salah'}
+                                      </span>
+
+                                      <span className="badge bg-primary">
+                                        +{opt.score || 0} Poin
+                                      </span>
+                                    </div>
                                   </div>
                                 )
                               })}
                             </div>
                           ) : (
-                            <div className="mt-3">
+                            <div className="mt-3 p-2 border rounded bg-light">
                               <strong>Jawaban Anda:</strong>
+
                               <p
-                                className="text-muted mb-0"
+                                className="text-muted mb-2"
                                 dangerouslySetInnerHTML={{
                                   __html: ans?.question_option?.option_text || '-',
                                 }}
-                              ></p>
-                              <div className="mt-2">
-                                <span className={`badge ${ans.is_correct ? 'bg-success' : 'bg-danger'}`}>
+                              />
+
+                              <div className="d-flex justify-content-between align-items-center">
+                                <span
+                                  className={`badge ${
+                                    ans.is_correct ? 'bg-success' : 'bg-danger'
+                                  }`}
+                                >
                                   {ans.is_correct ? 'Benar' : 'Salah'}
                                 </span>
+
+                                <strong className="text-primary">
+                                  {ans.score || 0} Poin
+                                </strong>
                               </div>
                             </div>
                           )}
