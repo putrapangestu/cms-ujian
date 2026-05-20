@@ -35,7 +35,7 @@ export type QuestionCategoryDataType = QuestionCategoryType & DefaultDataType
 export const questionOptionSchema = z.object({
   id: z.string().optional(),
   option_text: z.string().min(1),
-  is_correct: z.boolean(),
+  is_correct: z.preprocess((val) => val ?? false, z.boolean()),
   score: z.number().min(0),
 })
 export const questionSchema = z.object({

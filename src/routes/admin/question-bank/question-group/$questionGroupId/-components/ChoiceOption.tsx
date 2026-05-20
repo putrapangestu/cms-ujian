@@ -80,7 +80,7 @@ const ChoiceOptions: React.FC<ChoiceOptionsProps> = ({
                         height: '22px',
                         cursor: 'pointer',
                       }}
-                      {...register(`options.${index}.is_correct`)}
+                      checked={isCorrect}
                       onChange={(e) => {
                         if (questionType === 'single_choice') {
                           fields.forEach((_, i) => {
