@@ -47,7 +47,7 @@ function RouteComponent() {
     {
       header: 'Password',
       cell: (v) => (
-        <span className="text-truncate w-100 d-block">{v?.birth_date ? dayjs(v.birth_date).format('DD-MM-YYYY') : ''}</span>
+        <span className="text-truncate w-100 d-block">{v?.birth_date ? v.birth_date.replaceAll('-', '') || '' : ''}</span>
       ),
     },
     { header: 'Asal Sekolah', accessorKey: 'address' },

@@ -51,40 +51,35 @@ function RouteComponent() {
     search,
     per_page: 10, // Sesuaikan dengan limit backend Anda
   })
-  const { data: currentData, isLoading: currentIsLoading } = useQueryData<
-    ApiResponsePaginationType<StudentDataType>
-  >(STUDENT.GET, {
-    page: 1,
-    per_page: 99999,
-    group_id: studentGroupId,
-    search,
-  })
+
   const { data: studentGroup } = useQueryData<
-    ApiResponseType<'single', StudentGroupDataType>
+    ApiResponseType<'single', StudentGroupDataType & { students: StudentDataType[] }>
   >(STUDENT_GROUP.GET_BY_ID, { id: studentGroupId })
 
   const currentPageData = data?.data?.data || []
 
   useEffect(() => {
-    if (currentData?.data?.data) {
-      setRightData(currentData.data.data)
+    if (studentGroup?.data?.students) {
+      setRightData(studentGroup.data.students)
     }
-  }, [currentData])
+  }, [studentGroup])
 
   // --- LOGIC: SELECT ALL (DI LUAR TABEL) ---
 
   // Cek apakah semua item di halaman saat ini sudah ada di checkedLeft
   const isAllCurrentPageChecked =
     currentPageData.length > 0 &&
-    currentPageData.every((student) =>
-      checkedLeft.some((s) => s.id === student.id),
-    )
+    currentPageData
+      .filter((s) => !rightDataIds.has(s.id))
+      .every((student) => checkedLeft.some((s) => s.id === student.id))
 
   const handleTogglePageLeft = (isChecked: boolean) => {
     if (isChecked) {
       setCheckedLeft((prev) => {
         const existingIds = new Set(prev.map((s) => s.id))
-        const toAdd = currentPageData.filter((s) => !existingIds.has(s.id))
+        const toAdd = currentPageData.filter(
+          (s) => !existingIds.has(s.id) && !rightDataIds.has(s.id),
+        )
         return [...prev, ...toAdd]
       })
     } else {
@@ -120,21 +115,32 @@ function RouteComponent() {
     setCheckedRightIds([]) // Reset centang kanan setelah dihapus
   }
 
+  const rightDataIds = new Set(rightData.map((s) => s.id))
+
   // --- DEFINISI KOLOM ---
   const leftColumns: ColumnDef<StudentDataType>[] = [
     {
       header: 'Pilih',
-      cell: (v: any) => (
-        <input
-          type="checkbox"
-          className="form-check-input shadow-none"
-          checked={checkedLeft.some((s) => s.id === v.id)}
-          onChange={(e) => {
-            if (e.target.checked) setCheckedLeft((prev) => [...prev, v])
-            else setCheckedLeft((prev) => prev.filter((s) => s.id !== v.id))
-          }}
-        />
-      ),
+      cell: (v: any) => {
+        const isDisabled = rightDataIds.has(v.id)
+
+        if (isDisabled) {
+          return <span className="badge bg-success">Sudah Dipilih</span>
+        }
+
+        const isChecked = checkedLeft.some((s) => s.id === v.id)
+        return (
+          <input
+            type="checkbox"
+            className="form-check-input shadow-none"
+            checked={isChecked}
+            onChange={(e) => {
+              if (e.target.checked) setCheckedLeft((prev) => [...prev, v])
+              else setCheckedLeft((prev) => prev.filter((s) => s.id !== v.id))
+            }}
+          />
+        )
+      },
     },
     {
       header: '#',
@@ -188,7 +194,7 @@ function RouteComponent() {
 
   const { trigger: rollMultipleTrigger, isMutating: isMutatingRollMultiple } =
     useMutationAction(STUDENT_GROUP.ROLL_MULTIPLE, 'post', {
-      refreshKey: STUDENT_GROUP.GET,
+      refreshKey: STUDENT_GROUP.GET_BY_ID,
       onSuccess: () => {
         setRightData([])
         setCheckedRightIds([])
