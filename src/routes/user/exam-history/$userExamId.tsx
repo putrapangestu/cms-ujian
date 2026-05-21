@@ -76,6 +76,26 @@ function RouteComponent() {
     return status
   }
 
+  const AnswerComponent = (ans: any) => {
+    const correctOption = ans.question.options.find(opt => opt.is_correct && opt.id != ans.question_option_id);
+    
+    return (
+      <div className="mt-3 p-2 border rounded bg-light">
+        <strong>Jawaban Benar:</strong>
+
+        <p className="text-muted mb-2" dangerouslySetInnerHTML={{ __html: correctOption?.option_text || '-' }} />
+
+        <div className="d-flex justify-content-between align-items-center">
+          <span className={`badge bg-success`}>
+            Benar
+          </span>
+
+          <strong className="text-primary">{ans.score || 0} Poin</strong>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="container-fluid py-4 d-flex justify-content-center">
@@ -225,7 +245,7 @@ function RouteComponent() {
                               <strong>Jawaban Anda:</strong>
 
                               {ans.selected_options.map((opt) => {
-                                const badgeClass = opt.is_correct
+                                const badgeClass = (opt.is_correct || opt.score > 0)
                                   ? 'bg-success text-white'
                                   : 'bg-danger text-white'
 
@@ -233,7 +253,7 @@ function RouteComponent() {
                                   <div
                                     key={opt.id}
                                     className={`p-3 rounded border d-flex justify-content-between align-items-start ${
-                                      opt.is_correct
+                                      (opt.is_correct || opt.score > 0)
                                         ? 'border-success bg-success-subtle'
                                         : 'border-danger bg-danger-subtle'
                                     }`}
@@ -247,7 +267,7 @@ function RouteComponent() {
 
                                     <div className="d-flex flex-column align-items-end gap-1">
                                       <span className={`badge ${badgeClass}`}>
-                                        {opt.is_correct ? 'Benar' : 'Salah'}
+                                        {(opt.is_correct || opt.score > 0) ? 'Benar' : 'Salah'}
                                       </span>
 
                                       <span className="badge bg-primary">
@@ -272,10 +292,10 @@ function RouteComponent() {
                               <div className="d-flex justify-content-between align-items-center">
                                 <span
                                   className={`badge ${
-                                    ans.is_correct ? 'bg-success' : 'bg-danger'
+                                    (ans.is_correct || ans.score > 0) ? 'bg-success' : 'bg-danger'
                                   }`}
                                 >
-                                  {ans.is_correct ? 'Benar' : 'Salah'}
+                                  {(ans.is_correct || ans.score > 0) ? 'Benar' : 'Salah'}
                                 </span>
 
                                 <strong className="text-primary">
@@ -284,6 +304,9 @@ function RouteComponent() {
                               </div>
                             </div>
                           )}
+                          {ans.question.options.find((opt) => opt.is_correct && opt.id != ans.question_option_id) ? (
+                            AnswerComponent(ans)
+                          ) : null}
                         </div>
                       </div>
                     </div>
