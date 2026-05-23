@@ -17,8 +17,8 @@ export default function AdminSidebar() {
         <div className="brand-logo d-flex align-items-center justify-content-between">
           <Link to="/admin" className="text-nowrap logo-img">
             <div className="dark-logo d-flex gap-3 align-items-center">
-              {/* <img src="/favicon.ico" alt="Logo-Dark" height={40} /> */}
-              <img src="/logo-name.png" alt="Logo-Dark" height={35} />
+              {/* <img src="/logo-name.png" alt="Logo-Dark" height={35} /> */}
+              <h3 className="fw-bolder">BIMBEL AN</h3>
             </div>
           </Link>
           <a

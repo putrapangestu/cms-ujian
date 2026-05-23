@@ -16,11 +16,12 @@ function RouteComponent() {
                 to="/"
                 className="text-nowrap logo-img d-block px-4 py-9 w-100"
               >
-                <img
+                {/* <img
                   src="logo-name.png"
                   className="dark-logo"
                   alt="Logo-Dark"
-                />
+                /> */}
+                <h3 className="fw-bolder">BIMBEL AN</h3>
               </Link>
               <div className="d-none d-xl-flex align-items-center justify-content-center h-n80">
                 <img
