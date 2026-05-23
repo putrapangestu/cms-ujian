@@ -90,7 +90,7 @@ function RouteComponent() {
             Benar
           </span>
 
-          <strong className="text-primary">{ans.score || 0} Poin</strong>
+          <strong className="text-primary">{correctOption.score || 0} Poin</strong>
         </div>
       </div>
     );

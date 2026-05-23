@@ -505,7 +505,7 @@ function RouteComponent() {
                   Ringkasan Hasil
                 </div>
 
-                <div className="card-body p-0">
+                <div className="card-body p-lg-4 fs-5">
                   <ul className="list-group list-group-flush">
                     <li className="list-group-item py-4 px-4 d-flex justify-content-between align-items-center">
                       <span className="fs-5">Total Soal</span>
@@ -604,6 +604,25 @@ function RouteComponent() {
         {/* Left Section - Question */}
         <div className="col-lg-9 col-xl-9">
           <HeaderExam exam={data?.data?.exam} />
+          <div className="alert alert-warning mt-4" role="alert">
+            <h5 className="alert-heading fw-bold">Peraturan Selama Ujian</h5>
+            <ol className="mb-2 ps-4">
+              <li>
+                Tidak boleh melakukan tab / berpindah halaman pada saat ujian
+                sedang berlangsung.
+              </li>
+              <li>
+                Selama ujian tidak diperbolehkan menggunakan kalkulator, ChatGPT,
+                atau alat bantu AI lainnya dalam bentuk apapun.
+              </li>
+            </ol>
+            <hr />
+            <p className="mb-0">
+              Selamat melaksanakan ujian dengan <strong>JUJUR & Amanah</strong>{' '}
+              untuk menguji kemampuan. Lebih baik hasil rendah ketika latihan
+              daripada ketika ujian sesungguhnya.
+            </p>
+          </div>
           <QuestionCard
             currentQuestion={currentQuestion}
             questions={data?.data?.questions}

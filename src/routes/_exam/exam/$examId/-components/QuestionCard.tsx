@@ -65,7 +65,7 @@ export default function QuestionCard({
 
         <div className="mb-4">
           <p
-            className="mb-0 text-white"
+            className="mb-0 text-white fs-5"
             style={{ lineHeight: '1.8', textAlign: 'justify' }}
             dangerouslySetInnerHTML={{
               __html:
@@ -77,7 +77,7 @@ export default function QuestionCard({
         <div className="d-grid gap-3">
           {qType === 'essay' ? (
             <textarea
-              className="form-control"
+              className="form-control fs-5"
               rows={6}
               placeholder="Ketik jawaban Anda di sini..."
               value={selectedAnswer || ''}
@@ -89,7 +89,7 @@ export default function QuestionCard({
                 return (
                 <div key={option.id}>
                   <label
-                    className={`option-label d-flex align-items-start p-3 rounded position-relative ${
+                    className={`option-label d-flex align-items-start p-3 rounded position-relative fs-5 ${
                         isSelected
                         ? 'bg-light text-dark'
                         : 'bg-white bg-opacity-10 text-white'

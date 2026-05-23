@@ -1,10 +1,12 @@
-import { EXAM } from '@/data/const/api_url'
+import { EXAM, STUDENT } from '@/data/const/api_url'
 import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
-import type { ApiPaginatedResponse } from '@/data/types/api_response'
+import { useAuthStore } from '@/data/store/auth_store'
+import type { ApiPaginatedResponse, ApiResponseType } from '@/data/types/api_response'
 import type { ExamHistoryDataType } from '@/data/validations/exam_schema'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { DataTable, type ColumnDef } from '@/components/DataTables'
+import { IconClipboardCheck, IconCertificate } from '@tabler/icons-react'
 
 export const Route = createFileRoute('/user/exam-history/')({
   component: RouteComponent,
@@ -13,6 +15,14 @@ export const Route = createFileRoute('/user/exam-history/')({
 function RouteComponent() {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<string>('')
+  const { user } = useAuthStore()
+
+  const { data: summaryRes } = useQueryData<ApiResponseType<'single', any>>(
+    STUDENT.EXAM_SUMMARY,
+    { id: user?.id },
+  )
+  const summary = summaryRes?.data
+  console.log(summary)
 
   const formatTime = (dateString: string | null) => {
     if (!dateString) return '-'
@@ -36,9 +46,9 @@ function RouteComponent() {
       case 'pending':
         return 'bg-warning text-dark'
       case 'in_progress':
-        return 'bg-success text-white'
-      case 'completed':
         return 'bg-secondary text-white'
+      case 'completed':
+        return 'bg-success text-white'
       case 'expired':
         return 'bg-danger text-white'
       default:
@@ -85,9 +95,6 @@ function RouteComponent() {
       cell: (row) => (
         <div>
           <div className="fw-bold">{row.exam?.title || '-'}</div>
-          <small className="text-muted">
-            {row.exam?.description || '-'}
-          </small>
         </div>
       ),
     },
@@ -95,10 +102,30 @@ function RouteComponent() {
       header: 'Waktu Ujian',
       cell: (row) => (
         <div>
-          <div className="text-muted small">Mulai: {formatDate(row.exam?.start_date)} {formatTime(row.exam?.start_date)}</div>
-          <div className="text-muted small">Selesai: {formatDate(row.exam?.end_date)} {formatTime(row.exam?.end_date)}</div>
+          <div className="text-muted small">Mulai: {formatDate(row.exam?.start_date)} </div>
+          {/* <div className="text-muted small">Mulai: {formatDate(row.exam?.start_date)} {formatTime(row.exam?.start_date)}</div> */}
+          {/* <div className="text-muted small">Selesai: {formatDate(row.exam?.end_date)} {formatTime(row.exam?.end_date)}</div> */}
         </div>
       ),
+    },
+    {
+      header: 'TWK',
+      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'twk')?.score || '-'}</span>
+    },
+    {
+      header: 'TIU',
+      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'tiu')?.score || '-'}</span>
+    },
+    {
+      header: 'TKP',
+      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'tkp')?.score || '-'}</span>
+    },
+    {
+      accessorKey: 'score',
+      header: 'Nilai',
+      cell: (row) => {
+        return row.score !== null ? <span className="fw-bold">{row.score}</span> : '-'
+      },
     },
     {
       accessorKey: 'status',
@@ -122,13 +149,6 @@ function RouteComponent() {
       },
     },
     {
-      accessorKey: 'score',
-      header: 'Nilai',
-      cell: (row) => {
-        return row.score !== null ? <span className="fw-bold">{row.score}</span> : '-'
-      },
-    },
-    {
       header: 'Aksi',
       cell: (row) => (
         <Link
@@ -147,6 +167,35 @@ function RouteComponent() {
       <div className="mb-4">
         <h4 className="fw-bold mb-2">Riwayat Ujian</h4>
         <p className="text-muted mb-0">Daftar riwayat ujian yang pernah Anda ikuti</p>
+      </div>
+
+      <div className="row g-4 mb-4">
+        <div className="col-12 col-md-6 col-xl-4">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-body d-flex align-items-center gap-3">
+              <div className="bg-info-subtle text-info p-3 rounded">
+                <IconClipboardCheck size={28} />
+              </div>
+              <div>
+                <div className="text-muted small fw-semibold text-uppercase">Total Ujian</div>
+                <h3 className="fw-bold mb-0">{summary?.total_exam || 0}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-6 col-xl-4">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-body d-flex align-items-center gap-3">
+              <div className="bg-warning-subtle text-warning p-3 rounded">
+                <IconCertificate size={28} />
+              </div>
+              <div>
+                <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai</div>
+                <h3 className="fw-bold mb-0">{parseInt(summary?.total_score) > 0 ? (summary?.total_score / parseInt(summary?.total_exam)).toFixed(2) : 0}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="card border-0 shadow-sm">
