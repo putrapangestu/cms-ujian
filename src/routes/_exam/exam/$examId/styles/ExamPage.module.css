@@ -13,8 +13,9 @@
 
 .questionGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  grid-template-columns: repeat(auto-fit, 40px);
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .questionNumberBtn:hover:not(:disabled) {

@@ -317,8 +317,8 @@ function RouteComponent() {
       }
 
       const payload: any = {
-        exam_id: Number(examId),
-        student_id: Number(user?.id),
+        exam_id: examId,
+        student_id: user?.id,
         user_exam_id: data?.data?.user_exam.id,
         question_id: questionObject.question_id, // ✅ Kirim UUID ke socket
         time_spent: timeSpent,
