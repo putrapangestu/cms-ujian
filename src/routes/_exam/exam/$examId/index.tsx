@@ -647,7 +647,7 @@ function RouteComponent() {
               Nomor Soal
             </div>
             <div className="card-body p-3">
-              <div className="d-flex flex-wrap gap-2 justify-content-start">
+              <div className={styles.questionGrid}>
                 {Array.from(
                   { length: data?.data?.questions.length || 0 },
                   (_, i) => i + 1,

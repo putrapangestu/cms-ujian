@@ -11,6 +11,12 @@
   border-radius: 6px;
 }
 
+.questionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+  gap: 0.5rem;
+}
+
 .questionNumberBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
