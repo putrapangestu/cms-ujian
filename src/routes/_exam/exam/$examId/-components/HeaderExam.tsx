@@ -13,7 +13,7 @@ export function HeaderExam({ exam }: HeaderExamProps) {
     >
       <div className="card-body">
         <div className="row align-items-start">
-          <div className="col-md-9">
+          <div className="col-md-8">
             <h4 className="mb-3 text-white">{exam?.title || 'N/A'}</h4>
             <div className="mb-2 text-white">
               <strong>Pelaksanaan:</strong>{' '}
@@ -23,8 +23,22 @@ export function HeaderExam({ exam }: HeaderExamProps) {
               <strong>Waktu:</strong> {exam?.duration || 0} Menit
             </div>
           </div>
-          <div className="col-md-3 text-center">
-            <IconFileText size={60} className="text-white" />
+          <div className="col-md-4">
+            <div
+              className="card"
+              style={{ backgroundColor: '#f0f0f0', color: '#333' }}
+            >
+              <div className="card-body">
+                <h6 className="card-title">Peraturan Selama Ujian</h6>
+                <ol style={{ paddingLeft: '20px', fontSize: '0.8rem' }}>
+                  <li>Tidak boleh melakukan tab / berpindah halaman pada saat ujian sedang berlangsung.</li>
+                  <li>Selama ujian tidak diperbolehkan menggunakan kalkulator, ChatGPT, atau alat bantu AI lainnya dalam bentuk apapun.</li>
+                </ol>
+                <p style={{ fontSize: '0.75rem', fontStyle: 'italic', marginTop: '10px' }}>
+                  Selamat mengerjakan ujian dengan JUJUR & Amanah untuk mencapai kemampuan terbaik Anda. Hasil baik akan segera terlihat setelah usaha keras yang mengiringinya.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
