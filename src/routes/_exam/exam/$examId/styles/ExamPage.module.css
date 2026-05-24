@@ -1,6 +1,6 @@
 .questionNumberBtn {
   aspect-ratio: 1/1;
-  width: 100%;
+  width: 40px;
   padding: 0;
   font-size: 0.85rem;
   display: flex;
@@ -12,8 +12,8 @@
 }
 
 .questionGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 40px);
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: center;
 }
