@@ -270,7 +270,7 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
       cancelButtonText: 'Batal'
     }).then((result) => {
       if (result.isConfirmed) {
-        forceSubmit({ user_exam_id: participant.id });
+        forceSubmit({ user_exam_id: participant.user_exam_id });
       }
     });
   };
@@ -287,7 +287,7 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
       cancelButtonText: 'Batal'
     }).then((result) => {
       if (result.isConfirmed) {
-        resetExam({ user_exam_id: participant.id });
+        resetExam({ user_exam_id: participant.user_exam_id });
       }
     });
   };

@@ -1,13 +1,13 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { EXAM } from '@/data/const/api_url'
-import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
+import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiPaginatedResponse } from '@/data/types/api_response'
 import type { UserExamDataType } from '@/data/validations/exam_schema'
-import { IconSearch, IconDownload } from '@tabler/icons-react'
+import { IconSearch, IconDownload, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { getToken } from '@/lib/token-handler'
-import { toaster } from '@/lib/toast'
+import { toaster, confirmAlert } from '@/lib/toast'
 
 export function StudentPane({ examId }: { examId: string }) {
   const [page, setPage] = useState(1)
@@ -20,6 +20,27 @@ export function StudentPane({ examId }: { examId: string }) {
     per_page: 10,
     search: search,
   })
+
+  const { trigger: deleteUserExam } = useMutationAction(
+    EXAM.DELETE_USER,
+    'delete',
+    {
+      refreshKey: EXAM.USERS,
+      showMessage: false,
+      onSuccess: () => {
+        toaster('Peserta berhasil dihapus', 'success')
+      },
+    },
+  )
+
+  const handleDeleteUserExam = (userExamId: string, userName: string) => {
+    confirmAlert(
+      'Hapus Peserta',
+      async () => await deleteUserExam({ id: userExamId }),
+      `Apakah Anda yakin ingin menghapus "${userName}" dari daftar peserta ujian? Semua jawaban akan dihapus.`,
+      () => {},
+    )
+  }
 
   const handleExport = async () => {
     try {
@@ -157,8 +178,19 @@ export function StudentPane({ examId }: { examId: string }) {
         )
       },
     },
+    {
+      header: 'Aksi',
+      cell: (v) => (
+        <button
+          className="btn btn-sm btn-danger"
+          onClick={() => handleDeleteUserExam(v.id, v.user?.name || '')}
+          title="Hapus peserta"
+        >
+          <IconTrash size={16} />
+        </button>
+      ),
+    },
   ]
-  console.log(data)
   return (
     <>
       <div className="card">

@@ -16,13 +16,16 @@ export type StudentDataType = StudentType & DefaultDataType
 export const studentGroupSchema = z.object({
   name: z.string().min(3).max(255),
   description: z.string().max(255).optional().nullable(),
-  max_students: z.number().min(1).max(255),
+  max_students: z.number().min(1),
   status: z.string().min(1).max(255),
   students_count: z.number().nullable().optional(),
 })
 
 export type StudentGroupType = z.infer<typeof studentGroupSchema>
-export type StudentGroupDataType = StudentGroupType & DefaultDataType
+export type StudentGroupDataType = StudentGroupType & DefaultDataType & {
+  students_count?: number | null;
+  active_students_count?: number | null;
+}
 
 export const studentGroupRollSchema = z.object({
   rolls: z.array(

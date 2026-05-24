@@ -53,11 +53,11 @@ function RouteComponent() {
       },
     },
     {
-      header: 'Total Siswa',
+      header: 'Total Siswa Aktif',
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
-            {row.students_count}
+            {row.active_students_count ?? row.students_count}
           </span>
         )
       },

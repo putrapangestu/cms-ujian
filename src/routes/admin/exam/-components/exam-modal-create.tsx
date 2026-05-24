@@ -19,7 +19,7 @@ import {
   type ExamDataType,
   type ExamType,
 } from '@/data/validations/exam_schema'
-import { EXAM, STUDENT_GROUP } from '@/data/const/api_url'
+import { EXAM, STUDENT, STUDENT_GROUP } from '@/data/const/api_url'
 import Select from 'react-select'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { StudentGroupDataType } from '@/data/validations/student_schema'
@@ -57,6 +57,15 @@ export default function ExamModalCreate({
       label: item.name,
     })) || []
 
+  const { data: studentsData, isLoading: studentsLoading } = useQueryData<
+    ApiResponsePaginationType<{id: string, name: string, nisn: string, group?: {name: string}}>
+  >(STUDENT.GET, { limit: 999999, page: 1, status: 'active' })
+
+  const studentOptions = studentsData?.data?.map(s => ({
+    value: s.id,
+    label: `${s.name}${s.nisn ? ` (${s.nisn})` : ''}${s.group?.name ? ` - ${s.group.name}` : ''}`
+  })) || []
+
   const defaultValues: ExamType = {
     title: '',
     description: undefined,
@@ -66,6 +75,7 @@ export default function ExamModalCreate({
     start_date: '',
     end_date: '',
     student_groups: [],
+    students: [],
   }
 
   const form = useForm<ExamType>({
@@ -80,7 +90,6 @@ export default function ExamModalCreate({
     trigger(dataToSubmit)
   }
 
-  console.log(exam)
   useEffect(() => {
     if (!isEdit) form.reset(defaultValues)
     else
@@ -97,6 +106,7 @@ export default function ExamModalCreate({
           ? dayjs(exam.end_date).format('YYYY-MM-DDTHH:mm')
           : '',
         student_groups: exam?.student_groups || [],
+        students: exam?.students || [],
       })
   }, [isEdit, exam])
 
@@ -287,6 +297,36 @@ export default function ExamModalCreate({
                         />
                       </FormControl>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-12">
+                <FormField
+                  control={form.control}
+                  name="students"
+                  render={({ field: { value, onChange, ...field } }) => (
+                    <FormItem>
+                      <FormLabel>{'Pilih Siswa (Opsional)'}</FormLabel>
+                      <FormControl>
+                        <Select
+                          isMulti
+                          styles={{ menu: (base) => ({ ...base, zIndex: 10 }) }}
+                          isLoading={studentsLoading}
+                          options={studentOptions}
+                          onChange={(e) => {
+                            const values = e?.map(i => i.value) || []
+                            onChange(values)
+                          }}
+                          value={studentOptions.filter(i => value?.includes(i.value))}
+                          placeholder="Pilih siswa langsung..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="text-muted small mt-1">
+                        * Pilih grup siswa dan/atau siswa secara individu
+                      </p>
                     </FormItem>
                   )}
                 />

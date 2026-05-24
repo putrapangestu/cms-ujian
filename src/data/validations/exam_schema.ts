@@ -9,6 +9,7 @@ export const examSchema = z.object({
   start_date: z.string().min(1).max(255),
   end_date: z.string().min(1).max(255),
   student_groups: z.array(z.string().min(1).max(255)).optional(),
+  students: z.array(z.string()).optional(),
   total_questions: z.number().min(1),
 })
 

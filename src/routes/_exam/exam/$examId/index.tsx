@@ -98,7 +98,7 @@ function RouteComponent() {
       import.meta.env.VITE_SOCKET_URL || 'https://socket-ujian.hummatech.com'
 
     const newSocket = io(socketUrl, {
-      auth: { key: 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
+      auth: { key: import.meta.env.VITE_SOCKET_KEY || 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
       query: { userId: user?.id, examId: examId },
     })
 
@@ -106,7 +106,7 @@ function RouteComponent() {
     socketRef.current = newSocket
 
     // Listen perintah dari admin (misal: Force Submit)
-    newSocket.on('admin_action', (eventData: any) => {
+    newSocket.on('admin-action', (eventData: any) => {
       if (eventData.action === 'force_submit') {
         Swal.fire({
           title: 'Waktu Habis!',
@@ -119,6 +119,15 @@ function RouteComponent() {
         });
       } else if (eventData.action === 'unblock') {
         Swal.fire('Ujian Dibuka', 'Ujian Anda telah dibuka kembali oleh Admin.', 'success');
+      } else if (eventData.action === 'exam_reset') {
+        Swal.fire({
+          title: 'Ujian Direset',
+          text: 'Ujian Anda telah direset oleh Admin. Silakan mulai ulang.',
+          icon: 'info',
+          confirmButtonText: 'Tutup'
+        }).then(() => {
+          window.location.href = '/user/exam';
+        });
       }
     })
 
@@ -136,7 +145,7 @@ function RouteComponent() {
 
     return () => {
       // Hapus listeners agar tidak double, tapi biarkan socket hidup
-      newSocket.off('admin_action')
+      newSocket.off('admin-action')
       newSocket.off('cheat_blocked')
     }
   }, [user, examId])
@@ -603,8 +612,7 @@ function RouteComponent() {
       <div className="row g-4">
         {/* Left Section - Question */}
         <div className="col-lg-9 col-xl-9">
-          <HeaderExam exam={data?.data?.exam} />
-          <div className="alert alert-warning mt-4" role="alert">
+          <div className="alert alert-warning" role="alert">
             <h5 className="alert-heading fw-bold">Peraturan Selama Ujian</h5>
             <ol className="mb-2 ps-4">
               <li>
@@ -623,6 +631,7 @@ function RouteComponent() {
               daripada ketika ujian sesungguhnya.
             </p>
           </div>
+          <HeaderExam exam={data?.data?.exam} />
           <QuestionCard
             currentQuestion={currentQuestion}
             questions={data?.data?.questions}

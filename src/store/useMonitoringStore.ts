@@ -10,6 +10,7 @@ export interface CategoryScore {
 
 export interface Participant {
   id: string;
+  user_exam_id: string;
   name: string;
   progress: number; // percentage or answered count
   status: ParticipantStatus;
