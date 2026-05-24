@@ -612,7 +612,7 @@ function RouteComponent() {
       <div className="row g-4">
         {/* Left Section - Question */}
         <div className="col-lg-9 col-xl-9">
-          <div className="row g-3 mb-4">
+          <div className="row g-3">
             <div className="col-md-12">
               <HeaderExam exam={data?.data?.exam} />
             </div>
@@ -666,7 +666,7 @@ function RouteComponent() {
                   return (
                     <button
                       key={num}
-                      className={`btn ${btnClass} ${styles.questionNumberBtn}`} // ✅ Use CSS Module
+                      className={`btn ${btnClass} ${styles.questionNumberBtn}`}
                       onClick={() => handleNavigate(num)}
                     >
                       {num}
