@@ -3,12 +3,12 @@ import { DataTable } from '@/components/DataTables'
 import type { ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { useState } from 'react'
-import { IconSearch, IconArrowLeft, IconMail, IconPhone, IconMapPin, IconId, IconCertificate, IconClipboardCheck, IconUser, IconDownload } from '@tabler/icons-react'
+import { IconSearch, IconArrowLeft, IconMail, IconPhone, IconMapPin, IconId, IconCertificate, IconClipboardCheck, IconUser, IconDownload, IconTrash } from '@tabler/icons-react'
 import dayjs from 'dayjs'
-import { STUDENT } from '@/data/const/api_url'
-import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
+import { EXAM, STUDENT } from '@/data/const/api_url'
+import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import { getToken } from '@/lib/token-handler'
-import { toaster } from '@/lib/toast'
+import { deleteDataAlert, toaster } from '@/lib/toast'
 import type { ApiResponseType, ApiResponsePaginationType } from '@/data/types/api_response'
 
 export const Route = createFileRoute('/admin/master/student-detail/$studentId')({
@@ -49,6 +49,18 @@ function RouteComponent() {
   const averageScore = scoreSummary > 0 ? scoreSummary / totalExamUser.length : 0
   
   const [isExporting, setIsExporting] = useState(false)
+
+  const { trigger: deleteUserExamTrigger } = useMutationAction(
+    EXAM.DELETE_USER,
+    'delete',
+    { refreshKey: [STUDENT.EXAM_HISTORY, STUDENT.GET_BY_ID] },
+  )
+
+  const handleDeleteUserExam = (examHistoryItem: any) => {
+    deleteDataAlert(examHistoryItem.exam_name, () => {
+      deleteUserExamTrigger({ id: examHistoryItem.exam_history_id })
+    })
+  }
 
   const handleExportExcel = async () => {
     try {
@@ -118,6 +130,19 @@ function RouteComponent() {
     { 
       header: 'Total Skor', 
       cell: (v) => <span className="fw-bold text-primary">{v.total_score}</span>
+    },
+    {
+      header: 'Aksi',
+      cell: (v) => (
+        <button
+          type="button"
+          className="btn btn-sm rounded-1 btn-danger"
+          title="Hapus Riwayat Ujian"
+          onClick={() => handleDeleteUserExam(v)}
+        >
+          <IconTrash size={16} />
+        </button>
+      ),
     },
     // { 
     //   header: 'Status Lulus', 
