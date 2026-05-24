@@ -647,7 +647,7 @@ function RouteComponent() {
               Nomor Soal
             </div>
             <div className="card-body p-3">
-              <div className={styles.questionGrid}>
+              <div className="d-flex flex-wrap gap-2 justify-content-start">
                 {Array.from(
                   { length: data?.data?.questions.length || 0 },
                   (_, i) => i + 1,
@@ -666,7 +666,7 @@ function RouteComponent() {
                   return (
                     <button
                       key={num}
-                      className={`btn ${btnClass} ${styles.questionNumberBtn}`}
+                      className={`btn ${btnClass} ${styles.questionNumberBtn}`} // ✅ Use CSS Module
                       onClick={() => handleNavigate(num)}
                     >
                       {num}
