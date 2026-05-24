@@ -613,43 +613,8 @@ function RouteComponent() {
         {/* Left Section - Question */}
         <div className="col-lg-9 col-xl-9">
           <div className="row g-3 mb-4">
-            <div className="col-md-7">
+            <div className="col-md-12">
               <HeaderExam exam={data?.data?.exam} />
-            </div>
-            <div className="col-md-5">
-              <div
-                className="card shadow-sm h-100 border-0 rounded-3"
-                style={{ backgroundColor: '#fff8e1' }}
-              >
-                <div className="card-body">
-                  <h6 className="fw-bold mb-3" style={{ color: '#856404' }}>
-                    Peraturan Selama Ujian
-                  </h6>
-                  <ol
-                    className="mb-2 ps-3 small"
-                    style={{ color: '#5d4b1a', lineHeight: '1.7' }}
-                  >
-                    <li>
-                      Tidak boleh melakukan tab / berpindah halaman pada saat
-                      ujian sedang berlangsung.
-                    </li>
-                    <li>
-                      Selama ujian tidak diperbolehkan menggunakan kalkulator,
-                      ChatGPT, atau alat bantu AI lainnya dalam bentuk apapun.
-                    </li>
-                  </ol>
-                  <hr className="my-2" style={{ borderColor: '#ffd54f' }} />
-                  <p
-                    className="mb-0 small"
-                    style={{ color: '#5d4b1a' }}
-                  >
-                    Selamat melaksanakan ujian dengan{' '}
-                    <strong>JUJUR & Amanah</strong> untuk menguji kemampuan.
-                    Lebih baik hasil rendah ketika latihan daripada ketika ujian
-                    sesungguhnya.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
           <QuestionCard
