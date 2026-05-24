@@ -6,7 +6,6 @@ type HeaderExamProps = {
   exam: any
 }
 export function HeaderExam({ exam }: HeaderExamProps) {
-  console.log(exam)
   return (
     <div
       className="card shadow-sm mb-4"
