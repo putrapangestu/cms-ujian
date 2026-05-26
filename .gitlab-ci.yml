@@ -145,7 +145,7 @@ build_prod:
       docker build --network host --pull --progress=plain -t $IMAGE_NAME:$TAG .
       docker push $IMAGE_NAME:$TAG
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "production"'
 
 # =============================
 # ✅ DEPLOY PROD JOB
@@ -198,4 +198,4 @@ deploy_prod:
     - docker compose -f docker-compose-development.yml pull
     - docker compose -f docker-compose-development.yml -p $APP_NAME up -d --force-recreate
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "production"'
