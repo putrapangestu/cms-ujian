@@ -12,7 +12,7 @@ import type {
 } from '@/data/validations/question_schema'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { deleteDataAlert } from '@/lib/toast'
 import QuestionGroupModalCreate from '../-components/question-group-modal-create'
 
@@ -31,6 +31,7 @@ function RouteComponent() {
   const [categoryId, setCategoryId] = useState('')
   const [numberStart, setNumberStart] = useState('')
   const [numberEnd, setNumberEnd] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
 
   const { data: categoriesData } = useQueryData<
     ApiResponseType<'list', { id: string; name: string }>
@@ -42,6 +43,7 @@ function RouteComponent() {
     per_page: perPage,
     page: page,
     search: search || undefined,
+    question_category_id: categoryFilter || undefined,
   })
   const { trigger: deleteTrigger } = useMutationAction(
     QUESTION_GROUP.DELETE,
@@ -165,6 +167,21 @@ function RouteComponent() {
                 <IconSearch size={18} />
               </button>
             </div>
+            <select
+              className="form-select form-select-sm w-auto"
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value)
+                setPage(1)
+              }}
+            >
+              <option value="">Semua Kategori</option>
+              {categoriesData?.data?.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {(cat as any).name}
+                </option>
+              ))}
+            </select>
           </div>
           <DataTable
             data={data?.data || []}

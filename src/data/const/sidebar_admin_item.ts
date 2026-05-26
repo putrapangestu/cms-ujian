@@ -73,6 +73,24 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
         icon: IconNotebook,
         label: 'Materi / Ebook',
         url: '/admin/ebooks',
+        children: [
+          {
+            label: 'Semua',
+            url: '/admin/ebooks',
+          },
+          {
+            label: 'TWK',
+            url: '/admin/ebooks?category=twk',
+          },
+          {
+            label: 'TIU',
+            url: '/admin/ebooks?category=tiu',
+          },
+          {
+            label: 'TKP',
+            url: '/admin/ebooks?category=tkp',
+          },
+        ],
       },
       {
         hasAccess: [ROLE_STUDENT],
@@ -91,6 +109,24 @@ export const SIDEBAR_ADMIN_ITEMS: SidebarAdminType[] = [
         icon: IconNotebook,
         label: 'Materi / Ebook',
         url: '/user/ebooks',
+        children: [
+          {
+            label: 'Semua',
+            url: '/user/ebooks',
+          },
+          {
+            label: 'TWK',
+            url: '/user/ebooks?category=twk',
+          },
+          {
+            label: 'TIU',
+            url: '/user/ebooks?category=tiu',
+          },
+          {
+            label: 'TKP',
+            url: '/user/ebooks?category=tkp',
+          },
+        ],
       },
       // {
       //     icon: IconNotebook,

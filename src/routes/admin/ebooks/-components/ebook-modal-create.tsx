@@ -8,11 +8,12 @@ import {
 } from '@/components/Form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import { EbookSchema } from '@/data/validations/ebook_schema'
+import { useEffect, useMemo, useState } from 'react'
+import { EbookFormSchema } from '@/data/validations/ebook_schema'
 import type { EbookDataType } from '@/data/validations/ebook_schema'
-import { EBOOK } from '@/data/const/api_url'
-import { useMutationAction } from '@/data/hooks/api/useGlobalFetch'
+import { EBOOK, QUESTION_CATEGORY } from '@/data/const/api_url'
+import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
+import type { ApiResponsePaginationType } from '@/data/types/api_response'
 
 type ComponentProps = { isEdit?: boolean; ebook?: EbookDataType }
 
@@ -39,19 +40,34 @@ export default function EbookModalCreate({
       onSuccess: closeForm,
     })
 
+  const { data: categoriesData } = useQueryData<
+    ApiResponsePaginationType<{ id: string; name: string; code: string }>
+  >(QUESTION_CATEGORY.GET, { limit: 999999, page: 1 })
+
+  const optCategories = useMemo(
+    () =>
+      categoriesData?.data?.data?.map((cat: any) => ({
+        value: cat.id,
+        label: `${cat.name} (${cat.code})`,
+      })) || [],
+    [categoriesData],
+  )
+
   const defaultValues = {
     name: '',
+    question_category_id: '',
   }
 
   const form = useForm({
     mode: 'onChange',
-    resolver: zodResolver(EbookSchema),
+    resolver: zodResolver(EbookFormSchema),
     defaultValues,
   })
 
   const onSubmit = (data: any) => {
     const formData = new FormData()
     formData.append('name', data.name)
+    formData.append('question_category_id', data.question_category_id)
     if (selectedFile) {
       formData.append('file', selectedFile)
     }
@@ -72,6 +88,7 @@ export default function EbookModalCreate({
     } else {
       form.reset({
         name: ebook?.name || '',
+        question_category_id: (ebook as any)?.question_category_id || '',
       })
       setSelectedFile(null)
     }
@@ -110,6 +127,26 @@ export default function EbookModalCreate({
                         placeholder={'Masukkan nama ebook'}
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="question_category_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel required>{'Kategori'}</FormLabel>
+                    <FormControl>
+                      <select className="form-control" {...field}>
+                        <option value="">Pilih Kategori</option>
+                        {optCategories.map((cat) => (
+                          <option key={cat.value} value={cat.value}>
+                            {cat.label}
+                          </option>
+                        ))}
+                      </select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

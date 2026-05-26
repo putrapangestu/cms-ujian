@@ -37,7 +37,7 @@ function RouteComponent() {
 
   const { data } = useQueryData<ApiResponsePaginationType<QuestionDataType>>(
     QUESTION.GET,
-    { question_group_id: questionGroupId, page: page, per_page: 10 },
+    { question_group_id: questionGroupId, page: page, per_page: 10, search: search || undefined },
   )
   const { data: questionGroup } = useQueryData<
     ApiResponseType<'single', QuestionGroupDataType>

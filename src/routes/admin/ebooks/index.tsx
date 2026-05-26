@@ -2,16 +2,16 @@ import { DataTable } from '@/components/DataTables'
 import type { ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconPlus, IconSearch, IconTrash, IconDownload, IconFileText } from '@tabler/icons-react'
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useEffect, useMemo, useState } from 'react'
 import EbookModalCreate from './-components/ebook-modal-create'
 import type { EbookDataType } from '@/data/validations/ebook_schema'
 import {
   useMutationAction,
   useQueryData,
 } from '@/data/hooks/api/useGlobalFetch'
-import type { ApiResponsePaginationType } from '@/data/types/api_response'
-import { EBOOK } from '@/data/const/api_url'
+import type { ApiResponsePaginationType, ApiResponseType } from '@/data/types/api_response'
+import { EBOOK, QUESTION_CATEGORY } from '@/data/const/api_url'
 import { deleteDataAlert, toaster } from '@/lib/toast'
 import { getToken } from '@/lib/token-handler'
 
@@ -20,12 +20,43 @@ export const Route = createFileRoute('/admin/ebooks/')({
 })
 
 function RouteComponent() {
+  const navigate = useNavigate()
+  const urlParams = new URLSearchParams(window.location.search)
+  const categoryCodeFromUrl = urlParams.get('category') || ''
+
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<EbookDataType>()
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isDownloading, setIsDownloading] = useState<string | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState('')
+
+  const { data: categoriesData } = useQueryData<
+    ApiResponsePaginationType<{ id: string; name: string; code: string }>
+  >(QUESTION_CATEGORY.GET, { limit: 999999, page: 1 })
+
+  const optCategories = useMemo(
+    () =>
+      categoriesData?.data?.data?.map((cat: any) => ({
+        value: cat.id,
+        label: `${cat.name} (${cat.code})`,
+        code: cat.code,
+      })) || [],
+    [categoriesData],
+  )
+
+  // Sync category filter from URL param
+  useEffect(() => {
+    if (categoryCodeFromUrl && optCategories.length > 0) {
+      const found = optCategories.find(
+        (c) => c.code.toLowerCase() === categoryCodeFromUrl.toLowerCase(),
+      )
+      if (found) {
+        setCategoryFilter(found.value)
+      }
+    }
+  }, [categoryCodeFromUrl, optCategories])
 
   const { trigger: deleteTrigger } = useMutationAction(
     EBOOK.DELETE,
@@ -39,9 +70,18 @@ function RouteComponent() {
     { refreshKey: EBOOK.GET },
   )
 
+  const queryParams: Record<string, any> = {
+    per_page: 10,
+    page: page,
+    search: search,
+  }
+  if (categoryFilter) {
+    queryParams.question_category_id = categoryFilter
+  }
+
   const { data } = useQueryData<ApiResponsePaginationType<EbookDataType>>(
     EBOOK.GET,
-    { per_page: 10, page: page, search: search },
+    queryParams,
   )
 
   const columns: ColumnDef<EbookDataType>[] = [
@@ -84,6 +124,19 @@ function RouteComponent() {
     {
       header: 'Nama',
       accessorKey: 'name',
+    },
+    {
+      header: 'Kategori',
+      cell: (v) => {
+        const cat = (v as any).category
+        return cat ? (
+          <span className="badge bg-success-subtle text-success">
+            {cat.name} ({cat.code})
+          </span>
+        ) : (
+          <span className="text-muted">-</span>
+        )
+      },
     },
     {
       header: 'File',
@@ -242,6 +295,29 @@ function RouteComponent() {
                 <IconSearch size={18} />
               </button>
             </div>
+            <select
+              className="form-select form-select-sm w-auto"
+              value={categoryFilter}
+              onChange={(e) => {
+                const val = e.target.value
+                setCategoryFilter(val)
+                setPage(1)
+                // Update URL query param
+                const cat = optCategories.find((c) => c.value === val)
+                if (cat) {
+                  navigate({ to: '/admin/ebooks', search: { category: cat.code.toLowerCase() } })
+                } else {
+                  navigate({ to: '/admin/ebooks' })
+                }
+              }}
+            >
+              <option value="">Semua Kategori</option>
+              {optCategories.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
           </div>
           <DataTable
             data={(data?.data as any)?.items || []}
