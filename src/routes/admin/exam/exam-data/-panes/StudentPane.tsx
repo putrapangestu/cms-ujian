@@ -7,12 +7,13 @@ import type { UserExamDataType } from '@/data/validations/exam_schema'
 import { IconSearch, IconDownload, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { getToken } from '@/lib/token-handler'
-import { toaster, confirmAlert } from '@/lib/toast'
+import { toaster, confirmAlert, deleteDataAlert } from '@/lib/toast'
 
 export function StudentPane({ examId }: { examId: string }) {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [isExporting, setIsExporting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const { data } = useQueryData<ApiPaginatedResponse<UserExamDataType>>(EXAM.USERS, {
     id: examId,
@@ -33,6 +34,17 @@ export function StudentPane({ examId }: { examId: string }) {
     },
   )
 
+  const { trigger: bulkDeleteTrigger } = useMutationAction(
+    EXAM.DELETE_USER_BULK,
+    'post',
+    {
+      refreshKey: EXAM.USERS,
+      onSuccess: () => {
+        setSelectedIds([])
+      },
+    },
+  )
+
   const handleDeleteUserExam = (userExamId: string, userName: string) => {
     confirmAlert(
       'Hapus Peserta',
@@ -40,6 +52,12 @@ export function StudentPane({ examId }: { examId: string }) {
       `Apakah Anda yakin ingin menghapus "${userName}" dari daftar peserta ujian? Semua jawaban akan dihapus.`,
       () => {},
     )
+  }
+
+  const handleBulkDelete = () => {
+    deleteDataAlert(`${selectedIds.length} Peserta Terpilih`, () => {
+      bulkDeleteTrigger({ user_exam_ids: selectedIds })
+    })
   }
 
   const handleExport = async () => {
@@ -111,6 +129,41 @@ export function StudentPane({ examId }: { examId: string }) {
   }
 
   const columns: ColumnDef<UserExamDataType>[] = [
+    {
+      header: (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={data?.data && data.data.length > 0 && selectedIds.length === data.data.length}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds(data?.data?.map((s) => s.id as string) || [])
+              } else {
+                setSelectedIds([])
+              }
+            }}
+          />
+        </div>
+      ),
+      cell: (v) => (
+        <div className="form-check d-flex justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            checked={selectedIds.includes(v.id as string)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setSelectedIds((prev) => [...prev, v.id as string])
+              } else {
+                setSelectedIds((prev) => prev.filter((id) => id !== v.id))
+              }
+            }}
+          />
+        </div>
+      ),
+      width: '5%',
+    },
     { header: '#', cell: (_, i) => i + 1 },
     {
       header: 'Nama',
@@ -200,24 +253,35 @@ export function StudentPane({ examId }: { examId: string }) {
               <h5 className="card-title fw-bolder">Master Siswa</h5>
               <p className="text-muted mb-0">Daftar siswa yang mengikuti ujian</p>
             </div>
-            <button
-              type="button"
-              className="btn btn-success"
-              onClick={handleExport}
-              disabled={isExporting || !data?.data?.length}
-            >
-              {isExporting ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Mengekspor...
-                </>
-              ) : (
-                <>
-                  <IconDownload size={18} className="me-2" />
-                  Export Excel
-                </>
+            <div className="d-flex gap-2">
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  className="btn btn-danger d-flex align-items-center gap-1"
+                  onClick={handleBulkDelete}
+                >
+                  <IconTrash size={18} /> Hapus Terpilih ({selectedIds.length})
+                </button>
               )}
-            </button>
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={handleExport}
+                disabled={isExporting || !data?.data?.length}
+              >
+                {isExporting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Mengekspor...
+                  </>
+                ) : (
+                  <>
+                    <IconDownload size={18} className="me-2" />
+                    Export Excel
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
         <div className="card-body">

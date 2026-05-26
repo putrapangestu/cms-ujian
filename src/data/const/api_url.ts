@@ -90,6 +90,7 @@ export const EXAM = {
   DELETE: '/admin/exams/{id}',
   USERS: '/exams/{id}/user-exams',
   DELETE_USER: '/admin/user-exams/{id}',
+  DELETE_USER_BULK: '/admin/user-exams/bulk-delete',
   EXPORT_USERS: '/exams/{id}/user-exams/export',
   QUESTIONS: '/exams/{id}/questions',
   ROLL_QUESTIONS: '/exams/{id}/select-questions',
