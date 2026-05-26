@@ -7,6 +7,7 @@ export type AnswerType = {
   answer: string | string[] // Single or multiple choice
   answeredAt: string
   isDoubtful?: boolean // Flag for ragu-ragu
+  synced: boolean // NEW: apakah sudah tersinkronisasi ke server
 }
 
 type AnswerStoreType = {
@@ -30,6 +31,9 @@ type AnswerStoreType = {
   markAsSynced: () => void
   getAnswerCount: (examId: string) => number
   hasAnswer: (examId: string, questionId: string) => boolean
+  markQuestionSynced: (examId: string, questionId: string) => void
+  getPendingAnswers: (examId: string) => AnswerType[]
+  hasPendingAnswers: (examId: string) => boolean
 }
 
 export const useAnswerStore = create<AnswerStoreType>()(
@@ -51,6 +55,7 @@ export const useAnswerStore = create<AnswerStoreType>()(
               questionId,
               answer,
               answeredAt: new Date().toISOString(),
+              synced: false, // ← NEW: reset sync status
             },
           },
         }))
@@ -68,7 +73,7 @@ export const useAnswerStore = create<AnswerStoreType>()(
               ...state.answers,
               [key]: currentAnswer 
                 ? { ...currentAnswer, isDoubtful: !currentAnswer.isDoubtful }
-                : { questionId, answer: '', answeredAt: new Date().toISOString(), isDoubtful: true },
+                : { questionId, answer: '', answeredAt: new Date().toISOString(), isDoubtful: true, synced: false },
             }
           }
         })
@@ -125,6 +130,36 @@ export const useAnswerStore = create<AnswerStoreType>()(
       hasAnswer: (examId, questionId) => {
         const key = `${examId}_${questionId}`
         return key in get().answers
+      },
+
+      // Mark specific question as synced
+      markQuestionSynced: (examId, questionId) => {
+        const key = `${examId}_${questionId}`
+        set((state) => {
+          const existing = state.answers[key]
+          if (!existing) return state // jawaban tidak ada, skip
+          return {
+            answers: {
+              ...state.answers,
+              [key]: {
+                ...existing,
+                synced: true,
+              },
+            },
+          }
+        })
+      },
+
+      // Get all pending (unsynced) answers for an exam
+      getPendingAnswers: (examId) => {
+        return get()
+          .getExamAnswers(examId)
+          .filter((ans) => !ans.synced && ans.answer !== '' && ans.answer !== '[]')
+      },
+
+      // Check if there are any pending answers
+      hasPendingAnswers: (examId) => {
+        return get().getPendingAnswers(examId).length > 0
       },
     }),
     {

@@ -5,7 +5,7 @@ import { io } from 'socket.io-client'
 import { useAuthStore } from '@/data/store/auth_store'
 import type { ApiResponseType } from '@/data/types/api_response'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { UserSection } from './-components/UserSection'
 import { HeaderExam } from './-components/HeaderExam'
 import { TimerCard } from './-components/TimerCard'
@@ -38,6 +38,10 @@ function RouteComponent() {
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [summary, setSummary] = useState<any>(null)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingRetryRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const hasInteracted = useRef(false)
+  const emitAnswerRef = useRef<((questionId: string, answer: string | string[], timeSpent?: number) => void) | null>(null)
 
   useEffect(() => {
     timeRemainingRef.current = timeRemaining
@@ -53,6 +57,8 @@ function RouteComponent() {
     setCurrentExam,
     markAsSynced,
     clearExamAnswers,
+    markQuestionSynced,
+    getPendingAnswers,
   } = useAnswerStore()
 
   useEffect(() => {
@@ -90,6 +96,51 @@ function RouteComponent() {
     }
   })
 
+  // Fungsi reusable untuk mengirim jawaban ke socket (digunakan oleh debounce, reconnect, periodic retry)
+  const emitAnswerToSocket = useCallback((
+    questionId: string,
+    answer: string | string[],
+    timeSpent?: number
+  ) => {
+    if (!socketRef.current?.connected) return
+
+    const questionObject = data?.data?.questions?.find((q) => q.question_id === questionId)
+    if (!questionObject) return
+
+    const qType = questionObject?.type || questionObject?.question_type || 'single_choice'
+    let payloadAnswer: any = null
+    let payloadOptionId: any = null
+
+    if (qType === 'essay') {
+      payloadAnswer = answer
+    } else if (qType === 'multiple_choice') {
+      payloadOptionId =
+        typeof answer === 'string' && answer.startsWith('[')
+          ? JSON.parse(answer as string)
+          : Array.isArray(answer)
+            ? answer
+            : (answer as string).split(',').filter(Boolean)
+    } else {
+      payloadOptionId = answer
+    }
+
+    const payload: any = {
+      exam_id: examId,
+      student_id: user?.id,
+      user_exam_id: data?.data?.user_exam.id,
+      question_id: questionId,
+      time_spent: timeSpent ?? 0,
+    }
+    if (payloadAnswer !== null) payload.answer = payloadAnswer
+    if (payloadOptionId !== null) payload.question_option_id = payloadOptionId
+
+    socketRef.current.emit('submit_answer', payload)
+    console.log('Jawaban dikirim via emitAnswerToSocket:', payload)
+  }, [examId, user, data])
+
+  // Sync emitAnswerRef dengan latest emitAnswerToSocket
+  emitAnswerRef.current = emitAnswerToSocket
+
   // 1. Inisialisasi Socket DULU agar saat timer habis, socketRef sudah terisi
   useEffect(() => {
     if (!user?.id || !examId) return
@@ -100,6 +151,10 @@ function RouteComponent() {
     const newSocket = io(socketUrl, {
       auth: { key: import.meta.env.VITE_SOCKET_KEY || 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
       query: { userId: user?.id, examId: examId },
+      reconnection: true,
+      reconnectionDelay: 2000,
+      reconnectionAttempts: Infinity,
+      reconnectionDelayMax: 10000,
     })
 
     setSocket(newSocket)
@@ -117,6 +172,20 @@ function RouteComponent() {
           // Panggil fungsi submit Anda di sini
           if (submitExamRef.current) submitExamRef.current()
         });
+      } else if (eventData.action === 'exam_auto_submitted') {
+        // Auto-submit dari server (waktu habis)
+        if (!isSubmitting.current) {
+          Swal.fire({
+            title: 'Waktu Habis!',
+            text: eventData.message || 'Waktu ujian telah habis. Sistem telah menyelesaikan ujian Anda.',
+            icon: 'info',
+            confirmButtonText: 'Lihat Hasil',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then(() => {
+            window.location.reload()
+          })
+        }
       } else if (eventData.action === 'unblock') {
         Swal.fire('Ujian Dibuka', 'Ujian Anda telah dibuka kembali oleh Admin.', 'success');
       } else if (eventData.action === 'exam_reset') {
@@ -143,12 +212,55 @@ function RouteComponent() {
       });
     })
 
+    // Auto-retry pending answers saat reconnect (via ref untuk hindari stale closure)
+    newSocket.on('connect', () => {
+      console.log('Socket reconnected, checking pending answers...')
+      const pending = getPendingAnswers(examId)
+      if (pending.length > 0) {
+        console.log(`Resending ${pending.length} pending answers...`)
+        pending.forEach((ans) => {
+          emitAnswerRef.current?.(ans.questionId, ans.answer)
+        })
+      }
+    })
+
+    // Tandai jawaban sebagai tersinkronisasi setelah dikonfirmasi server
+    newSocket.on('answer_received', (data: { question_id: string, status: string }) => {
+      markQuestionSynced(examId, data.question_id)
+    })
+
     return () => {
       // Hapus listeners agar tidak double, tapi biarkan socket hidup
       newSocket.off('admin-action')
       newSocket.off('cheat_blocked')
+      newSocket.off('connect')
+      newSocket.off('answer_received')
     }
   }, [user, examId])
+
+  // Periodic retry safety net tiap 30 detik untuk jawaban pending
+  useEffect(() => {
+    if (!socket) return
+
+    pendingRetryRef.current = setInterval(() => {
+      if (!socket.connected) return
+
+      const pending = getPendingAnswers(examId)
+      if (pending.length === 0) return
+
+      console.log(`Periodic retry: ${pending.length} pending answers`)
+      pending.forEach((ans) => {
+        emitAnswerToSocket(ans.questionId, ans.answer)
+      })
+    }, 30000)
+
+    return () => {
+      if (pendingRetryRef.current) {
+        clearInterval(pendingRetryRef.current)
+        pendingRetryRef.current = null
+      }
+    }
+  }, [socket, examId, emitAnswerToSocket])
 
   // 2. Baru inisialisasi Timer
   useEffect(() => {
@@ -292,45 +404,37 @@ function RouteComponent() {
     const questionObject = data?.data?.questions?.[currentQuestion - 1]
     if (!questionObject) return
 
-    // Gunakan question_id (UUID) untuk menyimpan jawaban di store
-    setAnswer(examId, questionObject.question_id, answer)
+    const questionId = questionObject.question_id
 
-    if (socket) {
-      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000)
+    // Simpan ke lokal dulu (tanpa sync)
+    setAnswer(examId, questionId, answer)
 
-      const qType = questionObject?.type || questionObject?.question_type || 'single_choice'
-
-      let payloadAnswer: any = null
-      let payloadOptionId: any = null
-
-      if (qType === 'essay') {
-        payloadAnswer = answer
-      } else if (qType === 'multiple_choice') {
-        payloadOptionId =
-          typeof answer === 'string' && answer.startsWith('[')
-            ? JSON.parse(answer)
-            : Array.isArray(answer)
-              ? answer
-              : answer.split(',').filter(Boolean)
-      } else {
-        payloadOptionId = answer
-      }
-
-      const payload: any = {
-        exam_id: examId,
-        student_id: user?.id,
-        user_exam_id: data?.data?.user_exam.id,
-        question_id: questionObject.question_id, // ✅ Kirim UUID ke socket
-        time_spent: timeSpent,
-      }
-
-      if (payloadAnswer !== null) payload.answer = payloadAnswer
-      if (payloadOptionId !== null) payload.question_option_id = payloadOptionId
-
-      socket.emit('submit_answer', payload)
-      console.log('Jawaban disubmit:', payload)
+    // Clear debounce sebelumnya
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current)
     }
+
+    // Set debounce 300ms sebelum emit ke socket
+    debounceTimer.current = setTimeout(() => {
+      const timeSpent = Math.floor((Date.now() - questionStartTime) / 1000)
+      emitAnswerToSocket(questionId, answer, timeSpent)
+    }, 300)
   }
+
+  const handleClearAnswer = () => {
+    const questionObject = data?.data?.questions?.[currentQuestion - 1]
+    if (!questionObject) return
+    // Clear lokal saja, jangan emit ke socket
+    setAnswer(examId, questionObject.question_id, '')
+  }
+
+  const handleFirstInteraction = useCallback(() => {
+    if (hasInteracted.current) return
+    hasInteracted.current = true
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    }
+  }, [])
 
   const handleNavigate = (questionNumber: number) => {
     setCurrentQuestion(questionNumber)
@@ -376,53 +480,83 @@ function RouteComponent() {
     }
   }, [socket, user?.id, examId])
 
+  // Combined security + anti-cheat listeners (Modul 4)
   useEffect(() => {
+    if (hasSubmitted) return // JANGAN pasang listener jika sudah submit
+
+    // === VISIBILITY CHANGE (tab switch detection) ===
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         if (socket) {
-          const payload = {
+          socket.emit('cheat_warning', {
             userId: user?.id,
             examId: examId,
             warning_type: 'tab_switch',
-          }
-          socket.emit('cheat_warning', payload)
-          console.log('Cheat warning dikirim (pindah tab):', payload)
+          })
         }
       }
     }
 
+    // === FULLSCREEN (force re-enter + cheat_warning) ===
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
-        setTimeout(() => {
-          Swal.fire({
-            title: 'Keluar Mode Fullscreen',
-            text: 'Anda keluar dari mode Fullscreen! Harap klik area ujian untuk kembali fokus.',
-            icon: 'warning',
-            confirmButtonText: 'Mengerti'
-          });
-        }, 100)
+        document.documentElement.requestFullscreen().catch(() => {})
+        if (socket) {
+          socket.emit('cheat_warning', {
+            userId: user?.id,
+            examId: examId,
+            warning_type: 'fullscreen_exit',
+          })
+        }
       }
     }
 
+    // === KEYBOARD (blokir shortcut devtools) ===
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
+        (e.ctrlKey && e.key === 'u') ||
+        (e.ctrlKey && e.key === 's') ||
+        e.key === 'PrintScreen'
+      ) {
+        e.preventDefault()
+      }
+    }
+
+    // === RIGHT CLICK ===
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault()
+
+    // === BACK BUTTON ===
+    window.history.pushState(null, '', window.location.href)
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href)
+    }
+
+    // === BEFOREUNLOAD ===
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
+    // === REGISTER ALL LISTENERS ===
     document.addEventListener('visibilitychange', handleVisibilityChange)
     document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('contextmenu', handleContextMenu)
+    window.addEventListener('popstate', handlePopState)
+    window.addEventListener('beforeunload', handleBeforeUnload)
 
+    // === CLEANUP ===
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('contextmenu', handleContextMenu)
+      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
     }
-  }, [socket, user?.id, examId])
-
-  // useEffect(() => {
-  //   const preventShortcuts = (e: KeyboardEvent) => {
-  //     if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.key === 'u')) {
-  //       e.preventDefault();
-  //     }
-  //   };
-
-  //   window.addEventListener('keydown', preventShortcuts);
-  //   return () => window.removeEventListener('keydown', preventShortcuts);
-  // }, []);
+  }, [hasSubmitted, socket, user?.id, examId])
 
   if (hasSubmitted) {
     return (
@@ -624,6 +758,8 @@ function RouteComponent() {
             handleAnswerSelect={handleAnswerSelect}
             selectedAnswer={currentAnswer?.answer as string}
             totalQuestions={data?.data?.questions.length || 0}
+            onClearAnswer={handleClearAnswer}
+            onFirstInteraction={handleFirstInteraction}
             // isDoubtful={currentAnswer?.isDoubtful || false}
             // onToggleDoubtful={() => toggleDoubtful(examId, String(currentQuestion))}
           />

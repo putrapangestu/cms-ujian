@@ -77,8 +77,14 @@ function RouteComponent() {
   }
 
   const AnswerComponent = (ans: any) => {
-    const correctOption = ans.question.options.find(opt => opt.is_correct && opt.id != ans.question_option_id);
-    
+    // const correctOption = ans.question.options.find(opt => opt.is_correct && opt.id != ans.question_option_id);
+    const sortedOptions = [...ans.question.options]
+        .sort((a, b) => b.score - a.score);
+
+    const correctOption = sortedOptions[0]?.id !== ans.question_option_id
+        ? sortedOptions[0]
+        : null;
+
     return (
       <div className="mt-3 p-2 border rounded bg-light">
         <strong>Jawaban Benar:</strong>

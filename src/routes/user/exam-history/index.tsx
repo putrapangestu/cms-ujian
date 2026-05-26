@@ -190,8 +190,8 @@ function RouteComponent() {
                 <IconCertificate size={28} />
               </div>
               <div>
-                <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai</div>
-                <h3 className="fw-bold mb-0">{parseInt(summary?.total_score) > 0 ? (summary?.total_score / parseInt(summary?.total_exam)).toFixed(2) : 0}</h3>
+                <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai (Ujian Selesai)</div>
+                <h3 className="fw-bold mb-0">{parseInt(summary?.completed_score_count) > 0 ? (summary?.completed_score_count / parseInt(summary?.completed_exam_count)).toFixed(2) : 0}</h3>
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { QuestionDataType } from '@/data/validations/exam_schema'
 
 type QuestionCardProps = {
@@ -9,6 +10,8 @@ type QuestionCardProps = {
   totalQuestions: number
   // isDoubtful?: boolean
   // onToggleDoubtful?: () => void
+  onClearAnswer?: () => void       // NEW: clear lokal tanpa emit socket
+  onFirstInteraction?: () => void  // NEW: trigger fullscreen di klik pertama
 }
 export default function QuestionCard({
   currentQuestion,
@@ -19,7 +22,10 @@ export default function QuestionCard({
   totalQuestions,
   // isDoubtful = false,
   // onToggleDoubtful,
+  onClearAnswer,
+  onFirstInteraction,
 }: QuestionCardProps) {
+  const hasFiredRef = useRef(false) // NEW: pastikan fullscreen hanya trigger sekali
   const question = questions?.[currentQuestion - 1]
   const qType = (question as any)?.type || (question as any)?.question_type || 'single_choice'
 
@@ -41,6 +47,12 @@ export default function QuestionCard({
   }
 
   const onOptionChange = (optionId: string | number) => {
+    // Trigger fullscreen di klik pertama
+    if (!hasFiredRef.current) {
+      hasFiredRef.current = true
+      onFirstInteraction?.()
+    }
+
     const optIdStr = String(optionId)
     if (qType === 'multiple_choice') {
       let newSelected = [...selectedOptions]
@@ -139,13 +151,7 @@ export default function QuestionCard({
             </button> */}
             <button 
               className="btn btn-warning w-100 text-white"
-              onClick={() => {
-                if (qType === 'multiple_choice') {
-                  handleAnswerSelect('[]')
-                } else {
-                  handleAnswerSelect('')
-                }
-              }}
+              onClick={() => onClearAnswer?.()}
             >
               Hapus Jawaban
             </button>
