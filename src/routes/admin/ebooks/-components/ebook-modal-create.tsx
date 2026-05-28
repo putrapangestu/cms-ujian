@@ -46,7 +46,7 @@ export default function EbookModalCreate({
 
   const optCategories = useMemo(
     () =>
-      categoriesData?.data?.data?.map((cat: any) => ({
+      categoriesData?.data?.map((cat: any) => ({
         value: cat.id,
         label: `${cat.name} (${cat.code})`,
       })) || [],

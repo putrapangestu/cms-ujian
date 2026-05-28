@@ -79,13 +79,14 @@ function RouteComponent() {
   const AnswerComponent = (ans: any) => {
     // const correctOption = ans.question.options.find(opt => opt.is_correct && opt.id != ans.question_option_id);
     const sortedOptions = [...ans.question.options]
-        .sort((a, b) => b.score - a.score);
+        .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
     const correctOption = sortedOptions[0]?.id !== ans.question_option_id
         ? sortedOptions[0]
         : null;
 
-    return (
+    return correctOption ? 
+    (
       <div className="mt-3 p-2 border rounded bg-light">
         <strong>Jawaban Benar:</strong>
 
@@ -96,10 +97,10 @@ function RouteComponent() {
             Benar
           </span>
 
-          <strong className="text-primary">{correctOption.score || 0} Poin</strong>
+          <strong className="text-primary">{correctOption?.score || 0} Poin</strong>
         </div>
       </div>
-    );
+    ) : null;
   }
 
   if (isLoading) {
@@ -310,9 +311,10 @@ function RouteComponent() {
                               </div>
                             </div>
                           )}
-                          {ans.question.options.find((opt) => opt.is_correct && opt.id != ans.question_option_id) ? (
+                          {/* {ans.question.options.find((opt) => opt.is_correct && opt.id != ans.question_option_id) ? (
                             AnswerComponent(ans)
-                          ) : null}
+                          ) : null} */}
+                          {AnswerComponent(ans)}
                         </div>
                       </div>
                     </div>

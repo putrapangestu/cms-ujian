@@ -2,7 +2,7 @@ import { DataTable } from '@/components/DataTables'
 import type { ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconPlus, IconSearch, IconTrash, IconDownload, IconFileText } from '@tabler/icons-react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import EbookModalCreate from './-components/ebook-modal-create'
 import type { EbookDataType } from '@/data/validations/ebook_schema'
@@ -21,8 +21,9 @@ export const Route = createFileRoute('/admin/ebooks/')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const urlParams = new URLSearchParams(window.location.search)
-  const categoryCodeFromUrl = urlParams.get('category') || ''
+  const categoryCodeFromUrl = useRouterState({
+    select: (s) => (s.location.search as Record<string, string>)?.category ?? '',
+  })
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -38,7 +39,7 @@ function RouteComponent() {
 
   const optCategories = useMemo(
     () =>
-      categoriesData?.data?.data?.map((cat: any) => ({
+      categoriesData?.data?.map((cat: any) => ({
         value: cat.id,
         label: `${cat.name} (${cat.code})`,
         code: cat.code,

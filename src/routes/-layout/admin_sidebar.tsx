@@ -2,7 +2,6 @@ import { SIDEBAR_ADMIN_ITEMS } from '@/data/const/sidebar_admin_item'
 import { useAuthStore } from '@/data/store/auth_store'
 import type { SidebarItemType } from '@/data/types/sidebar_admin'
 import { hasPermission } from '@/lib/permission-helper'
-// import { hasPermission } from "@/lib/permission-helper";
 import { IconCircle, IconLogout, type Icon } from '@tabler/icons-react'
 import { Link, useLocation } from '@tanstack/react-router'
 import { Fragment, useEffect, useState } from 'react'
@@ -95,15 +94,31 @@ type NavItemProps =
       level: 1
     }
 
+const parseUrl = (url: string): { to: string; search?: Record<string, string> } => {
+  const qIndex = url.indexOf('?')
+  if (qIndex === -1) return { to: url }
+  const path = url.slice(0, qIndex)
+  const params = new URLSearchParams(url.slice(qIndex + 1))
+  const search: Record<string, string> = {}
+  for (const [key, value] of params) {
+    search[key] = value
+  }
+  return { to: path, search }
+}
+
 const NavItem = ({ item, level }: NavItemProps) => {
   const userRole = useAuthStore((state) => state.roles)
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
 
+  // Gunakan full path (pathname + search params) untuk perbandingan
+  // agar submenu dengan query params (seperti ebook?category=twk) bisa aktif dengan benar
+  const currentFullPath = location.pathname + location.search
+
   const checkActive = (
     currentItem: SidebarItemType & { children?: SidebarItemType[] },
   ): boolean => {
-    if (currentItem.url === location.pathname) return true
+    if (currentItem.url === currentFullPath) return true
     if (currentItem.children) {
       return currentItem.children.some((child) => checkActive(child))
     }
@@ -111,7 +126,7 @@ const NavItem = ({ item, level }: NavItemProps) => {
   }
 
   const isSelfOrChildActive = checkActive(item)
-  const isDirectActive = item.url === location.pathname
+  const isDirectActive = item.url === currentFullPath
 
   // Auto expand jika anak sedang aktif
   useEffect(() => {
@@ -163,11 +178,14 @@ const NavItem = ({ item, level }: NavItemProps) => {
     )
   }
 
+  const urlParsed = parseUrl(item.url)
+
   return (
     <li className="sidebar-item">
       <Link
         className={`sidebar-link ${isDirectActive ? 'active' : ''}`}
-        to={item.url}
+        to={urlParsed.to}
+        search={urlParsed.search}
         aria-expanded="false"
       >
         <span className="d-flex align-items-center">{renderIcon()}</span>

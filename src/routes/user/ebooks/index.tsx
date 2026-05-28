@@ -4,7 +4,7 @@ import type { ApiResponsePaginationType, ApiResponseType } from '@/data/types/ap
 import type { EbookDataType } from '@/data/validations/ebook_schema'
 import { getToken } from '@/lib/token-handler'
 import { toaster } from '@/lib/toast'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconSearch, IconDownload, IconEye } from '@tabler/icons-react'
@@ -15,8 +15,9 @@ export const Route = createFileRoute('/user/ebooks/')({
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const urlParams = new URLSearchParams(window.location.search)
-  const categoryCodeFromUrl = urlParams.get('category') || ''
+  const categoryCodeFromUrl = useRouterState({
+    select: (s) => (s.location.search as Record<string, string>)?.category ?? '',
+  })
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
@@ -30,7 +31,7 @@ function RouteComponent() {
 
   const optCategories = useMemo(
     () =>
-      categoriesData?.data?.data?.map((cat: any) => ({
+      categoriesData?.data?.map((cat: any) => ({
         value: cat.id,
         label: `${cat.name} (${cat.code})`,
         code: cat.code,
