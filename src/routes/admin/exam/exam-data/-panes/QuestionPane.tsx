@@ -48,11 +48,11 @@ export function QuestionPane({ examId }: { examId: string }) {
   // Fetch options for filters
   const { data: groupsData, isLoading: groupsLoading } = useQueryData<
     ApiResponsePaginationType<QuestionGroupDataType>
-  >(QUESTION_GROUP.GET, { limit: 999999, page: 1 })
+  >(QUESTION_GROUP.GET, { per_page: 999999 })
 
   const { data: categoriesData, isLoading: categoriesLoading } = useQueryData<
     ApiResponsePaginationType<QuestionCategoryDataType>
-  >(QUESTION_CATEGORY.GET, { limit: 999999, page: 1 })
+  >(QUESTION_CATEGORY.GET, { per_page: 999999 })
 
   const groupOptions = useMemo(
     () =>

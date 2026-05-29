@@ -21,9 +21,11 @@ import {
 } from '@/data/validations/exam_schema'
 import { EXAM, STUDENT, STUDENT_GROUP } from '@/data/const/api_url'
 import Select from 'react-select'
+import AsyncSelect from 'react-select/async'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { StudentGroupDataType } from '@/data/validations/student_schema'
 import { findSelectOption } from '@/lib/select-utils'
+import { fetcher } from '@/lib/api-client'
 import dayjs from 'dayjs'
 
 type ComponentProps = { isEdit?: boolean; exam?: ExamDataType }
@@ -50,21 +52,49 @@ export default function ExamModalCreate({
 
   const { data: studentGroups, isLoading: studentGroupLoading } = useQueryData<
     ApiResponsePaginationType<StudentGroupDataType>
-  >(STUDENT_GROUP.GET, { limit: 999999, page: 1 })
+  >(STUDENT_GROUP.GET, { per_page: 999999 })
   const studentGroupOptions =
     studentGroups?.data?.map((item) => ({
       value: item.id,
       label: item.name,
     })) || []
 
-  const { data: studentsData, isLoading: studentsLoading } = useQueryData<
-    ApiResponsePaginationType<{id: string, name: string, nisn: string, group?: {name: string}}>
-  >(STUDENT.GET, { limit: 999999, page: 1, status: 'active' })
+  // Options untuk menampilkan student yang sudah terpilih (edit mode)
+  const [selectedStudentOptions, setSelectedStudentOptions] = useState<{value: string, label: string}[]>([])
 
-  const studentOptions = studentsData?.data?.map(s => ({
-    value: s.id,
-    label: `${s.name}${s.nisn ? ` (${s.nisn})` : ''}${s.group?.name ? ` - ${s.group.name}` : ''}`
-  })) || []
+  // Ketika edit, fetch nama student yang sudah terpilih untuk ditampilkan di tag
+  useEffect(() => {
+    if (isEdit && exam?.students?.length) {
+      fetcher.get<ApiResponsePaginationType<{id: string, name: string, nisn: string, group?: {name: string}}>>(
+        STUDENT.GET,
+        { per_page: 999999, status: 'active' }
+      ).then(res => {
+        if (res?.data) {
+          const selectedSet = new Set(exam.students)
+          const opts = res.data
+            .filter(s => selectedSet.has(s.id))
+            .map(s => ({
+              value: s.id,
+              label: `${s.name}${s.nisn ? ` (${s.nisn})` : ''}${s.group?.name ? ` - ${s.group.name}` : ''}`
+            }))
+          setSelectedStudentOptions(opts)
+        }
+      })
+    }
+  }, [isEdit, exam])
+
+  // Async search student by name — tidak load semua, search on-demand
+  const loadStudentOptions = async (inputValue: string) => {
+    if (!inputValue || inputValue.length < 2) return []
+    const res = await fetcher.get<ApiResponsePaginationType<{id: string, name: string, nisn: string, group?: {name: string}}>>(
+      STUDENT.GET,
+      { search: inputValue, per_page: 20, status: 'active' }
+    )
+    return res?.data?.map(s => ({
+      value: s.id,
+      label: `${s.name}${s.nisn ? ` (${s.nisn})` : ''}${s.group?.name ? ` - ${s.group.name}` : ''}`
+    })) || []
+  }
 
   const defaultValues: ExamType = {
     title: '',
@@ -309,17 +339,25 @@ export default function ExamModalCreate({
                     <FormItem>
                       <FormLabel>{'Pilih Siswa (Opsional)'}</FormLabel>
                       <FormControl>
-                        <Select
+                        <AsyncSelect
                           isMulti
+                          isClearable
+                          cacheOptions
+                          defaultOptions={isEdit ? selectedStudentOptions : undefined}
+                          loadOptions={loadStudentOptions}
+                          noOptionsMessage={({ inputValue }) =>
+                            inputValue.length < 2
+                              ? 'Ketik minimal 2 huruf untuk mencari...'
+                              : 'Tidak ada siswa ditemukan'
+                          }
+                          placeholder="Cari nama siswa..."
                           styles={{ menu: (base) => ({ ...base, zIndex: 10 }) }}
-                          isLoading={studentsLoading}
-                          options={studentOptions}
-                          onChange={(e) => {
-                            const values = e?.map(i => i.value) || []
-                            onChange(values)
+                          onChange={(selected) => {
+                            const ids = selected?.map(i => i.value) || []
+                            onChange(ids)
+                            setSelectedStudentOptions(selected ? [...selected] : [])
                           }}
-                          value={studentOptions.filter(i => value?.includes(i.value))}
-                          placeholder="Pilih siswa langsung..."
+                          value={selectedStudentOptions.length > 0 ? selectedStudentOptions : null}
                           {...field}
                         />
                       </FormControl>
