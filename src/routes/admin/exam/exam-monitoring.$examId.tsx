@@ -62,6 +62,8 @@ function ExamMonitoringDetail() {
       setServerTime(data.serverTime);
     });
 
+    console.log("test socket")
+
     return () => {
       socket.off('exam:progress_update');
       socket.off('exam:tick');
