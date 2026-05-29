@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { socketClient } from '@/lib/socket-client';
 import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch';
 import { EXAM_MONITORING } from '@/data/const/api_url';
@@ -257,6 +257,22 @@ function MonitoringTable({ searchQuery, examId }: { searchQuery: string; examId:
 
 const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; examId: string }) => {
   const participant = useMonitoringStore((state) => state.participants[id]);
+  const serverTime = useMonitoringStore((state) => state.serverTime);
+  const lastSyncRef = useRef({ timeRemaining: 0, serverTime: Date.now() });
+
+  // Reset sync point setiap kali dapat update timeRemaining baru dari server
+  useEffect(() => {
+    if (participant) {
+      lastSyncRef.current = {
+        timeRemaining: participant.timeRemaining,
+        serverTime,
+      };
+    }
+  }, [participant?.timeRemaining]);
+
+  // Countdown smooth di antara heartbeat pakai serverTime (exam:tick tiap 1 detik)
+  const elapsed = Math.max(0, Math.floor((serverTime - lastSyncRef.current.serverTime) / 1000));
+  const displayTime = Math.max(0, (lastSyncRef.current.timeRemaining || 0) - elapsed);
   
   const { trigger: forceSubmit } = useMutationAction(EXAM_MONITORING.FORCE_SUBMIT, 'post', {
     refreshKey: EXAM_MONITORING.DETAIL.replace('{id}', examId),
@@ -326,7 +342,7 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
     <tr>
       <td className="text-start">{index + 1}.</td>
       <td className="text-start fw-bold">{participant.name}</td>
-      <td>{formatTime(participant.timeRemaining)}</td>
+      <td>{formatTime(displayTime)}</td>
       <td>{renderCategory(participant.categories?.TWK)}</td>
       <td>{renderCategory(participant.categories?.TKP)}</td>
       <td>{renderCategory(participant.categories?.TIU)}</td>
