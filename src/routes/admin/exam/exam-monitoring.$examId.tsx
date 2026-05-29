@@ -36,19 +36,14 @@ function ExamMonitoringDetail() {
     ApiResponseType<'multi', Participant>
   >(EXAM_MONITORING.DETAIL.replace('{id}', examId));
 
-  useEffect(() => {
-    // 1. Fetch initial data from API
-    if (monitoringData?.data && Array.isArray(monitoringData.data)) {
-       const validParticipants = monitoringData.data.filter(p => p.id != null);
-       setParticipants(validParticipants);
-    } else {
-       setParticipants([]);
-    }
+  // Ref untuk mutate agar bisa dipakai di socket effect tanpa trigger re-run
+  const mutateRef = useRef(mutate);
+  mutateRef.current = mutate;
 
-    // 2. Start Buffer
+  // Socket effect — stabil, hanya re-run kalau examId berubah
+  useEffect(() => {
     startMonitoringBuffer();
 
-    // 3. Connect Socket
     const socket = socketClient.connect('');
 
     // Join exam room
@@ -68,17 +63,34 @@ function ExamMonitoringDetail() {
 
     // Auto-refresh ketika ada user baru join
     socket.on('user_connected', () => {
-      mutate();
+      mutateRef.current();
     });
 
     return () => {
       socket.off('exam:progress_update');
       socket.off('exam:tick');
       socket.off('user_connected');
-      socket.emit('leave', { room: `exam:${examId}` }); 
+      socket.emit('leave', { room: `exam:${examId}` });
       stopMonitoringBuffer();
     };
-  }, [examId, setParticipants, setServerTime, monitoringData, mutate]);
+  }, [examId, setServerTime]);
+
+  // Sync data dari API ke store — re-run setiap monitoringData berubah
+  // Tapi TIDAK mengganggu socket listener
+  useEffect(() => {
+    if (monitoringData?.data && Array.isArray(monitoringData.data)) {
+       const validParticipants = monitoringData.data.filter(p => p.id != null);
+       setParticipants(validParticipants);
+    } else {
+       setParticipants([]);
+    }
+  }, [monitoringData, setParticipants]);
+
+  // Periodic auto-refresh (tiap 15 detik) — safety net untuk user baru
+  useEffect(() => {
+    const interval = setInterval(() => mutate(), 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newExamId = e.target.value;

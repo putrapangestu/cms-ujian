@@ -51,6 +51,18 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
         if (newParticipants[id]) {
           newParticipants[id] = { ...newParticipants[id], ...updates[id] };
           hasChanges = true;
+        } else {
+          // Partial data untuk user baru — properti wajib diisi default
+          newParticipants[id] = {
+            id,
+            user_exam_id: updates[id].user_exam_id || '',
+            name: updates[id].name || 'Loading...',
+            progress: 0,
+            status: 'online',
+            timeRemaining: 0,
+            ...updates[id],
+          } as Participant;
+          hasChanges = true;
         }
       }
 
