@@ -32,7 +32,7 @@ function ExamMonitoringDetail() {
   >(EXAM_MONITORING.ACTIVE);
 
   // Ambil detail participants dari API
-  const { data: monitoringData, isLoading, refetch } = useQueryDataPersistent<
+  const { data: monitoringData, isLoading, mutate } = useQueryDataPersistent<
     ApiResponseType<'multi', Participant>
   >(EXAM_MONITORING.DETAIL.replace('{id}', examId));
 
@@ -126,7 +126,7 @@ function ExamMonitoringDetail() {
              <button 
                className="btn btn-dark" 
                type="button"
-               onClick={() => refetch()}
+                onClick={() => mutate()}
                title="Refresh Data"
              >
                <IconRefresh size={18} />
