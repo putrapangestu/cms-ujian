@@ -66,15 +66,19 @@ function ExamMonitoringDetail() {
       setServerTime(data.serverTime);
     });
 
-    console.log("test socket")
+    // Auto-refresh ketika ada user baru join
+    socket.on('user_connected', () => {
+      mutate();
+    });
 
     return () => {
       socket.off('exam:progress_update');
       socket.off('exam:tick');
+      socket.off('user_connected');
       socket.emit('leave', { room: `exam:${examId}` }); 
       stopMonitoringBuffer();
     };
-  }, [examId, setParticipants, setServerTime, monitoringData]);
+  }, [examId, setParticipants, setServerTime, monitoringData, mutate]);
 
   const handleExamChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newExamId = e.target.value;
