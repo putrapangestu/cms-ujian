@@ -121,8 +121,9 @@ export default function ExamModalCreate({
   }
 
   useEffect(() => {
-    if (!isEdit) form.reset(defaultValues)
-    else
+    if (!isEdit) {
+      form.reset(defaultValues)
+    } else {
       form.reset({
         title: exam?.title || '',
         description: exam?.description || undefined,
@@ -138,6 +139,9 @@ export default function ExamModalCreate({
         student_groups: exam?.student_groups || [],
         students: exam?.students || [],
       })
+      // Trigger validasi segera agar tombol Ubah tidak disable
+      setTimeout(() => form.trigger())
+    }
   }, [isEdit, exam])
 
   return (
