@@ -209,10 +209,16 @@ export function StudentPane({ examId }: { examId: string }) {
       header: 'Kelulusan',
       cell: (v) => {
         if (v.is_passed === null || v.is_passed === undefined) return '-'
+        if (v.is_passed && v.status != 'completed' ) return (
+          <span className="badge bg-warning-subtle text-warning">
+            Belum Mengikuti
+          </span>
+        )
+
         return v.is_passed ? (
-          <span className="badge bg-success">Lulus</span>
+          <span className="badge bg-success">Sudah Mengerjakan</span>
         ) : (
-          <span className="badge bg-danger">Tidak Lulus</span>
+          <span className="badge bg-danger">Sudah Mengikuti</span>
         )
       },
     },
