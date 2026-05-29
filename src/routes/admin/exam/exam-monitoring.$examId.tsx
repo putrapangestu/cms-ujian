@@ -54,8 +54,12 @@ function ExamMonitoringDetail() {
     // Join exam room
     socket.emit('join', { room: `exam:${examId}` });
 
-    socket.on('exam:progress_update', (data: { id: string; update: any }) => {
-      queueParticipantUpdate(data.id, data.update);
+    socket.on('exam:progress_update', (received: any) => {
+      // Handle 2 format:
+      //   - Direct emit: { id, update }
+      //   - Via Laravel /emit: { channel, data: { id, update } }
+      const payload = received.data || received;
+      queueParticipantUpdate(payload.id, payload.update);
     });
 
     socket.on('exam:tick', (data: { serverTime: number }) => {
