@@ -136,7 +136,9 @@ export default function ExamModalCreate({
         end_date: exam
           ? dayjs(exam.end_date).format('YYYY-MM-DDTHH:mm')
           : '',
-        student_groups: exam?.student_groups || [],
+        student_groups: Array.isArray(exam?.student_groups)
+          ? exam.student_groups.map((sg: any) => (typeof sg === 'string' ? sg : sg?.id))
+          : [],
         students: exam?.students || [],
       })
       // Trigger validasi segera agar tombol Ubah tidak disable
