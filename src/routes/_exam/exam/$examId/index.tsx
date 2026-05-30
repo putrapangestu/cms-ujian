@@ -38,9 +38,12 @@ function RouteComponent() {
 
   const [hasSubmitted, setHasSubmitted] = useState(false)
   const [summary, setSummary] = useState<any>(null)
+  const [showFullscreenOverlay, setShowFullscreenOverlay] = useState(false)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingRetryRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const hasInteracted = useRef(false)
+  const fullscreenExitCount = useRef(0)
+  const fullscreenOverlayRef = useRef(false)
   const emitAnswerRef = useRef<((questionId: string, answer: string | string[], timeSpent?: number) => void) | null>(null)
 
   useEffect(() => {
@@ -497,10 +500,29 @@ function RouteComponent() {
       }
     }
 
-    // === FULLSCREEN (force re-enter + cheat_warning) ===
+    // === FULLSCREEN (force re-enter + cheat_warning + overlay + limit) ===
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
+        fullscreenExitCount.current++
+        fullscreenOverlayRef.current = true
+        setShowFullscreenOverlay(true)
+
+        if (fullscreenExitCount.current >= 3) {
+          fullscreenOverlayRef.current = false
+          setShowFullscreenOverlay(false)
+          if (socket) {
+            socket.emit('cheat_warning', {
+              userId: user?.id,
+              examId: examId,
+              warning_type: 'fullscreen_exit_max',
+            })
+          }
+          handleExamTimeout()
+          return
+        }
+
         document.documentElement.requestFullscreen().catch(() => {})
+
         if (socket) {
           socket.emit('cheat_warning', {
             userId: user?.id,
@@ -508,6 +530,17 @@ function RouteComponent() {
             warning_type: 'fullscreen_exit',
           })
         }
+      }
+    }
+
+    // === GLOBAL CLICK (re-request fullscreen + tutup overlay) ===
+    const handleGlobalClick = () => {
+      if (fullscreenOverlayRef.current) {
+        fullscreenOverlayRef.current = false
+        setShowFullscreenOverlay(false)
+      }
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {})
       }
     }
 
@@ -544,6 +577,7 @@ function RouteComponent() {
     document.addEventListener('fullscreenchange', handleFullscreenChange)
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('contextmenu', handleContextMenu)
+    document.addEventListener('click', handleGlobalClick)
     window.addEventListener('popstate', handlePopState)
     window.addEventListener('beforeunload', handleBeforeUnload)
 
@@ -553,6 +587,7 @@ function RouteComponent() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('contextmenu', handleContextMenu)
+      document.removeEventListener('click', handleGlobalClick)
       window.removeEventListener('popstate', handlePopState)
       window.removeEventListener('beforeunload', handleBeforeUnload)
     }
@@ -739,10 +774,72 @@ function RouteComponent() {
   }
 
   return (
-    <div
-      className="container py-4"
-      style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}
-    >
+    <>
+      {/* Fullscreen Exit Overlay — block layar sampai user klik */}
+      {showFullscreenOverlay && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            backgroundColor: 'rgba(0,0,0,0.92)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            fullscreenOverlayRef.current = false
+            setShowFullscreenOverlay(false)
+            document.documentElement.requestFullscreen().catch(() => {})
+          }}
+        >
+          <div
+            style={{
+              fontSize: '60px',
+              marginBottom: '24px',
+            }}
+          >
+            ⚠️
+          </div>
+          <h2
+            style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              marginBottom: '12px',
+            }}
+          >
+            Anda keluar dari mode layar penuh!
+          </h2>
+          <p
+            style={{
+              fontSize: '16px',
+              opacity: 0.8,
+              marginBottom: '32px',
+              textAlign: 'center',
+              maxWidth: '480px',
+            }}
+          >
+            demi keamanan ujian, Anda harus tetap dalam mode layar penuh.
+            <br />
+            Klik di mana saja untuk kembali.
+          </p>
+          <p
+            style={{
+              fontSize: '13px',
+              opacity: 0.5,
+            }}
+          >
+            Peringatan ke-{fullscreenExitCount.current} dari 3 kali
+          </p>
+        </div>
+      )}
+      <div
+        className="container py-4"
+        style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}
+      >
       <div className="row g-4">
         {/* Left Section - Question */}
         <div className="col-lg-9 col-xl-9">
@@ -828,5 +925,6 @@ function RouteComponent() {
         </div>
       </div>
     </div>
+    </>
   )
 }
