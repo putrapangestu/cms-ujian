@@ -46,7 +46,7 @@ function RouteComponent() {
   const examHistory = examHistoryRes
   const totalExamUser = student?.user_exams?.filter((item: any) => item.status == 'completed') || []
   const scoreSummary = totalExamUser?.reduce((acc: number, cur: any) => acc + cur.score, 0)
-  const averageScore = scoreSummary > 0 ? scoreSummary / totalExamUser.length : 0
+  const averageScore = scoreSummary > 0 ? Math.round(scoreSummary / totalExamUser.length * 100) : 0
   
   const [isExporting, setIsExporting] = useState(false)
 
@@ -129,7 +129,11 @@ function RouteComponent() {
     },
     { 
       header: 'Total Skor', 
-      cell: (v) => <span className="fw-bold text-primary">{v.total_score}</span>
+      cell: (v) => <span className="fw-bold text-primary">{
+        v.total_score != (v.score_twk + v.score_tiu + v.score_tkp) ? 
+        v.score_twk + v.score_tiu + v.score_tkp : 
+        v.total_score
+      }</span>
     },
     {
       header: 'Aksi',

@@ -4,7 +4,7 @@ import { EXAM } from '@/data/const/api_url'
 import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { ExamDataType } from '@/data/validations/exam_schema'
-import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import ExamModalCreate from '../-components/exam-modal-create'
@@ -50,11 +50,28 @@ function RouteComponent() {
     { refreshKey: EXAM.GET }
   )
 
+  const { trigger: copyExam } = useMutationAction(
+    EXAM.COPY,
+    'post',
+    { refreshKey: EXAM.GET }
+  )
+
   const handleDelete = (exam: ExamDataType) => {
     confirmAlert(
       'Hapus Ujian',
       async () => await deleteExam({ id: exam.id }),
       `Apakah Anda yakin ingin menghapus ujian "${exam.title}"?`,
+      () => {
+        if (refetch) refetch()
+      }
+    )
+  }
+
+  const handleCopy = (exam: ExamDataType) => {
+    confirmAlert(
+      'Duplikasi Ujian',
+      async () => await copyExam({ id: exam.id }),
+      `Duplikasi ujian "${exam.title}"? Semua soal akan disalin, peserta tidak ikut.`,
       () => {
         if (refetch) refetch()
       }
@@ -112,6 +129,14 @@ function RouteComponent() {
             onClick={() => navigate({ to: `/admin/exam/exam-data/${v.id}` })}
           >
             <IconEye size={18} />
+          </button>
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-secondary"
+            onClick={() => handleCopy(v)}
+            title="Duplikasi Ujian"
+          >
+            <IconCopy size={18} />
           </button>
           <button
             type="button"

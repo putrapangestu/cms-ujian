@@ -124,7 +124,8 @@ function RouteComponent() {
       accessorKey: 'score',
       header: 'Nilai',
       cell: (row) => {
-        return row.score !== null ? <span className="fw-bold">{row.score}</span> : '-'
+        const scoreSummary = row.userAnswers.reduce((acc: number, cur: any) => acc + cur.score, 0)
+        return row.score !== null ? <span className="fw-bold">{row.score != scoreSummary ? scoreSummary : row.score}</span> : '-'
       },
     },
     {
@@ -191,7 +192,7 @@ function RouteComponent() {
               </div>
               <div>
                 <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai (Ujian Selesai)</div>
-                <h3 className="fw-bold mb-0">{parseInt(summary?.completed_score_count) > 0 ? (summary?.completed_score_count / parseInt(summary?.completed_exam_count)).toFixed(2) : 0}</h3>
+                <h3 className="fw-bold mb-0">{parseInt(summary?.completed_score_count) > 0 ? Math.round(summary?.completed_score_count / parseInt(summary?.completed_exam_count)) : 0}</h3>
               </div>
             </div>
           </div>

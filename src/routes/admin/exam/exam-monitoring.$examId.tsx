@@ -5,6 +5,7 @@ import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useG
 import { EXAM_MONITORING } from '@/data/const/api_url';
 import type { ApiResponseType } from '@/data/types/api_response';
 import { IconSearch, IconRefresh } from '@tabler/icons-react';
+import { cn } from '@/lib/utils';
 import Swal from 'sweetalert2';
 import {
   startMonitoringBuffer,
@@ -18,6 +19,27 @@ import {
 export const Route = createFileRoute('/admin/exam/exam-monitoring/$examId')({
   component: ExamMonitoringDetail,
 });
+
+// Threshold per kategori untuk color code
+const SCORE_THRESHOLDS: Record<string, { min: number }> = {
+  TWK: { min: 65 },
+  TIU: { min: 85 },
+  TKP: { min: 166 },
+}
+
+const TOTAL_THRESHOLD = 316 // 65 + 85 + 166
+
+function getScoreColor(score: number | undefined, category: string): string {
+  if (score === undefined || score === null) return ''
+  
+  const threshold = category === 'total' 
+    ? TOTAL_THRESHOLD 
+    : (SCORE_THRESHOLDS[category]?.min ?? 0)
+  
+  if (threshold === 0) return ''
+  
+  return score >= threshold ? 'text-success' : 'text-danger'
+}
 
 function ExamMonitoringDetail() {
   const { examId } = Route.useParams();
@@ -270,7 +292,13 @@ function MonitoringTable({ searchQuery, examId }: { searchQuery: string; examId:
 const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; examId: string }) => {
   const participant = useMonitoringStore((state) => state.participants[id]);
   const serverTime = useMonitoringStore((state) => state.serverTime);
+  const changeFlags = useMonitoringStore((state) => state.changeFlags);
+  const clearChangeFlag = useMonitoringStore((state) => state.clearChangeFlag);
   const lastSyncRef = useRef({ timeRemaining: 0, serverTime: Date.now() });
+  const [isNew, setIsNew] = useState(true);
+  const [showScoreFlash, setShowScoreFlash] = useState(false);
+
+  const flag = changeFlags[id];
 
   // Reset sync point setiap kali dapat update timeRemaining baru dari server
   useEffect(() => {
@@ -281,6 +309,24 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
       };
     }
   }, [participant?.timeRemaining]);
+
+  // Animasi enter untuk row baru
+  useEffect(() => {
+    const timer = setTimeout(() => setIsNew(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Animasi flash ketika score berubah
+  useEffect(() => {
+    if (flag?.scoreChanged) {
+      setShowScoreFlash(true);
+      const timer = setTimeout(() => {
+        setShowScoreFlash(false);
+        clearChangeFlag(id);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [flag?.scoreChanged, id, clearChangeFlag]);
 
   // Countdown smooth di antara heartbeat pakai serverTime (exam:tick tiap 1 detik)
   const elapsed = Math.max(0, Math.floor((serverTime - lastSyncRef.current.serverTime) / 1000));
@@ -338,11 +384,16 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
     return `${h}:${m}:${s}`;
   };
 
-  const renderCategory = (cat?: CategoryScore) => {
+  const renderCategory = (cat?: CategoryScore, categoryCode?: string) => {
     if (!cat) return <div className="text-muted">-</div>;
+    
+    const colorClass = getScoreColor(cat.score, categoryCode || '');
+    
     return (
        <div>
-         <div className="fw-bold">{cat.score}</div>
+         <div className={`fw-bold ${colorClass}`}>
+           {cat.score}
+         </div>
          <div className="text-muted" style={{ fontSize: '0.8rem' }}>
            {cat.answered}/{cat.total}
          </div>
@@ -351,14 +402,14 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
   };
 
   return (
-    <tr>
+    <tr className={cn({ 'monitoring-row-enter': isNew })}>
       <td className="text-start">{index + 1}.</td>
       <td className="text-start fw-bold">{participant.name}</td>
       <td>{formatTime(displayTime)}</td>
-      <td>{renderCategory(participant.categories?.TWK)}</td>
-      <td>{renderCategory(participant.categories?.TKP)}</td>
-      <td>{renderCategory(participant.categories?.TIU)}</td>
-      <td className="fw-bold text-success" style={{ fontSize: '1.1rem' }}>
+      <td>{renderCategory(participant.categories?.TWK, 'TWK')}</td>
+      <td>{renderCategory(participant.categories?.TKP, 'TKP')}</td>
+      <td>{renderCategory(participant.categories?.TIU, 'TIU')}</td>
+      <td className={cn("fw-bold", getScoreColor(participant.totalScore, 'total'), { "score-flash": showScoreFlash })} style={{ fontSize: '1.1rem' }}>
         {participant.totalScore || 0}
       </td>
       <td className="d-flex gap-2">

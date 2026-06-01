@@ -88,6 +88,7 @@ export const EXAM = {
   CREATE: '/admin/exams',
   UPDATE: '/admin/exams/{id}',
   DELETE: '/admin/exams/{id}',
+  COPY: '/admin/exams/{id}/copy',
   USERS: '/exams/{id}/user-exams',
   DELETE_USER: '/admin/user-exams/{id}',
   DELETE_USER_BULK: '/admin/user-exams/bulk-delete',

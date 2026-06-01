@@ -10,6 +10,7 @@ import { apiClient } from '@/lib/api-client'
 import { AUTH } from '@/data/const/api_url'
 import { useGlobalStore } from '@/data/store/global_store'
 import '@/lib/global-settings'
+import '@/styles/monitoring-animations.css'
 
 // Bootstrap CSS
 import appCss from '@/assets/css/styles.css?url'

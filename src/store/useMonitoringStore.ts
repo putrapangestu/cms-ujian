@@ -26,14 +26,17 @@ export interface Participant {
 interface MonitoringState {
   serverTime: number;
   participants: Record<string, Participant>;
+  changeFlags: Record<string, { scoreChanged: boolean; statusChanged: boolean; timeChanged: boolean }>;
   setServerTime: (time: number) => void;
   setParticipants: (participants: Participant[]) => void;
   updateParticipantsBatch: (updates: Record<string, Partial<Participant>>) => void;
+  clearChangeFlag: (id: string) => void;
 }
 
 export const useMonitoringStore = create<MonitoringState>((set) => ({
   serverTime: Date.now(),
   participants: {},
+  changeFlags: {},
   setServerTime: (time) => set({ serverTime: time }),
   setParticipants: (participantsList) => {
     const participantsMap: Record<string, Participant> = {};
@@ -45,14 +48,27 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
   updateParticipantsBatch: (updates) =>
     set((state) => {
       const newParticipants = { ...state.participants };
+      const newChangeFlags = { ...state.changeFlags };
       let hasChanges = false;
 
       for (const id in updates) {
-        if (newParticipants[id]) {
-          newParticipants[id] = { ...newParticipants[id], ...updates[id] };
+        const prev = newParticipants[id];
+        const update = updates[id];
+        
+        if (prev) {
+          // Deteksi perubahan
+          const scoreChanged = update.totalScore !== undefined && update.totalScore !== prev.totalScore;
+          const statusChanged = update.status !== undefined && update.status !== prev.status;
+          const timeChanged = update.timeRemaining !== undefined && update.timeRemaining !== prev.timeRemaining;
+          
+          if (scoreChanged || statusChanged || timeChanged) {
+            newChangeFlags[id] = { scoreChanged, statusChanged, timeChanged };
+          }
+          
+          newParticipants[id] = { ...prev, ...update };
           hasChanges = true;
         } else {
-          // Partial data untuk user baru — properti wajib diisi default
+          // Participant baru
           newParticipants[id] = {
             id,
             user_exam_id: updates[id].user_exam_id || '',
@@ -66,7 +82,14 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
         }
       }
 
-      return hasChanges ? { participants: newParticipants } : state;
+      return hasChanges 
+        ? { participants: newParticipants, changeFlags: newChangeFlags }
+        : state;
+    }),
+  clearChangeFlag: (id) =>
+    set((state) => {
+      const { [id]: _, ...rest } = state.changeFlags;
+      return { changeFlags: rest };
     }),
 }));
 
