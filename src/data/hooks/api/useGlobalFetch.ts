@@ -95,13 +95,57 @@ export const useMutationAction = (
           config.onError(err)
           return
         }
+        if (config?.showMessage === false) return
+
         const msg =
           err?.response?.data?.message ||
           err?.response?.message ||
           err?.response?.data?.error ||
           err?.response?.error ||
-          'Terjadi kesalahan'
-        if (config?.showMessage !== false) toaster(msg, 'error')
+          ''
+
+        // Jika ada validation errors per field, tampilkan detailnya
+        const errors = err?.response?.data?.errors
+        if (errors && typeof errors === 'object' && Object.keys(errors).length > 0) {
+          const firstField = Object.keys(errors)[0]
+          const firstMsg = typeof errors[firstField] === 'string'
+            ? errors[firstField]
+            : Array.isArray(errors[firstField])
+              ? errors[firstField][0]
+              : ''
+          
+          if (firstMsg) {
+            toaster(firstMsg, 'error')
+          } else if (msg) {
+            toaster(msg, 'error')
+          } else {
+            toaster('Data yang Anda masukkan tidak valid. Silakan periksa kembali.', 'error')
+          }
+          return
+        }
+
+        // Untuk error 422 tanpa detail field (misal dari validator global)
+        const status = err?.response?.status
+        if (status === 422 && msg) {
+          toaster(msg, 'error')
+          return
+        }
+
+        // Fallback berdasarkan status code
+        const statusMessages: Record<number, string> = {
+          400: 'Data yang Anda kirim tidak sesuai. Silakan periksa kembali.',
+          401: 'Sesi Anda telah berakhir. Silakan login kembali.',
+          403: 'Anda tidak memiliki izin untuk melakukan tindakan ini.',
+          404: 'Data yang Anda cari tidak ditemukan.',
+          409: 'Terjadi bentrok data. Silakan coba lagi.',
+          422: 'Data yang Anda masukkan tidak valid.',
+          429: 'Terlalu banyak permintaan. Silakan coba beberapa saat lagi.',
+          500: 'Terjadi kesalahan pada server. Silakan coba beberapa saat lagi.',
+          502: 'Server sedang sibuk. Silakan coba lagi nanti.',
+          503: 'Server sedang dalam perawatan. Silakan coba lagi nanti.',
+        }
+
+        toaster(msg || statusMessages[status] || 'Terjadi kesalahan. Silakan coba lagi.', 'error')
       },
       onSuccess: (data) => {
         if (config?.showMessage !== false)

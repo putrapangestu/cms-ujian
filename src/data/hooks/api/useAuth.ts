@@ -23,7 +23,7 @@ export const useLogin = () => {
     },
     onError: (e) => {
       console.log('Login gagal: ', e)
-      toaster(e.response.data.message || 'Login gagal', 'error')
+      toaster(e.response?.data?.message || 'Email atau password yang Anda masukkan salah.', 'error')
     },
   })
 }
@@ -34,7 +34,7 @@ export const useRegister = () => {
   return useSWRMutation(AUTH.REGISTER, fetcher.post, {
     onError: (err) => {
       console.error('Register failed:', err)
-      toaster(err.response.data.message || err.response.message, 'error')
+      toaster(err.response?.data?.message || err.response?.message || 'Pendaftaran gagal. Silakan coba lagi.', 'error')
     },
     onSuccess: (data) => {
       toaster(`${data.message}`, 'success', 2000)
@@ -59,7 +59,7 @@ export const useVerify = () => {
       },
       onError: (e) => {
         console.log('Verifikasi gagal: ', e)
-        toaster(e.response?.data?.message || 'Verifikasi gagal', 'error')
+        toaster(e.response?.data?.message || 'Verifikasi email gagal. Silakan coba lagi.', 'error')
       },
     },
   )
@@ -69,7 +69,7 @@ export const useSendResetPassword = () => {
   return useSWRMutation(AUTH.SEND_RESET_PASSWORD, fetcher.post, {
     onError: (err) => {
       console.error('Send reset password failed:', err)
-      toaster(err.response.data.message, 'error')
+      toaster(err.response?.data?.message || 'Gagal mengirim tautan reset password. Silakan coba lagi.', 'error')
       return false
     },
     onSuccess: (data) => {
@@ -102,7 +102,7 @@ export const useForgotPassword = () => {
   return useSWRMutation(AUTH.FORGOT_PASSWORD, fetcher.post, {
     onError: (err) => {
       console.error('Forgot password failed:', err)
-      toaster(err.response.data.message || err.response.message, 'error')
+      toaster(err.response?.data?.message || err.response?.message || 'Gagal memproses reset password. Silakan coba lagi.', 'error')
     },
     onSuccess: (data) => {
       toaster(`${data.message}`, 'success', 2000)
