@@ -38,7 +38,9 @@ function getScoreColor(score: number | undefined, category: string): string {
   
   if (threshold === 0) return ''
   
-  return score >= threshold ? 'text-success' : 'text-danger'
+  return score >= threshold 
+    ? 'text-success bg-success-subtle' 
+    : 'text-danger bg-danger-subtle'
 }
 
 function ExamMonitoringDetail() {
