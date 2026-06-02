@@ -297,8 +297,10 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
   const changeFlags = useMonitoringStore((state) => state.changeFlags);
   const clearChangeFlag = useMonitoringStore((state) => state.clearChangeFlag);
   const lastSyncRef = useRef({ timeRemaining: 0, serverTime: Date.now() });
+  const prevIndexRef = useRef<number | null>(null);
   const [isNew, setIsNew] = useState(true);
   const [showScoreFlash, setShowScoreFlash] = useState(false);
+  const [moveDirection, setMoveDirection] = useState<'up' | 'down' | null>(null);
 
   const flag = changeFlags[id];
 
@@ -317,6 +319,21 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
     const timer = setTimeout(() => setIsNew(false), 500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Deteksi perubahan posisi dan trigger animasi
+  useEffect(() => {
+    if (prevIndexRef.current !== null && prevIndexRef.current !== index) {
+      const direction = index > prevIndexRef.current ? 'down' : 'up';
+      setMoveDirection(direction);
+      
+      // Clear animation setelah selesai
+      const timer = setTimeout(() => {
+        setMoveDirection(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    prevIndexRef.current = index;
+  }, [index]);
 
   // Animasi flash ketika score berubah
   useEffect(() => {
@@ -404,7 +421,14 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
   };
 
   return (
-    <tr className={cn({ 'monitoring-row-enter': isNew })}>
+    <tr 
+      style={{ '--row-index': index } as React.CSSProperties}
+      className={cn({
+        'monitoring-row-enter': isNew,
+        'monitoring-row-move-up': moveDirection === 'up',
+        'monitoring-row-move-down': moveDirection === 'down',
+      })}
+    >
       <td className="text-start">{index + 1}.</td>
       <td className="text-start fw-bold">{participant.name}</td>
       <td>{formatTime(displayTime)}</td>
