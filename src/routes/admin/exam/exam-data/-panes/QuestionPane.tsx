@@ -25,6 +25,50 @@ export function QuestionPane({ examId }: { examId: string }) {
     setPage(1)
   }, [search])
 
+  // Helper to get option label (A, B, C, D, ...)
+  const getOptionLabel = (index: number): string => {
+    return String.fromCharCode(65 + index)
+  }
+
+  // Helper to get correct answer text from question options
+  const getCorrectAnswer = (question: QuestionDataType): string => {
+    // For single_choice: find the first option marked as correct (is_correct || score > 0)
+    if (question.question_type === 'single_choice') {
+      if (!question.options || question.options.length === 0) return '-'
+      const correctOption = question.options.find(
+        (o) => o.is_correct || o.score > 0,
+      )
+      if (!correctOption) return '-'
+      const idx = question.options.indexOf(correctOption)
+      return `(${getOptionLabel(idx)}) ${correctOption.option_text}`
+    }
+
+    // For multiple_choice: find all options with is_correct or score > 0
+    if (question.question_type === 'multiple_choice') {
+      if (!question.options || question.options.length === 0) return '-'
+      const correctOptions = question.options.filter(
+        (o) => o.is_correct || o.score > 0,
+      )
+      if (correctOptions.length === 0) return '-'
+      return correctOptions
+        .map((o) => {
+          const idx = question.options.indexOf(o)
+          return `(${getOptionLabel(idx)}) ${o.option_text}`
+        })
+        .join(', ')
+    }
+
+    // For essay & true_false: use correct_answer field
+    if (question.correct_answer) {
+      if (question.question_type === 'true_false') {
+        return question.correct_answer === 'true' ? 'Benar' : 'Salah'
+      }
+      return question.correct_answer
+    }
+
+    return '-'
+  }
+
   // Helper for question type translation
   const getQuestionTypeLabel = (type: string | undefined) => {
     switch (type) {
@@ -120,6 +164,14 @@ export function QuestionPane({ examId }: { examId: string }) {
       cell: (v) => (
         <span className="badge bg-success-subtle text-success px-3 py-2">
           {v.score}
+        </span>
+      ),
+    },
+    {
+      header: 'Jawaban Benar',
+      cell: (v) => (
+        <span className="text-success fw-medium" style={{ fontSize: '0.85rem' }}>
+          {getCorrectAnswer(v)}
         </span>
       ),
     },

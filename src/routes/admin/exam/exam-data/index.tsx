@@ -114,8 +114,28 @@ function RouteComponent() {
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
-            {row.question_exams_count}
+            {row.question_exams_count ?? 0}
           </span>
+        )
+      },
+    },
+    {
+      header: 'Group Peserta',
+      cell: (v) => {
+        const groups = v.studentGroups
+        if (!groups || groups.length === 0)
+          return <span className="text-muted">-</span>
+        return (
+          <div className="d-flex flex-wrap gap-1">
+            {groups.map((g) => (
+              <span
+                key={g.id}
+                className="badge bg-info-subtle text-info px-3 py-2"
+              >
+                {g.name}
+              </span>
+            ))}
+          </div>
         )
       },
     },

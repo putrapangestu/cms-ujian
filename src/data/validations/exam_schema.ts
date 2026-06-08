@@ -17,6 +17,12 @@ export type ExamType = z.infer<typeof examSchema>
 export type ExamDataType = ExamType &
   DefaultDataType & {
     total_questions: number
+    question_exams_count?: number
+    studentGroups?: Array<{
+      id: string
+      name: string
+      description: string | null
+    }>
   }
 
 export const examQuestionRollSchema = z.object({
