@@ -47,6 +47,7 @@ function ExamMonitoringDetail() {
   const { examId } = Route.useParams();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSocketConnected, setIsSocketConnected] = useState(true);
   const setParticipants = useMonitoringStore((state) => state.setParticipants);
   const setServerTime = useMonitoringStore((state) => state.setServerTime);
   
@@ -64,14 +65,49 @@ function ExamMonitoringDetail() {
   const mutateRef = useRef(mutate);
   mutateRef.current = mutate;
 
+  // M5: Listen global socket connection status events
+  useEffect(() => {
+    const handleConnected = () => setIsSocketConnected(true);
+    const handleDisconnected = () => setIsSocketConnected(false);
+    
+    window.addEventListener('socket:connected', handleConnected);
+    window.addEventListener('socket:disconnected', handleDisconnected);
+    
+    // Cek status awal
+    const socket = socketClient.getSocket();
+    setIsSocketConnected(socket?.connected ?? false);
+    
+    return () => {
+      window.removeEventListener('socket:connected', handleConnected);
+      window.removeEventListener('socket:disconnected', handleDisconnected);
+    };
+  }, []);
+
   // Socket effect — stabil, hanya re-run kalau examId berubah
   useEffect(() => {
     startMonitoringBuffer();
 
     const socket = socketClient.connect('');
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
-    // Join exam room
-    socket.emit('join', { room: `exam:${examId}` });
+    // M5: Helper untuk join room
+    const joinExamRoom = () => {
+      socket.emit('join', { room: `exam:${examId}` });
+    };
+
+    joinExamRoom();
+
+    // M5: Auto re-join room saat reconnect + refresh data
+    const handleSocketConnected = () => {
+      console.log('CMS Socket reconnected, re-joining room exam:' + examId);
+      joinExamRoom();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        mutateRef.current();
+      }, 2000);
+    };
+
+    window.addEventListener('socket:connected', handleSocketConnected);
 
     socket.on('exam:progress_update', (received: any) => {
       // Handle 2 format:
@@ -95,6 +131,8 @@ function ExamMonitoringDetail() {
       socket.off('exam:tick');
       socket.off('user_connected');
       socket.emit('leave', { room: `exam:${examId}` });
+      window.removeEventListener('socket:connected', handleSocketConnected);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
       stopMonitoringBuffer();
     };
   }, [examId, setServerTime]);
@@ -174,12 +212,20 @@ function ExamMonitoringDetail() {
            </div>
         </div>
 
+        {/* M5: Indikator koneksi terputus */}
+        {!isSocketConnected && (
+          <div className="alert alert-warning py-2 mb-3 d-flex align-items-center gap-2">
+            <span className="spinner-border spinner-border-sm" role="status" />
+            <small className="fw-semibold">Koneksi terputus. Menghubungkan kembali...</small>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="text-center py-5">
              <div className="spinner-border text-primary" role="status">
-               <span className="visually-hidden">Loading...</span>
-             </div>
-             <p className="mt-2">Memuat data peserta...</p>
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p className="mt-2">Memuat data peserta...</p>
           </div>
         ) : (
           <div className="table-responsive">
