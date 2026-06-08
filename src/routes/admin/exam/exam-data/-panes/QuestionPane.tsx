@@ -170,9 +170,16 @@ export function QuestionPane({ examId }: { examId: string }) {
     {
       header: 'Jawaban Benar',
       cell: (v) => (
-        <span className="text-success fw-medium" style={{ fontSize: '0.85rem' }}>
-          {getCorrectAnswer(v)}
-        </span>
+        // <span className="text-success fw-medium" style={{ fontSize: '0.85rem' }}>
+        //   {getCorrectAnswer(v)}
+        // </span>
+        <p
+          className="text-success fw-medium" style={{ fontSize: '0.85rem' }}
+          dangerouslySetInnerHTML={{
+            __html:
+              getCorrectAnswer(v) || '',
+          }}
+        ></p>
       ),
     },
   ]
