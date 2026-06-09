@@ -81,14 +81,20 @@ function RouteComponent() {
   const columns: ColumnDef<ExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
     { header: 'Nama Ujian', accessorKey: 'title' },
-    { header: 'Tanggal', cell: (row, index) => {
+    { header: 'Mulai Ujian', cell: (row, index) => {
         return <span className=''>
-          { formatDate(row.start_date) } - { formatDate(row.end_date) }
+          { formatDate(row.start_date) }  { formatTime(row.start_date) }
         </span>
       }
     },
-    { header: 'Waktu Mulai', cell: (v) => formatTime(v.start_date) },
-    { header: 'Waktu Selesai', cell: (v) => formatTime(v.end_date) },
+    { header: 'Selesai Ujian', cell: (row, index) => {
+        return <span className=''>
+          { formatDate(row.end_date) }  { formatTime(row.end_date) }
+        </span>
+      }
+    },
+    // { header: 'Waktu Mulai', cell: (v) => formatTime(v.start_date) },
+    // { header: 'Waktu Selesai', cell: (v) => formatTime(v.end_date) },
     // {
     //   header: 'Nilai Minimum',
     //   cell(row, index) {
