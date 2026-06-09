@@ -46,6 +46,7 @@ export const QUESTION_GROUP = {
   DELETE: '/admin/question-groups/{id}',
   GET_BY_ID: '/question-groups/{id}',
   UPDATE_RANGE: '/admin/question-groups/bulk-update-range',
+  COPY: '/admin/question-groups/{id}/copy',
 } as const satisfies UrlGroupType
 
 export const QUESTION_CATEGORY = {

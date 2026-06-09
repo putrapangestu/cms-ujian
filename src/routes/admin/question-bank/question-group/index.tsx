@@ -10,10 +10,10 @@ import type {
   QuestionGroupDataType,
   QuestionGroupType,
 } from '@/data/validations/question_schema'
-import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { deleteDataAlert } from '@/lib/toast'
+import { confirmAlert, deleteDataAlert } from '@/lib/toast'
 import QuestionGroupModalCreate from '../-components/question-group-modal-create'
 
 export const Route = createFileRoute('/admin/question-bank/question-group/')({
@@ -51,8 +51,23 @@ function RouteComponent() {
     { refreshKey: QUESTION_GROUP.GET },
   )
 
+  const { trigger: copyTrigger } = useMutationAction(
+    QUESTION_GROUP.COPY,
+    'post',
+    { refreshKey: QUESTION_GROUP.GET },
+  )
+
   const clickDeleteHandle = (question: QuestionGroupDataType) => {
     deleteDataAlert(question.name, () => deleteTrigger({ id: question.id }))
+  }
+
+  const handleCopy = (group: QuestionGroupDataType) => {
+    confirmAlert(
+      'Duplikasi Tipe Soal',
+      () => copyTrigger({ id: group.id }),
+      `Duplikasi tipe soal "${group.name}" beserta semua soal di dalamnya?`,
+      () => {},
+    )
   }
 
   const columns: ColumnDef<QuestionGroupDataType>[] = [
@@ -118,6 +133,13 @@ function RouteComponent() {
             onClick={() => clickOpenModalHandle(v)}
           >
             <IconEdit size={18} />
+          </button>
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-secondary"
+            onClick={() => handleCopy(v)}
+          >
+            <IconCopy size={18} />
           </button>
           <button
             type="button"

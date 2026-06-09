@@ -1,6 +1,6 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
-import { IconEdit, IconSearch, IconTrash } from '@tabler/icons-react'
+import { IconCopy, IconEdit, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import type {
@@ -16,7 +16,7 @@ import type {
   ApiResponsePaginationType,
   ApiResponseType,
 } from '@/data/types/api_response'
-import { deleteDataAlert } from '@/lib/toast'
+import { confirmAlert, deleteDataAlert } from '@/lib/toast'
 import ImportExamViewModal from './-components/ImportExamViewModal'
 import ImportExcelModal from './-components/ImportExcelModal'
 
@@ -55,6 +55,21 @@ function RouteComponent() {
     { refreshKey: QUESTION.GET },
   )
 
+  const { trigger: copyTrigger } = useMutationAction(
+    QUESTION_GROUP.COPY,
+    'post',
+    {
+      refreshKey: QUESTION_GROUP.GET,
+      onSuccess: (data) => {
+        if (data?.data?.id) {
+          navigate({
+            to: `/admin/question-bank/question-group/${data.data.id}`,
+          })
+        }
+      },
+    },
+  )
+
   const clickDeleteHandle = (question: QuestionDataType) => {
     deleteDataAlert('Hapus Soal', () => deleteTrigger({ id: question.id }))
   }
@@ -65,6 +80,58 @@ function RouteComponent() {
         setSelectedIds([])
       })
     })
+  }
+
+  const handleCopy = () => {
+    if (!questionGroup?.data) return
+    confirmAlert(
+      'Duplikasi Tipe Soal',
+      () => copyTrigger({ id: questionGroupId }),
+      `Duplikasi tipe soal "${questionGroup.data.name}" beserta semua soal di dalamnya?`,
+      () => {},
+    )
+  }
+
+  const getOptionLabel = (index: number): string => {
+    return String.fromCharCode(65 + index) // A, B, C, D, ...
+  }
+
+  const getCorrectAnswer = (question: QuestionDataType): string => {
+    // single_choice
+    if (question.question_type === 'single_choice') {
+      if (!question.options || question.options.length === 0) return '-'
+      const correctOption = question.options.find(
+        (o: any) => o.is_correct || o.score > 0,
+      )
+      if (!correctOption) return '-'
+      const idx = question.options.indexOf(correctOption)
+      return `(${getOptionLabel(idx)}) ${correctOption.option_text}`
+    }
+
+    // multiple_choice
+    if (question.question_type === 'multiple_choice') {
+      if (!question.options || question.options.length === 0) return '-'
+      const correctOptions = question.options.filter(
+        (o: any) => o.is_correct || o.score > 0,
+      )
+      if (correctOptions.length === 0) return '-'
+      return correctOptions
+        .map((o: any) => {
+          const idx = question.options.indexOf(o)
+          return `(${getOptionLabel(idx)}) ${o.option_text}`
+        })
+        .join(', ')
+    }
+
+    // true_false
+    if (question.question_type === 'true_false') {
+      return question.correct_answer === 'true' ? 'Benar' : 'Salah'
+    }
+
+    // essay
+    if (question.correct_answer) return question.correct_answer
+
+    return '-'
   }
 
   const columns: ColumnDef<QuestionDataType>[] = [
@@ -136,6 +203,18 @@ function RouteComponent() {
           </span>
         )
       }
+    },
+    {
+      header: 'Jawaban',
+      cell: (v) => (
+        <p
+          className="text-success fw-medium"
+          style={{ fontSize: '0.85rem' }}
+          dangerouslySetInnerHTML={{
+            __html: getCorrectAnswer(v) || '',
+          }}
+        ></p>
+      ),
     },
     {
       header: 'Aksi',
@@ -225,6 +304,13 @@ function RouteComponent() {
                   <IconTrash size={18} /> Hapus Terpilih ({selectedIds.length})
                 </button>
               )}
+              <button
+                type="button"
+                className="btn btn-secondary d-flex align-items-center gap-1"
+                onClick={handleCopy}
+              >
+                <IconCopy size={18} /> Duplikasi
+              </button>
               <button
                 type="button"
                 className="btn btn-primary"
