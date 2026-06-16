@@ -24,6 +24,7 @@ function RouteComponent() {
   const [search, setSearch] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [examTypeFilter, setExamTypeFilter] = useState('')
 
   const { data: studentRes, isLoading: studentLoading } = useQueryData<ApiResponseType<'single', any>>(
     STUDENT.GET_BY_ID,
@@ -38,7 +39,8 @@ function RouteComponent() {
       per_page: 10,
       search: search || undefined,
       start_date: startDate || undefined,
-      end_date: endDate || undefined
+      end_date: endDate || undefined,
+      exam_type: examTypeFilter || undefined
     }
   )
 
@@ -47,6 +49,10 @@ function RouteComponent() {
   const totalExamUser = student?.user_exams?.filter((item: any) => item.status == 'completed') || []
   const scoreSummary = totalExamUser?.reduce((acc: number, cur: any) => acc + cur.score, 0)
   const averageScore = scoreSummary > 0 ? Math.round(scoreSummary / totalExamUser.length) : 0
+  const averageScoreSkd = (student as any)?.average_score_skd ?? 0
+  const averageScorePretest = (student as any)?.average_score_pretest ?? 0
+  const totalExamSkd = (student as any)?.total_exam_completed_skd ?? 0
+  const totalExamPretest = (student as any)?.total_exam_completed_pretest ?? 0
   
   const [isExporting, setIsExporting] = useState(false)
 
@@ -240,12 +246,25 @@ function RouteComponent() {
             </div>
             <div className="card border-0 shadow-sm flex-grow-1">
               <div className="card-body d-flex align-items-center gap-3">
-                <div className="bg-warning-subtle text-warning p-3 rounded">
-                  <IconCertificate size={28} />
+                <div className="bg-primary p-3 rounded">
+                  <IconCertificate size={28} className="text-white" />
                 </div>
                 <div>
-                  <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai</div>
-                  <h3 className="fw-bold mb-0">{averageScore}</h3>
+                  <div className="text-muted small fw-semibold text-uppercase">Rata-rata SKD</div>
+                  <h3 className="fw-bold mb-0">{averageScoreSkd}</h3>
+                  <small className="text-muted">{totalExamSkd} ujian</small>
+                </div>
+              </div>
+            </div>
+            <div className="card border-0 shadow-sm flex-grow-1">
+              <div className="card-body d-flex align-items-center gap-3">
+                <div className="bg-warning p-3 rounded">
+                  <IconClipboardCheck size={28} className="text-dark" />
+                </div>
+                <div>
+                  <div className="text-muted small fw-semibold text-uppercase">Rata-rata Pretest</div>
+                  <h3 className="fw-bold mb-0">{averageScorePretest}</h3>
+                  <small className="text-muted">{totalExamPretest} ujian</small>
                 </div>
               </div>
             </div>
@@ -297,6 +316,33 @@ function RouteComponent() {
                 onChange={(e) => setEndDate(e.target.value)}
                 placeholder="Tanggal Akhir"
               />
+            </div>
+          </div>
+
+          {/* Exam Type Filter Tabs */}
+          <div className="mb-3">
+            <div className="btn-group btn-group-sm" role="group">
+              <button
+                type="button"
+                className={`btn ${examTypeFilter === '' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setExamTypeFilter('')}
+              >
+                Semua
+              </button>
+              <button
+                type="button"
+                className={`btn ${examTypeFilter === 'skd' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setExamTypeFilter('skd')}
+              >
+                SKD
+              </button>
+              <button
+                type="button"
+                className={`btn ${examTypeFilter === 'pretest' ? 'btn-primary' : 'btn-outline-primary'}`}
+                onClick={() => setExamTypeFilter('pretest')}
+              >
+                Pretest
+              </button>
             </div>
           </div>
 

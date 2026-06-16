@@ -81,6 +81,17 @@ function RouteComponent() {
   const columns: ColumnDef<ExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
     { header: 'Nama Ujian', accessorKey: 'title' },
+    {
+      header: 'Tipe',
+      cell(row) {
+        const isPretest = row.exam_type === 'pretest'
+        return (
+          <span className={`badge ${isPretest ? 'bg-warning text-dark' : 'bg-primary'}`}>
+            {isPretest ? 'Pretest' : 'SKD'}
+          </span>
+        )
+      },
+    },
     { header: 'Mulai Ujian', cell: (row, index) => {
         return <span className=''>
           { formatDate(row.start_date) }  { formatTime(row.start_date) }

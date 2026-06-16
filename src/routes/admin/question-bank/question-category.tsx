@@ -30,7 +30,11 @@ function RouteComponent() {
 
   const { data } = useQueryData<
     ApiResponsePaginationType<QuestionCategoryDataType>
-  >(QUESTION_CATEGORY.GET)
+  >(QUESTION_CATEGORY.GET, {
+    page: page,
+    per_page: 15,
+    search: search || undefined,
+  })
   const { trigger: deleteTrigger } = useMutationAction(
     QUESTION_CATEGORY.DELETE,
     'delete',
@@ -141,7 +145,10 @@ function RouteComponent() {
             <div className="input-group input-group-sm w-auto">
               <DebouncedInput
                 value={search}
-                onChange={(v) => setSearch(String(v))}
+                onChange={(v) => {
+                  setSearch(String(v))
+                  setPage(1)
+                }}
                 className="form-control bg-white"
                 placeholder="cari..."
               />
@@ -155,7 +162,7 @@ function RouteComponent() {
             columns={columns}
             showPageSize={false}
             pageIndex={page || 1}
-            rowCount={data?.data?.length || 0}
+            rowCount={data?.pagination?.total_items || 0}
             onPageChange={setPage}
             manualPagination
           />

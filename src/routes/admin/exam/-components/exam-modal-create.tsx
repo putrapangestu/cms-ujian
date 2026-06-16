@@ -8,7 +8,7 @@ import {
 } from '@/components/Form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconX } from '@tabler/icons-react'
 import {
   useMutationAction,
@@ -102,6 +102,7 @@ export default function ExamModalCreate({
     duration: 0,
     total_questions: 0,
     passing_score: 0,
+    exam_type: 'skd',
     start_date: '',
     end_date: '',
     student_groups: [],
@@ -130,6 +131,7 @@ export default function ExamModalCreate({
         duration: exam?.duration || 0,
         total_questions: exam?.total_questions || 0,
         passing_score: exam?.passing_score || 0,
+        exam_type: (exam?.exam_type as 'pretest' | 'skd') || 'skd',
         start_date: exam
           ? dayjs(exam.start_date).format('YYYY-MM-DDTHH:mm')
           : '',
@@ -262,6 +264,24 @@ export default function ExamModalCreate({
                           placeholder={'Masukkan nilai minimum'}
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-4">
+                <FormField
+                  control={form.control}
+                  name="exam_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel required>{'Tipe Ujian'}</FormLabel>
+                      <FormControl>
+                        <select className="form-control" {...field}>
+                          <option value="skd">SKD (Seleksi Kompetensi Dasar)</option>
+                          <option value="pretest">Pretest (Try Out / Latihan)</option>
+                        </select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

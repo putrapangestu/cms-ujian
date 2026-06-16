@@ -22,7 +22,6 @@ function RouteComponent() {
     { id: user?.id },
   )
   const summary = summaryRes?.data
-  console.log(summary)
 
   const formatTime = (dateString: string | null) => {
     if (!dateString) return '-'

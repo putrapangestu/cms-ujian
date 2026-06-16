@@ -6,6 +6,7 @@ export const examSchema = z.object({
   description: z.string().max(255).optional(),
   duration: z.number().min(1),
   passing_score: z.number().min(0),
+  exam_type: z.enum(['pretest', 'skd']).default('skd'),
   start_date: z.string().min(1).max(255),
   end_date: z.string().min(1).max(255),
   student_groups: z.array(z.string().min(1).max(255)).optional(),
@@ -18,6 +19,7 @@ export type ExamDataType = ExamType &
   DefaultDataType & {
     total_questions: number
     question_exams_count?: number
+    exam_type?: 'pretest' | 'skd'
     studentGroups?: Array<{
       id: string
       name: string
@@ -129,7 +131,10 @@ export type ExamHistoryDetailDataType = {
     total_questions: number
     answered_questions: number
     correct_answers: number
+    wrong_answers?: number
     total_score: number
+    category_scores?: any
+    exam_type?: string
   }
 }
 

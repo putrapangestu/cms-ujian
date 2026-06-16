@@ -22,6 +22,9 @@ function RouteComponent() {
 
   const detail = data?.data
 
+  const examType = (detail?.summary as any)?.exam_type || 'skd'
+  const isPretest = examType === 'pretest'
+
   const formatTime = (dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleTimeString('id-ID', {
@@ -193,12 +196,14 @@ function RouteComponent() {
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">Ringkasan Nilai</h6>
 
-              <div className="text-center mb-4">
-                <div className="display-4 fw-bold text-primary mb-2">
-                  {detail.summary?.total_score ?? '-'}
+              {!isPretest && (
+                <div className="text-center mb-4">
+                  <div className="display-4 fw-bold text-primary mb-2">
+                    {detail.summary?.total_score ?? '-'}
+                  </div>
+                  <div className="text-muted">Total Skor</div>
                 </div>
-                <div className="text-muted">Total Skor</div>
-              </div>
+              )}
 
               <div className="d-flex flex-column gap-3">
                 <div className="d-flex justify-content-between align-items-center">
@@ -209,16 +214,24 @@ function RouteComponent() {
                   <span className="text-muted">Soal Dijawab</span>
                   <span className="badge bg-info-subtle text-info fs-6">{detail.summary?.answered_questions}</span>
                 </div>
-                {Object.entries(detail.summary?.category_scores ?? {}).map(([key, value]) => (
+                {isPretest && (
                   <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted">Jawaban Benar</span>
+                    <span className="badge bg-success-subtle text-success fs-6">{detail.summary?.correct_answers}</span>
+                  </div>
+                )}
+                {isPretest && (
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span className="text-muted">Jawaban Salah</span>
+                    <span className="badge bg-danger-subtle text-danger fs-6">{(detail.summary as any)?.wrong_answers ?? 0}</span>
+                  </div>
+                )}
+                {!isPretest && Object.entries(detail.summary?.category_scores ?? {}).map(([key, value]) => (
+                  <div key={key} className="d-flex justify-content-between align-items-center">
                     <span className="text-muted">Nilai {key}</span>
                     <span className="badge bg-light text-dark fs-6">{value}</span>
                   </div>
                 ))}
-                {/* <div className="d-flex justify-content-between align-items-center">
-                  <span className="text-muted">Jawaban Benar</span>
-                  <span className="badge bg-success-subtle text-success fs-6">{detail.summary?.correct_answers}</span>
-                </div> */}
               </div>
             </div>
           </div>
