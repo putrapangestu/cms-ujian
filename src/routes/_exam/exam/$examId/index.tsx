@@ -115,27 +115,6 @@ function RouteComponent() {
     }
   })
 
-  // Redirect ke beranda jika ujian sudah selesai (misal: auto-submit server, reload setelah force submit)
-  useEffect(() => {
-    if (!data?.data?.user_exam || hasSubmitted) return
-    const status = data.data.user_exam.status
-    if (status === 'completed' || status === 'expired') {
-      isSubmitting.current = true
-      Swal.fire({
-        title: 'Ujian Telah Berakhir',
-        text: status === 'completed'
-          ? 'Ujian ini sudah selesai. Nilai sudah dihitung.'
-          : 'Waktu ujian telah habis.',
-        icon: 'info',
-        confirmButtonText: 'Ke Beranda',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      }).then(() => {
-        window.location.href = '/user/exam'
-      })
-    }
-  }, [data, hasSubmitted])
-
   // Fungsi reusable untuk mengirim jawaban ke socket (digunakan oleh debounce, reconnect, periodic retry)
   const emitAnswerToSocket = useCallback((
     questionId: string,
@@ -310,6 +289,8 @@ function RouteComponent() {
 
   // 2. Baru inisialisasi Timer
   useEffect(() => {
+    // Cegah timer pakai data cache localStorage yang status/start_time-nya sudah obsolete
+    if (data?.data?.user_exam.status !== 'in_progress') return
     if (!data?.data?.user_exam.start_time || !data?.data?.exam.duration) return
 
     const startTime = dayjs(data.data.user_exam.start_time)
