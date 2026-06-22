@@ -244,7 +244,6 @@ function RouteComponent() {
             onPageChange={setPage}
             manualPagination
             isLoading={isLoading}
-            noScroll
           />
         </div>
       </div>
