@@ -2,10 +2,10 @@ import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { IconEdit, IconEye, IconSearch, IconTrash } from '@tabler/icons-react'
 import { createFileRoute, Link, Outlet, useLocation } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useQueryDataPersistent } from '@/data/hooks/api/useGlobalFetch'
+import { useEffect, useState } from 'react'
+import { useQueryData } from '@/data/hooks/api/useGlobalFetch'
 import { EXAM_MONITORING } from '@/data/const/api_url'
-import type { ApiResponseType } from '@/data/types/api_response'
+import type { ApiPaginatedResponse } from '@/data/types/api_response'
 import dayjs from 'dayjs'
 
 export const Route = createFileRoute('/admin/exam/exam-monitoring')({
@@ -27,9 +27,18 @@ function RouteComponent() {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
 
-  const { data: activeExams, isLoading } = useQueryDataPersistent<
-    ApiResponseType<'multi', ActiveExamDataType>
-  >(EXAM_MONITORING.ACTIVE)
+  useEffect(() => { setPage(1) }, [search])
+
+  const { data: activeExams, isLoading } = useQueryData<
+    ApiPaginatedResponse<ActiveExamDataType>
+  >(
+    EXAM_MONITORING.ACTIVE,
+    {
+      page,
+      per_page: 10,
+      ...(search && { search }),
+    },
+  )
 
   const columns: ColumnDef<ActiveExamDataType>[] = [
     { header: '#', cell: (_, i) => i + 1 },
@@ -112,9 +121,10 @@ function RouteComponent() {
           columns={columns}
           showPageSize={false}
           pageIndex={page || 1}
-          rowCount={activeExams?.data?.length || 0}
+          rowCount={activeExams?.pagination?.total_items || 0}
           onPageChange={setPage}
           manualPagination
+          isLoading={isLoading}
         />
       </div>
     </div>

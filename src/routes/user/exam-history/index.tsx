@@ -4,9 +4,10 @@ import { useAuthStore } from '@/data/store/auth_store'
 import type { ApiPaginatedResponse, ApiResponseType } from '@/data/types/api_response'
 import type { ExamHistoryDataType } from '@/data/validations/exam_schema'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { IconClipboardCheck, IconCertificate } from '@tabler/icons-react'
+import { DebouncedInput } from '@/components/DebounceInput'
 
 export const Route = createFileRoute('/user/exam-history/')({
   component: RouteComponent,
@@ -15,6 +16,10 @@ export const Route = createFileRoute('/user/exam-history/')({
 function RouteComponent() {
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState<string>('')
+  const [search, setSearch] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [examTypeFilter, setExamTypeFilter] = useState('')
   const { user } = useAuthStore()
 
   const { data: summaryRes } = useQueryData<ApiResponseType<'single', any>>(
@@ -22,6 +27,13 @@ function RouteComponent() {
     { id: user?.id },
   )
   const summary = summaryRes?.data
+
+  // Reset page ke 1 saat filter berubah
+  useEffect(() => { setPage(1) }, [search, startDate, endDate, status, examTypeFilter])
+  const averageScoreSkd = (summary as any)?.average_score_skd ?? 0
+  const averageScorePretest = (summary as any)?.average_score_pretest ?? 0
+  const totalExamSkd = (summary as any)?.total_exam_completed_skd ?? 0
+  const totalExamPretest = (summary as any)?.total_exam_completed_pretest ?? 0
 
   const formatTime = (dateString: string | null) => {
     if (!dateString) return '-'
@@ -78,8 +90,11 @@ function RouteComponent() {
       page,
       per_page: 15,
       ...(status && { status }),
+      ...(search && { search }),
+      ...(startDate && { start_date: startDate }),
+      ...(endDate && { end_date: endDate }),
+      ...(examTypeFilter && { exam_type: examTypeFilter }),
     },
-    // ['exam-history', page, status],
   )
 
   const columns: ColumnDef<ExamHistoryDataType>[] = [
@@ -186,12 +201,27 @@ function RouteComponent() {
         <div className="col-12 col-md-6 col-xl-4">
           <div className="card border-0 shadow-sm h-100">
             <div className="card-body d-flex align-items-center gap-3">
-              <div className="bg-warning-subtle text-warning p-3 rounded">
-                <IconCertificate size={28} />
+              <div className="bg-primary p-3 rounded">
+                <IconCertificate size={28} className="text-white" />
               </div>
               <div>
-                <div className="text-muted small fw-semibold text-uppercase">Rata-rata Nilai (Ujian Selesai)</div>
-                <h3 className="fw-bold mb-0">{parseInt(summary?.completed_score_count) > 0 ? Math.round(summary?.completed_score_count / parseInt(summary?.completed_exam_count)) : 0}</h3>
+                <div className="text-muted small fw-semibold text-uppercase">Rata-rata SKD</div>
+                <h3 className="fw-bold mb-0">{averageScoreSkd}</h3>
+                <small className="text-muted">{totalExamSkd} ujian</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-6 col-xl-4">
+          <div className="card border-0 shadow-sm h-100">
+            <div className="card-body d-flex align-items-center gap-3">
+              <div className="bg-warning p-3 rounded">
+                <IconClipboardCheck size={28} className="text-dark" />
+              </div>
+              <div>
+                <div className="text-muted small fw-semibold text-uppercase">Rata-rata Pretest</div>
+                <h3 className="fw-bold mb-0">{averageScorePretest}</h3>
+                <small className="text-muted">{totalExamPretest} ujian</small>
               </div>
             </div>
           </div>
@@ -200,7 +230,35 @@ function RouteComponent() {
 
       <div className="card border-0 shadow-sm">
         <div className="card-body">
-          <div className="d-flex justify-content-end mb-3">
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            <DebouncedInput
+              value={search}
+              onChange={(v) => setSearch(String(v))}
+              className="form-control bg-white"
+              placeholder="cari ujian..."
+              style={{ width: '250px' }}
+            />
+            <input
+              type="date"
+              className="form-control w-auto"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <input
+              type="date"
+              className="form-control w-auto"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+            <select
+              className="form-select w-auto"
+              value={examTypeFilter}
+              onChange={(e) => setExamTypeFilter(e.target.value)}
+            >
+              <option value="">Semua Tipe</option>
+              <option value="skd">SKD</option>
+              <option value="pretest">Pretest</option>
+            </select>
             <select
               className="form-select w-auto"
               value={status}

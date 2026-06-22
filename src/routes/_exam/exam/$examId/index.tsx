@@ -1,4 +1,5 @@
 import { EXAM } from '@/data/const/api_url'
+import { apiClient } from '@/lib/api-client'
 import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch'
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
@@ -93,11 +94,47 @@ function RouteComponent() {
       setSummary(response.data)
       setHasSubmitted(true)
     },
-    onError: () => {
-      Swal.fire('Gagal!', 'Terjadi kesalahan saat mensubmit ujian. Silakan coba lagi.', 'error')
-      isSubmitting.current = false
+    onError: (err) => {
+      const msg = err?.response?.data?.message || ''
+      // Ujian sudah diselesaikan oleh sistem/admin → redirect
+      if (msg.includes('sudah diselesaikan') || msg.includes('belum dimulai')) {
+        Swal.fire({
+          title: 'Ujian Telah Berakhir',
+          text: 'Ujian sudah diselesaikan oleh sistem. Silakan lihat hasil di beranda.',
+          icon: 'info',
+          confirmButtonText: 'Ke Beranda',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }).then(() => {
+          window.location.href = '/user/exam'
+        })
+      } else {
+        Swal.fire('Gagal!', 'Terjadi kesalahan saat mensubmit ujian. Silakan coba lagi.', 'error')
+        isSubmitting.current = false
+      }
     }
   })
+
+  // Redirect ke beranda jika ujian sudah selesai (misal: auto-submit server, reload setelah force submit)
+  useEffect(() => {
+    if (!data?.data?.user_exam || hasSubmitted) return
+    const status = data.data.user_exam.status
+    if (status === 'completed' || status === 'expired') {
+      isSubmitting.current = true
+      Swal.fire({
+        title: 'Ujian Telah Berakhir',
+        text: status === 'completed'
+          ? 'Ujian ini sudah selesai. Nilai sudah dihitung.'
+          : 'Waktu ujian telah habis.',
+        icon: 'info',
+        confirmButtonText: 'Ke Beranda',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then(() => {
+        window.location.href = '/user/exam'
+      })
+    }
+  }, [data, hasSubmitted])
 
   // Fungsi reusable untuk mengirim jawaban ke socket (digunakan oleh debounce, reconnect, periodic retry)
   const emitAnswerToSocket = useCallback((
@@ -166,18 +203,21 @@ function RouteComponent() {
     // Listen perintah dari admin (misal: Force Submit)
     newSocket.on('admin-action', (eventData: any) => {
       if (eventData.action === 'force_submit') {
+        isSubmitting.current = true;
         Swal.fire({
           title: 'Waktu Habis!',
-          text: 'Admin telah menghentikan ujian Anda.',
+          text: 'Admin telah menghentikan ujian Anda. Nilai sudah dihitung.',
           icon: 'info',
-          confirmButtonText: 'Tutup'
+          confirmButtonText: 'Ke Beranda',
+          allowOutsideClick: false,
+          allowEscapeKey: false
         }).then(() => {
-          // Panggil fungsi submit Anda di sini
-          if (submitExamRef.current) submitExamRef.current()
+          window.location.href = '/user/exam';
         });
       } else if (eventData.action === 'exam_auto_submitted') {
         // Auto-submit dari server (waktu habis)
         if (!isSubmitting.current) {
+          isSubmitting.current = true;
           Swal.fire({
             title: 'Waktu Habis!',
             text: eventData.message || 'Waktu ujian telah habis. Sistem telah menyelesaikan ujian Anda.',
@@ -186,17 +226,20 @@ function RouteComponent() {
             allowOutsideClick: false,
             allowEscapeKey: false,
           }).then(() => {
-            window.location.reload()
+            window.location.href = '/user/exam';
           })
         }
       } else if (eventData.action === 'unblock') {
         Swal.fire('Ujian Dibuka', 'Ujian Anda telah dibuka kembali oleh Admin.', 'success');
       } else if (eventData.action === 'exam_reset') {
+        isSubmitting.current = true;
         Swal.fire({
           title: 'Ujian Direset',
           text: 'Ujian Anda telah direset oleh Admin. Silakan mulai ulang.',
           icon: 'info',
-          confirmButtonText: 'Tutup'
+          confirmButtonText: 'Tutup',
+          allowOutsideClick: false,
+          allowEscapeKey: false
         }).then(() => {
           window.location.href = '/user/exam';
         });
@@ -482,6 +525,53 @@ function RouteComponent() {
       console.log('Interval pengiriman dihentikan.')
     }
   }, [socket, user?.id, examId])
+
+  // Polling status ujian tiap 20 detik (fallback jika socket event force_submit/reset terlewat)
+  useEffect(() => {
+    if (hasSubmitted || isSubmitting.current || !user?.id || !examId) return
+
+    const checkExamStatus = async () => {
+      try {
+        const res = await apiClient.get(EXAM.GET_QUESTIONS_USER.replace('{id}', examId).replace('{userId}', user.id))
+        const userExam = res?.data?.data?.user_exam
+        if (!userExam) return
+
+        if (userExam.status === 'completed' && !isSubmitting.current) {
+          isSubmitting.current = true
+          Swal.fire({
+            title: 'Ujian Telah Diakhiri',
+            text: 'Ujian Anda telah dihentikan oleh Admin. Nilai sudah dihitung.',
+            icon: 'info',
+            confirmButtonText: 'Ke Beranda',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then(() => {
+            window.location.href = '/user/exam'
+          })
+        } else if (userExam.status === 'pending' && !isSubmitting.current) {
+          isSubmitting.current = true
+          Swal.fire({
+            title: 'Ujian Direset',
+            text: 'Ujian Anda telah direset oleh Admin. Silakan mulai ulang.',
+            icon: 'info',
+            confirmButtonText: 'Tutup',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then(() => {
+            window.location.href = '/user/exam'
+          })
+        }
+      } catch {
+        // Abaikan error polling (misal: network error)
+      }
+    }
+
+    const pollingId = setInterval(checkExamStatus, 20000)
+
+    return () => {
+      clearInterval(pollingId)
+    }
+  }, [hasSubmitted, user?.id, examId])
 
   // Combined security + anti-cheat listeners (Modul 4)
   useEffect(() => {

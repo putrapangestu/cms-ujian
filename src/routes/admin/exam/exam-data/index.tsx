@@ -21,6 +21,7 @@ function RouteComponent() {
 
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
+  const [examTypeFilter, setExamTypeFilter] = useState('')
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<ExamDataType>()
 
@@ -37,11 +38,11 @@ function RouteComponent() {
 
   useEffect(() => {
     setPage(1)
-  }, [search])
+  }, [search, examTypeFilter])
 
   const { data, isLoading, refetch } = useQueryData<ApiResponsePaginationType<ExamDataType>>(
     EXAM.GET,
-    { page: page, per_page: 10, search: search },
+    { page: page, per_page: 10, search: search, ...(examTypeFilter && { exam_type: examTypeFilter }) },
   )
 
   const { trigger: deleteExam } = useMutationAction(
@@ -79,10 +80,11 @@ function RouteComponent() {
   }
 
   const columns: ColumnDef<ExamDataType>[] = [
-    { header: '#', cell: (_, i) => i + 1 },
-    { header: 'Nama Ujian', accessorKey: 'title' },
+    { header: '#', cell: (_, i) => i + 1, width: '40px' },
+    { header: 'Nama Ujian', accessorKey: 'title', width: '22%' },
     {
       header: 'Tipe',
+      width: '60px',
       cell(row) {
         const isPretest = row.exam_type === 'pretest'
         return (
@@ -92,32 +94,21 @@ function RouteComponent() {
         )
       },
     },
-    { header: 'Mulai Ujian', cell: (row, index) => {
-        return <span className=''>
+    { header: 'Mulai Ujian', width: '13%', cell: (row, index) => {
+        return <span className='text-nowrap'>
           { formatDate(row.start_date) }  { formatTime(row.start_date) }
         </span>
       }
     },
-    { header: 'Selesai Ujian', cell: (row, index) => {
-        return <span className=''>
+    { header: 'Selesai Ujian', width: '13%', cell: (row, index) => {
+        return <span className='text-nowrap'>
           { formatDate(row.end_date) }  { formatTime(row.end_date) }
         </span>
       }
     },
-    // { header: 'Waktu Mulai', cell: (v) => formatTime(v.start_date) },
-    // { header: 'Waktu Selesai', cell: (v) => formatTime(v.end_date) },
-    // {
-    //   header: 'Nilai Minimum',
-    //   cell(row, index) {
-    //     return (
-    //       <span className="badge bg-success-subtle text-success">
-    //         {row.passing_score}
-    //       </span>
-    //     )
-    //   },
-    // },
     {
-      header: 'Jumlah Soal Ujian',
+      header: 'Jml Soal',
+      width: '70px',
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
@@ -127,7 +118,8 @@ function RouteComponent() {
       },
     },
     {
-      header: 'Jumlah Bank Soal',
+      header: 'Jml Bank Soal',
+      width: '80px',
       cell(row, index) {
         return (
           <span className="badge bg-success-subtle text-success">
@@ -138,6 +130,7 @@ function RouteComponent() {
     },
     {
       header: 'Group Peserta',
+      width: '17%',
       cell: (v) => {
         const groups = v.studentGroups
         if (!groups || groups.length === 0)
@@ -147,7 +140,8 @@ function RouteComponent() {
             {groups.map((g) => (
               <span
                 key={g.id}
-                className="badge bg-info-subtle text-info px-3 py-2"
+                className="badge bg-info-subtle text-info px-2 py-1"
+                style={{ fontSize: '.75rem' }}
               >
                 {g.name}
               </span>
@@ -158,36 +152,37 @@ function RouteComponent() {
     },
     {
       header: 'Aksi',
+      width: '170px',
       cell: (v) => (
-        <div className="d-flex align-items-center gap-2">
+        <div className="d-flex align-items-center gap-1">
           <button
             type="button"
-            className="btn btn-md rounded-1 btn-info"
+            className="btn btn-sm rounded-1 btn-info"
             onClick={() => navigate({ to: `/admin/exam/exam-data/${v.id}` })}
           >
-            <IconEye size={18} />
+            <IconEye size={16} />
           </button>
           <button
             type="button"
-            className="btn btn-md rounded-1 btn-secondary"
+            className="btn btn-sm rounded-1 btn-secondary"
             onClick={() => handleCopy(v)}
             title="Duplikasi Ujian"
           >
-            <IconCopy size={18} />
+            <IconCopy size={16} />
           </button>
           <button
             type="button"
-            className="btn btn-md rounded-1 btn-warning"
+            className="btn btn-sm rounded-1 btn-warning"
             onClick={() => clickOpenModalHandle(v)}
           >
-            <IconEdit size={18} />
+            <IconEdit size={16} />
           </button>
           <button
             type="button"
-            className="btn btn-md rounded-1 btn-danger"
+            className="btn btn-sm rounded-1 btn-danger"
             onClick={() => handleDelete(v)}
           >
-            <IconTrash size={18} />
+            <IconTrash size={16} />
           </button>
         </div>
       ),
@@ -230,6 +225,15 @@ function RouteComponent() {
                 <IconSearch size={18} />
               </button>
             </div>
+            <select
+              className="form-select w-auto"
+              value={examTypeFilter}
+              onChange={(e) => setExamTypeFilter(e.target.value)}
+            >
+              <option value="">Semua Tipe</option>
+              <option value="skd">SKD</option>
+              <option value="pretest">Pretest</option>
+            </select>
           </div>
           <DataTable
             data={data?.data || []}
@@ -240,6 +244,7 @@ function RouteComponent() {
             onPageChange={setPage}
             manualPagination
             isLoading={isLoading}
+            noScroll
           />
         </div>
       </div>

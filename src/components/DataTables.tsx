@@ -37,6 +37,9 @@ type DataTableProps<T> = {
   showInfo?: boolean // Hide text "Showing 1 to 10..."
   showPagination?: boolean // Hide tombol Prev/Next
 
+  // --- Table behavior ---
+  noScroll?: boolean // Jika true, table tidak pakai overflow-x: auto, mengisi penuh lebar card
+
   // --- Props Hybrid Logic ---
   manualPagination?: boolean
   rowCount?: number
@@ -71,6 +74,7 @@ export const DataTable = <T,>({
   onPageSizeChange,
   isSub = false,
   isLoading = false,
+  noScroll = false,
 }: DataTableProps<T>) => {
   // State Internal
   const [localPageIndex, setLocalPageIndex] = useState(1)
@@ -174,20 +178,21 @@ export const DataTable = <T,>({
       {/* --- TABLE SECTION --- */}
       <div className="rounded overflow-hidden border">
         <div
-          className="table-responsive"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className={noScroll ? 'overflow-visible' : 'table-responsive'}
+          style={noScroll ? {} : { scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <table
             className={`table m-0 align-middle ${isSub ? 'table-sm' : ''}`}
+            style={noScroll ? { tableLayout: 'fixed' } : {}}
           >
             <thead className="">
               <tr>
                 {columns.map((col, idx) => (
-                  <th
-                    key={idx}
-                    className={`text-nowrap ${col.classNameHead} ${isSub ? 'bg-primary-subtle' : ''}`}
-                    style={{ width: col.width }}
-                  >
+                    <th
+                      key={idx}
+                      className={`${noScroll ? '' : 'text-nowrap'} ${col.classNameHead} ${isSub ? 'bg-primary-subtle' : ''}`}
+                      style={{ width: col.width }}
+                    >
                     {col.header}
                   </th>
                 ))}

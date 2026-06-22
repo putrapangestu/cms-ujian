@@ -11,7 +11,7 @@ export default function DashboardStudentChart() {
   const { data, isLoading } = useQueryData<{
     success: boolean
     data: {
-      chart_data: number[]
+      chart_data: { month: number; month_name: string; total: number }[]
     }
   }>(DASHBOARD.CHARTS_STUDENTS, { year })
 
@@ -19,7 +19,10 @@ export default function DashboardStudentChart() {
     return <DashboardChartSkeleton />
   }
 
-  const chartData = data?.data?.chart_data || Array(12).fill(0)
+  const rawChartData = data?.data?.chart_data
+  const chartData = Array.isArray(rawChartData)
+    ? rawChartData.map((d: any) => (typeof d === 'number' ? d : d?.total ?? 0))
+    : Array(12).fill(0)
 
   const options = {
     chart: {

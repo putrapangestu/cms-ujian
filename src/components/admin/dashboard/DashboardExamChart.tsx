@@ -12,11 +12,11 @@ export default function DashboardExamChart() {
   const { data, isLoading } = useQueryData<{
     success: boolean
     data: {
-      trend_chart: number[]
+      trend_chart: { month: number; month_name: string; total_participants: number }[]
       top_exams: {
         id: string
         title: string
-        participants: number
+        total_participants: number
       }[]
     }
   }>(DASHBOARD.CHARTS_EXAMS, { year })
@@ -34,7 +34,10 @@ export default function DashboardExamChart() {
     )
   }
 
-  const chartData = data?.data?.trend_chart || Array(12).fill(0)
+  const rawTrendChart = data?.data?.trend_chart
+  const chartData = Array.isArray(rawTrendChart)
+    ? rawTrendChart.map((d: any) => (typeof d === 'number' ? d : d?.total_participants ?? 0))
+    : Array(12).fill(0)
   const topExams = data?.data?.top_exams || []
 
   const currentYear = new Date().getFullYear()
@@ -180,7 +183,7 @@ export default function DashboardExamChart() {
                             {exam.title}
                           </Link>
                           <p className="text-muted mt-1 mb-0 fw-medium" style={{ fontSize: '0.75rem' }}>
-                            {exam.participants} Peserta
+                            {exam.total_participants} Peserta
                           </p>
                         </div>
                       </div>
