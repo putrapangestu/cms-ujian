@@ -56,27 +56,41 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
         const update = updates[id];
         
         if (prev) {
-          // Deteksi perubahan
+          // DETEKSI: partial update (hanya time+status dari heartbeat) vs full update (dari batch sync)
+          const isPartialUpdate = 
+            update.categories === undefined && 
+            update.totalScore === undefined;
+          
+          // Deteksi perubahan SEBELUM merge
           const scoreChanged = update.totalScore !== undefined && update.totalScore !== prev.totalScore;
           const statusChanged = update.status !== undefined && update.status !== prev.status;
           const timeChanged = update.timeRemaining !== undefined && update.timeRemaining !== prev.timeRemaining;
           
+          if (isPartialUpdate && prev.categories) {
+            // Partial update (heartbeat): hanya update time & status
+            // PERTAHANKAN categories & totalScore dari data sebelumnya
+            const { categories, totalScore, ...restUpdate } = update;
+            newParticipants[id] = { ...prev, ...restUpdate };
+          } else {
+            // Full update (batch sync / API refresh): update semua
+            newParticipants[id] = { ...prev, ...update };
+          }
+          
           if (scoreChanged || statusChanged || timeChanged) {
             newChangeFlags[id] = { scoreChanged, statusChanged, timeChanged };
           }
-          
-          newParticipants[id] = { ...prev, ...update };
           hasChanges = true;
         } else {
           // Participant baru
+          const { ...rest } = updates[id];
           newParticipants[id] = {
             id,
-            user_exam_id: updates[id].user_exam_id || '',
-            name: updates[id].name || 'Loading...',
+            user_exam_id: rest.user_exam_id || '',
+            name: rest.name || 'Loading...',
             progress: 0,
             status: 'online',
             timeRemaining: 0,
-            ...updates[id],
+            ...rest,
           } as Participant;
           hasChanges = true;
         }

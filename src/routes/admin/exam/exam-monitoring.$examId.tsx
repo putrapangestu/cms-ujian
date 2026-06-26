@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect, useState, useRef, memo } from 'react';
+import { useEffect, useState, useRef, memo, useMemo } from 'react';
 import { socketClient } from '@/lib/socket-client';
 import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch';
 import { EXAM_MONITORING } from '@/data/const/api_url';
@@ -41,6 +41,44 @@ function getScoreColor(score: number | undefined, category: string): string {
   return score >= threshold 
     ? 'text-success bg-success-subtle' 
     : 'text-danger bg-danger-subtle'
+}
+
+function TotalScoreCell({ participant }: { participant: Participant }) {
+  const changeFlags = useMonitoringStore((state) => state.changeFlags);
+  const id = participant.id;
+  const flag = changeFlags[id];
+
+  // Compute total dari category scores
+  const computedTotal = useMemo(() => {
+    if (!participant.categories) return participant.totalScore || 0;
+    
+    let sum = 0;
+    for (const catKey of Object.keys(participant.categories)) {
+      const cat = participant.categories[catKey as keyof typeof participant.categories] as CategoryScore | undefined;
+      if (cat?.score) sum += cat.score;
+    }
+    return sum > 0 ? sum : (participant.totalScore || 0);
+  }, [participant.categories, participant.totalScore]);
+
+  const backendTotal = participant.totalScore || 0;
+  const hasMismatch = computedTotal > 0 && backendTotal > 0 && computedTotal !== backendTotal;
+
+  return (
+    <div className="fw-bold" style={{ fontSize: '1.1rem' }}>
+      <span className={getScoreColor(computedTotal, 'total')}>
+        {computedTotal}
+      </span>
+      {hasMismatch && (
+        <div 
+          className="text-warning" 
+          style={{ fontSize: '0.65rem', lineHeight: 1 }}
+          title={`Backend total: ${backendTotal}`}
+        >
+          ⚠️ {backendTotal}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ExamMonitoringDetail() {
@@ -141,10 +179,29 @@ function ExamMonitoringDetail() {
   // Tapi TIDAK mengganggu socket listener
   useEffect(() => {
     if (monitoringData?.data && Array.isArray(monitoringData.data)) {
-       const validParticipants = monitoringData.data.filter(p => p.id != null);
-       setParticipants(validParticipants);
+      // Merge: API data sebagai base, socket data overwrite kalo lebih baru
+      const state = useMonitoringStore.getState();
+      const currentParticipants = state.participants;
+      
+      const mergedParticipants = monitoringData.data.map(apiParticipant => {
+        const existing = currentParticipants[apiParticipant.id];
+        if (existing) {
+          return {
+            ...apiParticipant,
+            // categories & totalScore dari socket (lebih realtime)
+            categories: existing.categories || apiParticipant.categories,
+            totalScore: existing.totalScore || apiParticipant.totalScore,
+            // time dari socket (kecuali 0)
+            timeRemaining: existing.timeRemaining > 0 ? existing.timeRemaining : apiParticipant.timeRemaining,
+            status: existing.status || apiParticipant.status,
+          };
+        }
+        return apiParticipant;
+      });
+      
+      setParticipants(mergedParticipants);
     } else {
-       setParticipants([]);
+      setParticipants([]);
     }
   }, [monitoringData, setParticipants]);
 
@@ -481,8 +538,8 @@ const MonitoringRow = memo(({ id, index, examId }: { id: string; index: number; 
       <td>{renderCategory(participant.categories?.TWK, 'TWK')}</td>
       <td>{renderCategory(participant.categories?.TKP, 'TKP')}</td>
       <td>{renderCategory(participant.categories?.TIU, 'TIU')}</td>
-      <td className={cn("fw-bold", getScoreColor(participant.totalScore, 'total'), { "score-flash": showScoreFlash })} style={{ fontSize: '1.1rem' }}>
-        {participant.totalScore || 0}
+      <td className={cn({ "score-flash": showScoreFlash })} style={{ fontSize: '1.1rem' }}>
+        <TotalScoreCell participant={participant} />
       </td>
       <td className="d-flex gap-2">
         <button

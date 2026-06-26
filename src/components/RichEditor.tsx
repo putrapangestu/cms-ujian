@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
 import Link from '@tiptap/extension-link'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Extend Image with resize functionality
 const ResizableImage = Image.extend({
@@ -43,7 +43,9 @@ export default function RichEditor({
   placeholder = 'Mulai mengetik...',
 }: TiptapEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const latexInputRef = useRef<HTMLInputElement>(null)
   const [showImageSizeModal, setShowImageSizeModal] = useState(false)
+  const [showEquationModal, setShowEquationModal] = useState(false)
   const [imageSize, setImageSize] = useState({ width: '100%', height: 'auto' })
 
   const editor = useEditor({
@@ -173,6 +175,20 @@ export default function RichEditor({
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
   }
 
+  const handleInsertEquation = useCallback(() => {
+    setShowEquationModal(true)
+  }, [])
+
+  const handleSubmitEquation = useCallback(() => {
+    if (!editor || !latexInputRef.current) return
+    const latex = latexInputRef.current.value.trim()
+    if (!latex) return
+
+    editor.chain().focus().insertContent(`$${latex}$`).run()
+    setShowEquationModal(false)
+    latexInputRef.current.value = ''
+  }, [editor])
+
   if (!editor) {
     return (
       <div className="border border-light rounded-3 p-3 text-center text-muted">
@@ -282,6 +298,18 @@ export default function RichEditor({
           >
             <i className="ti ti-photo"></i>
           </button>
+
+          <div className="vr opacity-25"></div>
+
+          {/* Equation */}
+          <button
+            type="button"
+            onClick={handleInsertEquation}
+            className="btn btn-sm btn-light border-0 text-primary"
+            title="Insert Equation (LaTeX)"
+          >
+            <span style={{ fontWeight: 600, fontSize: '16px' }}>&Sigma;</span>
+          </button>
         </div>
 
         {/* Editor Content */}
@@ -385,6 +413,70 @@ export default function RichEditor({
                   onClick={() => setShowImageSizeModal(false)}
                 >
                   Batal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Equation (LaTeX) Modal */}
+      {showEquationModal && (
+        <div
+          className="modal show d-block"
+          tabIndex={-1}
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  <span style={{ fontWeight: 600, fontSize: '18px', marginRight: 8 }}>&Sigma;</span>
+                  Insert Equation (LaTeX)
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowEquationModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <label htmlFor="latex-input" className="form-label fw-semibold">
+                  LaTeX Equation
+                </label>
+                <input
+                  ref={latexInputRef}
+                  id="latex-input"
+                  type="text"
+                  className="form-control font-monospace"
+                  placeholder="\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleSubmitEquation()
+                    }
+                  }}
+                  autoFocus
+                />
+                <div className="form-text mt-2">
+                  Gunakan <code>$...$</code> untuk inline atau <code>$$...$$</code> untuk display mode.
+                  Teks akan dimasukkan sebagai LaTeX ke dalam editor.
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowEquationModal(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSubmitEquation}
+                >
+                  Insert
                 </button>
               </div>
             </div>

@@ -9,6 +9,7 @@ import { useAuthStore } from '@/data/store/auth_store'
 import { apiClient } from '@/lib/api-client'
 import { AUTH } from '@/data/const/api_url'
 import { useGlobalStore } from '@/data/store/global_store'
+import 'katex/dist/katex.min.css'
 import '@/lib/global-settings'
 import '@/styles/monitoring-animations.css'
 
