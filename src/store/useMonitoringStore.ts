@@ -137,6 +137,7 @@ export const stopMonitoringBuffer = () => {
     clearInterval(flushInterval);
     flushInterval = null;
   }
+  updateBuffer = {}; // Clear buffer agar data antar ujian tidak tercampur
 };
 
 export const queueParticipantUpdate = (id: string, update: Partial<Participant>) => {

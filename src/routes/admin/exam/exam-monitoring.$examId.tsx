@@ -88,6 +88,12 @@ function ExamMonitoringDetail() {
   const [isSocketConnected, setIsSocketConnected] = useState(true);
   const setParticipants = useMonitoringStore((state) => state.setParticipants);
   const setServerTime = useMonitoringStore((state) => state.setServerTime);
+
+  // Reset search dan bersihkan store saat ganti ujian
+  useEffect(() => {
+    setSearchQuery('');
+    setParticipants([]);
+  }, [examId, setParticipants]);
   
   // Ambil list semua ujian aktif untuk dropdown
   const { data: activeExams } = useQueryDataPersistent<
@@ -299,11 +305,17 @@ function MonitoringTable({ searchQuery, examId }: { searchQuery: string; examId:
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 1000;
   
-  const participantIds = Object.keys(participantsMap).filter((id) => {
-    if (!searchQuery) return true;
-    const name = participantsMap[id]?.name || '';
-    return name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const participantIds = Object.keys(participantsMap)
+    .filter((id) => {
+      if (!searchQuery) return true;
+      const name = participantsMap[id]?.name || '';
+      return name.toLowerCase().includes(searchQuery.toLowerCase());
+    })
+    .sort((a, b) => {
+      const scoreA = participantsMap[a]?.totalScore ?? 0;
+      const scoreB = participantsMap[b]?.totalScore ?? 0;
+      return scoreB - scoreA; // descending: terbesar ke terkecil
+    });
 
   useEffect(() => {
     setCurrentPage(1);
