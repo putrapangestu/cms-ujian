@@ -124,7 +124,7 @@ export default function AdminHeader() {
                       <div className="user-profile-img">
                         <img
                           src={
-                            user?.profile ? user.profile : '/profile/user-1.jpg'
+                            user?.avatar ? `${import.meta.env.VITE_API_URL}/${user.avatar}` : '/profile/user-1.jpg'
                           }
                           className="rounded-circle object-fit-cover"
                           width="35"
@@ -148,7 +148,7 @@ export default function AdminHeader() {
                       <div className="d-flex align-items-center py-9 mx-7 border-bottom">
                         <img
                           src={
-                            user?.profile ? user.profile : '/profile/user-1.jpg'
+                            user?.avatar ? `${import.meta.env.VITE_API_URL}/${user.avatar}` : '/profile/user-1.jpg'
                           }
                           className="rounded-circle object-fit-cover"
                           width="80"

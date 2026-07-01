@@ -1,6 +1,7 @@
 import { EXAM } from '@/data/const/api_url'
 import { apiClient } from '@/lib/api-client'
 import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch'
+import { mutate } from 'swr'
 import type { Socket } from 'socket.io-client'
 import { io } from 'socket.io-client'
 import { useAuthStore } from '@/data/store/auth_store'
@@ -71,9 +72,9 @@ function RouteComponent() {
     }
   }, [examId, clearExamAnswers])
 
-  const { data } = useQueryDataPersistent<
+  const { data, isValidating } = useQueryDataPersistent<
     ApiResponseType<'single', ExamDetailDataType>
-  >(EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id || '' })
+  >(EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id || '' }, { revalidateOnMount: true })
   // const answeredQuestions = Object.keys(answers).length;
   // const answeredQuestions = getAnswerCount(examId)
   const answeredQuestions = getExamAnswers(examId).filter(
@@ -215,6 +216,10 @@ function RouteComponent() {
         Swal.fire('Ujian Dibuka', 'Ujian Anda telah dibuka kembali oleh Admin.', 'success');
       } else if (eventData.action === 'exam_reset') {
         isSubmitting.current = true;
+        // Hapus localStorage cache agar data stale tidak dipakai saat start ulang
+        const cacheKey = JSON.stringify([EXAM.GET_QUESTIONS_USER, { id: examId, userId: user?.id }])
+        localStorage.removeItem(cacheKey)
+        mutate(cacheKey, undefined, { revalidate: false })
         Swal.fire({
           title: 'Ujian Direset',
           text: 'Ujian Anda telah direset oleh Admin. Silakan mulai ulang.',
@@ -295,6 +300,8 @@ function RouteComponent() {
     // Cegah timer pakai data cache localStorage yang status/start_time-nya sudah obsolete
     if (data?.data?.user_exam.status !== 'in_progress') return
     if (!data?.data?.user_exam.start_time || !data?.data?.exam.duration) return
+    // Tunggu background fetch selesai agar data bukan dari localStorage fallback
+    if (isValidating) return
 
     const startTime = dayjs(data.data.user_exam.start_time)
     const endTime = startTime.add(data.data.exam.duration, 'minute')
@@ -811,7 +818,7 @@ function RouteComponent() {
                           {
                             summary?.summary?.category_scores?.find(
                               (item) =>
-                                item.category_name.toLowerCase() === type
+                                item.category_name?.toLowerCase() === type
                             )?.total_score || 0
                           }
                         </span>

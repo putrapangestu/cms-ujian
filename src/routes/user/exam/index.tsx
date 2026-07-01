@@ -11,6 +11,8 @@ import type {
 import { confirmAlert } from '@/lib/toast'
 import { enableFullscreen } from '@/lib/utils'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useAuthStore } from '@/data/store/auth_store'
+import { mutate } from 'swr'
 import { useEffect, useRef, useState } from 'react'
 
 export const Route = createFileRoute('/user/exam/')({
@@ -19,6 +21,7 @@ export const Route = createFileRoute('/user/exam/')({
 
 function RouteComponent() {
   const navigate = useNavigate()
+  const { user } = useAuthStore()
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString('id-ID', {
@@ -91,6 +94,10 @@ function RouteComponent() {
       () => (exam.status === 'pending' ? trigger({ id: exam.exam_id }) : null),
       `Apakah Anda yakin ingin mulai ujian?`,
       () => {
+        // Hapus localStorage cache agar data stale tidak terbawa ke halaman exam
+        const cacheKey = JSON.stringify([EXAM.GET_QUESTIONS_USER, { id: exam.exam_id, userId: user?.id }])
+        localStorage.removeItem(cacheKey)
+        mutate(cacheKey, undefined, { revalidate: false })
         navigate({ to: `/exam/${exam.exam_id}` })
         // enableFullscreen()
       },

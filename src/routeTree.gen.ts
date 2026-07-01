@@ -15,6 +15,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as ExamRouteImport } from './routes/_exam'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as UserExamIndexRouteImport } from './routes/user/exam/index'
@@ -64,6 +65,11 @@ const AuthRoute = AuthRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AdminRoute,
 } as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/user': typeof UserRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
@@ -228,6 +235,7 @@ export interface FileRoutesByTo {
   '/user': typeof UserRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/user'
     | '/login'
     | '/admin/'
+    | '/admin/profile'
     | '/admin/exam/exam-monitoring'
     | '/admin/master/student-group'
     | '/admin/master/student-master'
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/user'
     | '/login'
     | '/admin'
+    | '/admin/profile'
     | '/admin/exam/exam-monitoring'
     | '/admin/master/student-group'
     | '/admin/master/student-master'
@@ -348,6 +359,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_public/'
     | '/admin/'
+    | '/admin/profile'
     | '/admin/exam/exam-monitoring'
     | '/admin/master/student-group'
     | '/admin/master/student-master'
@@ -421,6 +433,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
       parentRoute: typeof AdminRoute
     }
     '/_public/': {
@@ -634,6 +653,7 @@ const AdminExamExamMonitoringRouteWithChildren =
 
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminExamExamMonitoringRoute: typeof AdminExamExamMonitoringRouteWithChildren
   AdminMasterStudentGroupRoute: typeof AdminMasterStudentGroupRoute
   AdminMasterStudentMasterRoute: typeof AdminMasterStudentMasterRoute
@@ -653,6 +673,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
+  AdminProfileRoute: AdminProfileRoute,
   AdminExamExamMonitoringRoute: AdminExamExamMonitoringRouteWithChildren,
   AdminMasterStudentGroupRoute: AdminMasterStudentGroupRoute,
   AdminMasterStudentMasterRoute: AdminMasterStudentMasterRoute,

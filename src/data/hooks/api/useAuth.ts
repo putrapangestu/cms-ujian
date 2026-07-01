@@ -96,6 +96,20 @@ export const useCheckToken = (token: string) => {
   )
 }
 
+export const useUpdateProfile = () => {
+  return useSWRMutation(AUTH.UPDATE_PROFILE, fetcher.put, {
+    onSuccess: (data) => {
+      toaster(data?.message || 'Profile berhasil diupdate', 'success')
+      // Revalidate data user
+      mutate(AUTH.ME)
+    },
+    onError: (err) => {
+      console.error('Update profile failed:', err)
+      toaster(err.response?.data?.message || 'Gagal update profile', 'error')
+    },
+  })
+}
+
 export const useForgotPassword = () => {
   const navigate = useNavigate()
 

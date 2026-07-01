@@ -53,6 +53,7 @@ const localStorageMiddleware = (useSWRNext: any) => {
 export const useQueryDataPersistent = <T>(
   url: string,
   params?: ObjectType<any>,
+  options?: { revalidateOnMount?: boolean },
 ) => {
   const new_url = params ? [url, params] : url
 
@@ -66,7 +67,7 @@ export const useQueryDataPersistent = <T>(
   return useSWR<T>(new_url, fetcherWrapper, {
     revalidateOnFocus: false,
     dedupingInterval: 30000,
-    // Tambahkan middleware di sini
+    revalidateOnMount: options?.revalidateOnMount ?? false,
     use: [localStorageMiddleware],
   })
 }

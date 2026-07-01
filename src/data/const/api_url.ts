@@ -10,6 +10,7 @@ export const AUTH = {
   ASSIGN_ROLE: '/auth/assign-role/{id}/{role_name}',
   ME: '/auth/me',
   LOGIN_HISTORY: '/auth/history-login',
+  UPDATE_PROFILE: '/auth/profile',
   SEND_RESET_PASSWORD: '/auth/reset-password',
   CHECK_TOKEN: '/auth/{token}/check-token',
   FORGOT_PASSWORD: '/auth/forgot-password',
