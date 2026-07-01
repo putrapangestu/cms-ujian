@@ -108,6 +108,21 @@ export type UserAnswerDataType = {
   is_correct: boolean
   score: number
   question: QuestionDataType
+  selected_options?: {
+    id: string
+    option_text: string
+    is_correct: boolean
+    score: number
+  }[]
+  question_option?: {
+    option_text: string
+  }
+}
+
+export type UserAnswerAggregateDataType = {
+  user_exam_id: string
+  score: number
+  category_code?: string | null
 }
 
 export type ExamHistoryDataType = {
@@ -122,11 +137,13 @@ export type ExamHistoryDataType = {
   updated_at: string
   user_answers_count: number
   exam: ExamDataType
-  user_answers?: UserAnswerDataType[]
+  user_answers?: UserAnswerAggregateDataType[]
 }
 
 export type ExamHistoryDetailDataType = {
-  user_exam: ExamHistoryDataType
+  user_exam: Omit<ExamHistoryDataType, 'user_answers'> & {
+    user_answers: UserAnswerDataType[]
+  }
   summary: {
     total_questions: number
     answered_questions: number

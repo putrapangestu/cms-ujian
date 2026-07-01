@@ -27,8 +27,10 @@ interface MonitoringState {
   serverTime: number;
   participants: Record<string, Participant>;
   changeFlags: Record<string, { scoreChanged: boolean; statusChanged: boolean; timeChanged: boolean }>;
+  userIdToStudentId: Record<string, string>;
   setServerTime: (time: number) => void;
   setParticipants: (participants: Participant[]) => void;
+  setUserIdToStudentId: (mapping: Record<string, string>) => void;
   updateParticipantsBatch: (updates: Record<string, Partial<Participant>>) => void;
   clearChangeFlag: (id: string) => void;
 }
@@ -37,7 +39,9 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
   serverTime: Date.now(),
   participants: {},
   changeFlags: {},
+  userIdToStudentId: {},
   setServerTime: (time) => set({ serverTime: time }),
+  setUserIdToStudentId: (mapping) => set({ userIdToStudentId: mapping }),
   setParticipants: (participantsList) => {
     const participantsMap: Record<string, Participant> = {};
     participantsList.forEach((p) => {
@@ -52,7 +56,8 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
       let hasChanges = false;
 
       for (const id in updates) {
-        const prev = newParticipants[id];
+        const normalizedId = state.userIdToStudentId[id] || id;
+        const prev = newParticipants[normalizedId];
         const update = updates[id];
         
         if (prev) {
@@ -70,21 +75,21 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
             // Partial update (heartbeat): hanya update time & status
             // PERTAHANKAN categories & totalScore dari data sebelumnya
             const { categories, totalScore, ...restUpdate } = update;
-            newParticipants[id] = { ...prev, ...restUpdate };
+            newParticipants[normalizedId] = { ...prev, ...restUpdate };
           } else {
             // Full update (batch sync / API refresh): update semua
-            newParticipants[id] = { ...prev, ...update };
+            newParticipants[normalizedId] = { ...prev, ...update };
           }
           
           if (scoreChanged || statusChanged || timeChanged) {
-            newChangeFlags[id] = { scoreChanged, statusChanged, timeChanged };
+            newChangeFlags[normalizedId] = { scoreChanged, statusChanged, timeChanged };
           }
           hasChanges = true;
         } else {
           // Participant baru
           const { ...rest } = updates[id];
-          newParticipants[id] = {
-            id,
+          newParticipants[normalizedId] = {
+            id: normalizedId,
             user_exam_id: rest.user_exam_id || '',
             name: rest.name || 'Loading...',
             progress: 0,
@@ -106,6 +111,12 @@ export const useMonitoringStore = create<MonitoringState>((set) => ({
       return { changeFlags: rest };
     }),
 }));
+
+// Normalize user_id → student_id for socket updates
+export const normalizeParticipantId = (id: string): string => {
+  const state = useMonitoringStore.getState();
+  return state.userIdToStudentId[id] || id;
+};
 
 // Buffer for incoming socket updates
 let updateBuffer: Record<string, Partial<Participant>> = {};
@@ -129,5 +140,6 @@ export const stopMonitoringBuffer = () => {
 };
 
 export const queueParticipantUpdate = (id: string, update: Partial<Participant>) => {
-  updateBuffer[id] = { ...updateBuffer[id], ...update };
+  const normalizedId = normalizeParticipantId(id);
+  updateBuffer[normalizedId] = { ...updateBuffer[normalizedId], ...update };
 };

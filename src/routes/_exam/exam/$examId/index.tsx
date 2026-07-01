@@ -169,7 +169,10 @@ function RouteComponent() {
 
     const newSocket = io(socketUrl, {
       auth: { key: import.meta.env.VITE_SOCKET_KEY || 'Wm9zN2pQeFh3c3RkR1lYcU1vRkR2a2x4V3N3b2xXb1h3eE1nPQ==' },
-      query: { userId: user?.id, examId: examId },
+      query: {
+        student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
+        exam_id: examId,
+      },
       reconnection: true,
       reconnectionDelay: 2000,
       reconnectionAttempts: Infinity,
@@ -261,7 +264,7 @@ function RouteComponent() {
       newSocket.off('connect')
       newSocket.off('answer_received')
     }
-  }, [user, examId])
+  }, [user, examId, data])
 
   // Periodic retry safety net tiap 30 detik untuk jawaban pending
   useEffect(() => {
@@ -487,8 +490,9 @@ function RouteComponent() {
     // Fungsi untuk mengirim data
     const sendPeriodicData = () => {
       const payload = {
-        userId: user?.id,
-        examId: examId,
+        student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
+        exam_id: examId,
+        user_exam_id: data?.data?.user_exam?.id,
         time_remaining: timeRemainingRef.current,
       }
 
@@ -563,8 +567,9 @@ function RouteComponent() {
       if (document.visibilityState === 'hidden') {
         if (socket) {
           socket.emit('cheat_warning', {
-            userId: user?.id,
-            examId: examId,
+            student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
+            exam_id: examId,
+            user_exam_id: data?.data?.user_exam?.id,
             warning_type: 'tab_switch',
           })
         }
@@ -578,17 +583,37 @@ function RouteComponent() {
         fullscreenOverlayRef.current = true
         setShowFullscreenOverlay(true)
 
-        if (fullscreenExitCount.current >= 3) {
+        if (fullscreenExitCount.current >= 5) {
           fullscreenOverlayRef.current = false
           setShowFullscreenOverlay(false)
+
           if (socket) {
             socket.emit('cheat_warning', {
-              userId: user?.id,
-              examId: examId,
+              student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
+              exam_id: examId,
+              user_exam_id: data?.data?.user_exam?.id,
               warning_type: 'fullscreen_exit_max',
             })
           }
-          handleExamTimeout()
+
+          Swal.fire({
+            title: 'Batas Keluar Fullscreen Tercapai!',
+            text: 'Anda telah keluar dari mode fullscreen sebanyak 5 kali. Ujian akan diakhiri jika Anda keluar lagi. Apakah Anda yakin ingin mengakhiri ujian?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Akhiri Ujian',
+            cancelButtonText: 'Kembali ke Ujian',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              handleExamTimeout()
+            } else {
+              fullscreenExitCount.current = 0
+            }
+          })
           return
         }
 
@@ -596,8 +621,9 @@ function RouteComponent() {
 
         if (socket) {
           socket.emit('cheat_warning', {
-            userId: user?.id,
-            examId: examId,
+            student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
+            exam_id: examId,
+            user_exam_id: data?.data?.user_exam?.id,
             warning_type: 'fullscreen_exit',
           })
         }
@@ -903,7 +929,7 @@ function RouteComponent() {
               opacity: 0.5,
             }}
           >
-            Peringatan ke-{fullscreenExitCount.current} dari 3 kali
+            Peringatan ke-{fullscreenExitCount.current} dari 5 kali
           </p>
         </div>
       )}

@@ -124,21 +124,21 @@ function RouteComponent() {
     },
     {
       header: 'TWK',
-      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'twk')?.score || '-'}</span>
+      cell: (v) => <span className="fw-medium">{v.user_answers?.find((item) => item.category_code?.toLowerCase() === 'twk')?.score || '-'}</span>
     },
     {
       header: 'TIU',
-      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'tiu')?.score || '-'}</span>
+      cell: (v) => <span className="fw-medium">{v.user_answers?.find((item) => item.category_code?.toLowerCase() === 'tiu')?.score || '-'}</span>
     },
     {
       header: 'TKP',
-      cell: (v) => <span className="fw-medium">{v.userAnswers.find((item) => item.category_code.toLowerCase() === 'tkp')?.score || '-'}</span>
+      cell: (v) => <span className="fw-medium">{v.user_answers?.find((item) => item.category_code?.toLowerCase() === 'tkp')?.score || '-'}</span>
     },
     {
       accessorKey: 'score',
       header: 'Nilai',
       cell: (row) => {
-        const scoreSummary = row.userAnswers.reduce((acc: number, cur: any) => acc + cur.score, 0)
+        const scoreSummary = row.user_answers?.reduce((acc: number, cur: any) => acc + (cur.score || 0), 0) || 0
         return row.score !== null ? <span className="fw-bold">{row.score != scoreSummary ? scoreSummary : row.score}</span> : '-'
       },
     },
