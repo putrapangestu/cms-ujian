@@ -819,7 +819,7 @@ function RouteComponent() {
                             summary?.summary?.category_scores?.find(
                               (item) =>
                                 item.category_name?.toLowerCase() === type
-                            )?.total_score || 0
+                            )?.score ?? 0
                           }
                         </span>
                       </li>
