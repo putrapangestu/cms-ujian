@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState, useRef, memo, useMemo } from 'react';
 import { socketClient } from '@/lib/socket-client';
-import { useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch';
-import { EXAM_MONITORING } from '@/data/const/api_url';
+import { useQueryData, useQueryDataPersistent, useMutationAction } from '@/data/hooks/api/useGlobalFetch';
+import { EXAM, EXAM_MONITORING } from '@/data/const/api_url';
 import type { ApiResponseType } from '@/data/types/api_response';
 import { IconSearch, IconRefresh } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
@@ -95,10 +95,15 @@ function ExamMonitoringDetail() {
     setParticipants([]);
   }, [examId, setParticipants]);
   
-  // Ambil list semua ujian aktif untuk dropdown
+  // Ambil list semua ujian aktif untuk dropdown (max 100rb, auto-refresh tiap mount)
   const { data: activeExams } = useQueryDataPersistent<
     ApiResponseType<'multi', { id: string; title: string }>
-  >(EXAM_MONITORING.ACTIVE);
+  >(EXAM_MONITORING.ACTIVE, { per_page: 100000 }, { revalidateOnMount: true });
+
+  // Ambil title ujian saat ini untuk fallback (jika tidak ada di daftar aktif)
+  const { data: currentExamDetail } = useQueryData<
+    ApiResponseType<'single', { id: string; title: string }>
+  >(EXAM.GET_BY_ID.replace('{id}', examId));
 
   // Ambil detail participants dari API
   const { data: monitoringData, isLoading, mutate } = useQueryDataPersistent<
@@ -245,9 +250,9 @@ function ExamMonitoringDetail() {
                {activeExams?.data?.map((exam) => (
                  <option key={exam.id} value={exam.id}>{exam.title}</option>
                ))}
-               {activeExams?.data && !activeExams.data.some(e => e.id === examId) && (
-                 <option value={examId}>Ujian {examId.substring(0, 8)}...</option>
-               )}
+              {activeExams?.data && !activeExams.data.some(e => e.id === examId) && (
+                  <option value={examId}>{currentExamDetail?.data?.title || 'Ujian tidak tersedia'}</option>
+                )}
              </select>
            </div>
            
