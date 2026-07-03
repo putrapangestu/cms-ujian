@@ -25,9 +25,11 @@ type ActiveExamDataType = {
 
 function RouteComponent() {
   const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
   const [search, setSearch] = useState('')
 
   useEffect(() => { setPage(1) }, [search])
+  useEffect(() => { setPage(1) }, [perPage])
 
   const { data: activeExams, isLoading } = useQueryData<
     ApiPaginatedResponse<ActiveExamDataType>
@@ -35,7 +37,7 @@ function RouteComponent() {
     EXAM_MONITORING.ACTIVE,
     {
       page,
-      per_page: 10,
+      per_page: perPage,
       ...(search && { search }),
     },
   )
@@ -119,10 +121,12 @@ function RouteComponent() {
         <DataTable
           data={activeExams?.data || []}
           columns={columns}
-          showPageSize={false}
+          showPageSize
           pageIndex={page || 1}
+          pageSize={perPage}
           rowCount={activeExams?.pagination?.total_items || 0}
           onPageChange={setPage}
+          onPageSizeChange={setPerPage}
           manualPagination
           isLoading={isLoading}
         />
