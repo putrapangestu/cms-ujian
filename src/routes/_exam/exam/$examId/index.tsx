@@ -47,6 +47,10 @@ function RouteComponent() {
   const fullscreenExitCount = useRef(0)
   const fullscreenOverlayRef = useRef(false)
   const emitAnswerRef = useRef<((questionId: string, answer: string | string[], timeSpent?: number) => void) | null>(null)
+  // 🛡️ Layer 1: Wake Lock reference
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null)
+  // 🧠 Layer 2: Activity tracking — last time user moved mouse / pressed key
+  const lastActivityTime = useRef(Date.now())
 
   useEffect(() => {
     timeRemainingRef.current = timeRemaining
@@ -518,6 +522,58 @@ function RouteComponent() {
     }
   }, [socket, user?.id, examId])
 
+  // 🛡️ Layer 1 — Screen Wake Lock: cegah layar mati selama ujian
+  useEffect(() => {
+    if (hasSubmitted || isSubmitting.current) return
+    if (!data?.data?.user_exam || data.data.user_exam.status !== 'in_progress') return
+
+    let currentWakeLock: WakeLockSentinel | null = null
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          currentWakeLock = await navigator.wakeLock.request('screen')
+          wakeLockRef.current = currentWakeLock
+          console.log('🔒 Wake Lock acquired — screen will not sleep')
+
+          // Re-acquire jika wake lock dirilis (misal karena tab pindah)
+          currentWakeLock.addEventListener('release', () => {
+            console.log('🔓 Wake Lock released, re-acquiring...')
+            if (!hasSubmitted && !isSubmitting.current) {
+              requestWakeLock()
+            }
+          })
+        } else {
+          console.warn('⚠️ Wake Lock API not supported in this browser')
+        }
+      } catch (err) {
+        console.warn('⚠️ Wake Lock request failed:', err)
+      }
+    }
+
+    requestWakeLock()
+
+    return () => {
+      if (currentWakeLock) {
+        currentWakeLock.release()
+        wakeLockRef.current = null
+        console.log('🔓 Wake Lock released (cleanup)')
+      }
+    }
+  }, [hasSubmitted, data?.data?.user_exam?.status])
+
+  // 🔄 Layer 3 — Periodic Reset: reset fullscreen counter tiap 5 menit
+  useEffect(() => {
+    if (hasSubmitted) return
+
+    const interval = setInterval(() => {
+      fullscreenExitCount.current = 0
+      console.log('🔄 Fullscreen exit counter reset (periodic 5 min)')
+    }, 5 * 60 * 1000) // 5 menit
+
+    return () => clearInterval(interval)
+  }, [hasSubmitted])
+
   // Polling status ujian tiap 20 detik (fallback jika socket event force_submit/reset terlewat)
   useEffect(() => {
     if (hasSubmitted || isSubmitting.current || !user?.id || !examId) return
@@ -565,13 +621,15 @@ function RouteComponent() {
     }
   }, [hasSubmitted, user?.id, examId])
 
-  // Combined security + anti-cheat listeners (Modul 4)
+  // Combined security + anti-cheat listeners
   useEffect(() => {
     if (hasSubmitted) return // JANGAN pasang listener jika sudah submit
 
     // === VISIBILITY CHANGE (tab switch detection) ===
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
+        // Update activity time juga agar fullscreen exit tidak salah hitung
+        lastActivityTime.current = Date.now()
         if (socket) {
           socket.emit('cheat_warning', {
             student_id: data?.data?.user_exam?.user?.student?.id || user?.id,
@@ -583,9 +641,25 @@ function RouteComponent() {
       }
     }
 
+    // === ACTIVITY TRACKING (Layer 2) — track kapan terakhir user gerak ===
+    const handleActivity = () => {
+      lastActivityTime.current = Date.now()
+    }
+
     // === FULLSCREEN (force re-enter + cheat_warning + overlay + limit) ===
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
+        // 🧠 Layer 2: Activity-Based Detection
+        // Jika user sedang idle > 60 detik sebelum fullscreen exit,
+        // kemungkinan layar mati/sleep — jangan hitung sebagai pelanggaran
+        const idleTime = Date.now() - lastActivityTime.current
+        if (idleTime > 60000) {
+          console.log('⏩ Fullscreen exit SKIPPED — user idle for', Math.round(idleTime / 1000), 's (likely screen sleep)')
+          // Tetap re-request fullscreen tanpa hitung counter
+          document.documentElement.requestFullscreen().catch(() => {})
+          return
+        }
+
         fullscreenExitCount.current++
         fullscreenOverlayRef.current = true
         setShowFullscreenOverlay(true)
@@ -650,6 +724,9 @@ function RouteComponent() {
 
     // === KEYBOARD (blokir shortcut devtools) ===
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 🧠 Layer 2: update activity time
+      lastActivityTime.current = Date.now()
+
       if (
         e.key === 'F12' ||
         (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key)) ||
@@ -679,7 +756,9 @@ function RouteComponent() {
     // === REGISTER ALL LISTENERS ===
     document.addEventListener('visibilitychange', handleVisibilityChange)
     document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('mousemove', handleActivity)
     document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('touchstart', handleActivity)
     document.addEventListener('contextmenu', handleContextMenu)
     document.addEventListener('click', handleGlobalClick)
     window.addEventListener('popstate', handlePopState)
@@ -689,7 +768,9 @@ function RouteComponent() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('mousemove', handleActivity)
       document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('touchstart', handleActivity)
       document.removeEventListener('contextmenu', handleContextMenu)
       document.removeEventListener('click', handleGlobalClick)
       window.removeEventListener('popstate', handlePopState)
