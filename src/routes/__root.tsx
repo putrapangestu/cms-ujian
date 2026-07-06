@@ -129,6 +129,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         )}
         
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+        <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
       </body>
     </html>
   )

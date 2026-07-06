@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Autoplay } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+
 export const Route = createFileRoute('/_public/')({
   component: RouteComponent,
 })
@@ -99,6 +104,22 @@ function RouteComponent() {
               <i className="iconify" data-icon="solar:phone-calling-linear" data-width="18"></i>
               Konsultasi Gratis
             </a>
+          </div>
+
+          {/* Stats Section */}
+          <div className="mt-16 grid grid-cols-1 gap-8 border-t border-slate-200/60 pt-12 sm:grid-cols-3">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-4xl font-bold text-primary">5,000+</span>
+              <span className="text-sm font-medium text-slate-500">Siswa Terdaftar</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-4xl font-bold text-primary">150+</span>
+              <span className="text-sm font-medium text-slate-500">Kelas Terdaftar</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-4xl font-bold text-primary">100,000+</span>
+              <span className="text-sm font-medium text-slate-500">Ujian Telah Dilakukan</span>
+            </div>
           </div>
         </div>
       </section>
@@ -236,8 +257,8 @@ function RouteComponent() {
             </div>
             <div className="relative">
               <div className="aspect-square rounded-3xl bg-secondary/10 p-4">
-                <div className="flex h-full w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
-                  <i className="iconify text-secondary/40" data-icon="solar:square-academic-cap-linear" data-width="120"></i>
+                <div className="h-full w-full overflow-hidden rounded-2xl border border-white/10">
+                  <img src="/images/gambar4.jpeg" alt="Keunggulan Bimbel" className="h-full w-full object-cover" />
                 </div>
               </div>
               <div className="absolute -bottom-6 -left-6 rounded-2xl bg-secondary p-6 shadow-2xl">
@@ -245,6 +266,55 @@ function RouteComponent() {
                 <div className="text-xs font-medium uppercase tracking-wider text-primary/80">Tingkat Kelulusan</div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section id="galeri" className="bg-slate-50 py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl font-semibold tracking-tight text-primary">Galeri Kegiatan</h2>
+            <p className="mt-4 text-slate-600">Dokumentasi kegiatan belajar mengajar kami.</p>
+          </div>
+          <div className="relative">
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              spaceBetween={24}
+              slidesPerView={1}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+                1280: { slidesPerView: 4 },
+              }}
+              loop={true}
+              navigation={{
+                prevEl: '.custom-swiper-prev',
+                nextEl: '.custom-swiper-next',
+              }}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              className="w-full !pb-8"
+            >
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <SwiperSlide key={num}>
+                  <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                    <img 
+                      src={`/images/gambar${num}.jpeg`} 
+                      alt={`Galeri ${num}`} 
+                      className="aspect-[4/3] w-full object-cover transition-transform duration-500 hover:scale-110" 
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            
+            {/* Custom Navigation Buttons */}
+            <button className="custom-swiper-prev absolute -left-5 top-[calc(50%-16px)] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] ring-1 ring-slate-900/5 transition-all hover:scale-110 hover:bg-[#214545] hover:text-white disabled:opacity-50 sm:-left-6">
+              <i className="iconify text-xl" data-icon="solar:alt-arrow-left-linear"></i>
+            </button>
+            <button className="custom-swiper-next absolute -right-5 top-[calc(50%-16px)] z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-[0_4px_12px_rgba(0,0,0,0.1)] ring-1 ring-slate-900/5 transition-all hover:scale-110 hover:bg-[#214545] hover:text-white disabled:opacity-50 sm:-right-6">
+              <i className="iconify text-xl" data-icon="solar:alt-arrow-right-linear"></i>
+            </button>
           </div>
         </div>
       </section>
