@@ -1,145 +1,145 @@
 $(function () {
-  $(".block-card").on("click", function () {
-    var block_ele = $(this).closest(".card");
+  $('.block-card').on('click', function () {
+    var block_ele = $(this).closest('.card')
     $(block_ele).block({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
-    });
-  });
+    })
+  })
 
   // Block sidebar
-  $(".block-sidenav").on("click", function () {
-    var block_ele = $(".side-mini-panel");
+  $('.block-sidenav').on('click', function () {
+    var block_ele = $('.side-mini-panel')
     $(block_ele).block({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
-    });
-  });
+    })
+  })
 
   // Block page
-  $(".block-default").on("click", function () {
+  $('.block-default').on('click', function () {
     $.blockUI({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
-    });
-  });
+    })
+  })
 
   // onBlock callback
-  $(".onblock").on("click", function () {
+  $('.onblock').on('click', function () {
     $.blockUI({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       fadeIn: 1000,
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        color: "#333",
-        backgroundColor: "transparent",
+        color: '#333',
+        backgroundColor: 'transparent',
       },
       onBlock: function () {
-        alert("Page blocked!");
+        alert('Page blocked!')
       },
-    });
-  });
+    })
+  })
 
   // onUnblock callback
-  $(".onunblock").on("click", function () {
+  $('.onunblock').on('click', function () {
     $.blockUI({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        color: "#333",
-        backgroundColor: "transparent",
+        color: '#333',
+        backgroundColor: 'transparent',
       },
       onUnblock: function () {
-        alert("Page unblocked!");
+        alert('Page unblocked!')
       },
-    });
-  });
+    })
+  })
 
   // Overlay callback
-  $(".onoverlay-click").on("click", function () {
+  $('.onoverlay-click').on('click', function () {
     $.blockUI({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
-        color: "#333",
+        color: '#333',
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
       onOverlayClick: $.unblockUI,
-    });
-  });
+    })
+  })
 
   // Block Without Message
-  $(".without-msg").on("click", function () {
-    var block_ele = $(this).closest(".card");
+  $('.without-msg').on('click', function () {
+    var block_ele = $(this).closest('.card')
     $(block_ele).block({
       message: null,
       timeout: 2000, //unblock after 2 seconds
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
-    });
-  });
+    })
+  })
 
   // Block without overlay
-  $(".without-overlay").on("click", function () {
-    var block_ele = $(this).closest(".card");
+  $('.without-overlay').on('click', function () {
+    var block_ele = $(this).closest('.card')
     $(block_ele).block({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       showOverlay: false,
@@ -148,58 +148,58 @@ $(function () {
         width: 50,
         height: 50,
         lineHeight: 1,
-        color: "#fff",
+        color: '#fff',
         border: 0,
         padding: 15,
-        backgroundColor: "#000",
+        backgroundColor: '#000',
       },
-    });
-  });
+    })
+  })
 
   // Unblock on overlay click
-  $(".overlay-unblock").on("click", function () {
-    var block_ele = $(this).closest(".card");
+  $('.overlay-unblock').on('click', function () {
+    var block_ele = $(this).closest('.card')
     $(block_ele).block({
       message: '<i class="ti ti-refresh text-white fs-5"></i>',
       overlayCSS: {
-        backgroundColor: "#000",
+        backgroundColor: '#000',
         opacity: 0.5,
-        cursor: "wait",
+        cursor: 'wait',
       },
       css: {
         border: 0,
         padding: 0,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
       },
-    });
+    })
 
-    $(".blockOverlay").on("click", function () {
-      $(block_ele).unblock();
-    });
-  });
+    $('.blockOverlay').on('click', function () {
+      $(block_ele).unblock()
+    })
+  })
 
   // Growl notification
-  $(".growl").on("click", function () {
+  $('.growl').on('click', function () {
     $.blockUI({
-      message: $(".growl-notification-example"),
+      message: $('.growl-notification-example'),
       fadeIn: 700,
       fadeOut: 700,
       timeout: 3000,
       showOverlay: false,
       centerY: false,
       css: {
-        width: "250px",
-        top: "20px",
-        left: "",
-        right: "20px",
-        border: "none",
-        padding: "15px 5px",
-        backgroundColor: "#000",
-        "-webkit-border-radius": "10px",
-        "-moz-border-radius": "10px",
+        width: '250px',
+        top: '20px',
+        left: '',
+        right: '20px',
+        border: 'none',
+        padding: '15px 5px',
+        backgroundColor: '#000',
+        '-webkit-border-radius': '10px',
+        '-moz-border-radius': '10px',
         opacity: 0.9,
-        color: "#fff",
+        color: '#fff',
       },
-    });
-  });
-});
+    })
+  })
+})

@@ -1,0 +1,106 @@
+/* Monitoring Realtime Animations — Pure CSS, no library needed */
+
+/* Slide in for new rows */
+@keyframes slideInRow {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slide out for removed rows */
+@keyframes slideOutRow {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* Highlight flash for score changes */
+@keyframes scoreFlash {
+    0% {
+        background-color: rgba(34, 197, 94, 0.3);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Pulse for online status */
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Move up animation */
+@keyframes moveUp {
+    0% {
+        transform: translateY(40px);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Move down animation */
+@keyframes moveDown {
+    0% {
+        transform: translateY(-40px);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Application classes */
+.monitoring-row-enter {
+    animation: slideInRow 0.4s ease-out;
+}
+
+.monitoring-row-move-up {
+    animation: moveUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--row-index, 0) * 30ms);
+}
+
+.monitoring-row-move-down {
+    animation: moveDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--row-index, 0) * 30ms);
+}
+
+.monitoring-row-exit {
+    animation: slideOutRow 0.3s ease-in forwards;
+}
+
+.score-flash {
+    animation: scoreFlash 1.5s ease-out;
+}
+
+.status-pulse {
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+/* Smooth hover effect */
+.monitoring-table tbody tr {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.monitoring-table tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.08) !important;
+    transform: scale(1.003);
+}

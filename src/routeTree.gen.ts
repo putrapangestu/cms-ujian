@@ -9,14 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UserRouteImport } from './routes/user'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as ExamRouteImport } from './routes/_exam'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as AdminProfileRouteImport } from './routes/admin/profile'
 import { Route as ExamExamRouteImport } from './routes/_exam/exam'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as UserExamIndexRouteImport } from './routes/user/exam/index'
+import { Route as UserExamHistoryIndexRouteImport } from './routes/user/exam-history/index'
+import { Route as UserEbooksIndexRouteImport } from './routes/user/ebooks/index'
+import { Route as AdminEbooksIndexRouteImport } from './routes/admin/ebooks/index'
+import { Route as UserExamHistoryUserExamIdRouteImport } from './routes/user/exam-history/$userExamId'
 import { Route as AdminQuestionBankQuestionCategoryRouteImport } from './routes/admin/question-bank/question-category'
 import { Route as AdminQuestionBankQuestionBankRouteImport } from './routes/admin/question-bank/question-bank'
 import { Route as AdminMasterStudentMasterRouteImport } from './routes/admin/master/student-master'
@@ -24,6 +31,9 @@ import { Route as AdminMasterStudentGroupRouteImport } from './routes/admin/mast
 import { Route as AdminExamExamMonitoringRouteImport } from './routes/admin/exam/exam-monitoring'
 import { Route as AdminQuestionBankQuestionGroupIndexRouteImport } from './routes/admin/question-bank/question-group/index'
 import { Route as AdminExamExamDataIndexRouteImport } from './routes/admin/exam/exam-data/index'
+import { Route as ExamExamExamIdIndexRouteImport } from './routes/_exam/exam/$examId/index'
+import { Route as AdminMasterStudentDetailStudentIdRouteImport } from './routes/admin/master/student-detail.$studentId'
+import { Route as AdminExamExamMonitoringExamIdRouteImport } from './routes/admin/exam/exam-monitoring.$examId'
 import { Route as AdminQuestionBankQuestionGroupQuestionGroupIdIndexRouteImport } from './routes/admin/question-bank/question-group/$questionGroupId/index'
 import { Route as AdminMasterStudentsStudentGroupIdIndexRouteImport } from './routes/admin/master/students/$studentGroupId/index'
 import { Route as AdminExamExamDataExamIdIndexRouteImport } from './routes/admin/exam/exam-data/$examId/index'
@@ -31,6 +41,11 @@ import { Route as AdminQuestionBankQuestionGroupQuestionGroupIdCreateRouteImport
 import { Route as AdminMasterStudentsStudentGroupIdManageRouteImport } from './routes/admin/master/students/$studentGroupId/manage'
 import { Route as AdminExamExamDataExamIdManageQuestionsRouteImport } from './routes/admin/exam/exam-data/$examId/manage-questions'
 
+const UserRoute = UserRouteImport.update({
+  id: '/user',
+  path: '/user',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -58,6 +73,11 @@ const PublicIndexRoute = PublicIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PublicRoute,
 } as any)
+const AdminProfileRoute = AdminProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminRoute,
+} as any)
 const ExamExamRoute = ExamExamRouteImport.update({
   id: '/exam',
   path: '/exam',
@@ -68,6 +88,32 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRoute,
 } as any)
+const UserExamIndexRoute = UserExamIndexRouteImport.update({
+  id: '/exam/',
+  path: '/exam/',
+  getParentRoute: () => UserRoute,
+} as any)
+const UserExamHistoryIndexRoute = UserExamHistoryIndexRouteImport.update({
+  id: '/exam-history/',
+  path: '/exam-history/',
+  getParentRoute: () => UserRoute,
+} as any)
+const UserEbooksIndexRoute = UserEbooksIndexRouteImport.update({
+  id: '/ebooks/',
+  path: '/ebooks/',
+  getParentRoute: () => UserRoute,
+} as any)
+const AdminEbooksIndexRoute = AdminEbooksIndexRouteImport.update({
+  id: '/ebooks/',
+  path: '/ebooks/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const UserExamHistoryUserExamIdRoute =
+  UserExamHistoryUserExamIdRouteImport.update({
+    id: '/exam-history/$userExamId',
+    path: '/exam-history/$userExamId',
+    getParentRoute: () => UserRoute,
+  } as any)
 const AdminQuestionBankQuestionCategoryRoute =
   AdminQuestionBankQuestionCategoryRouteImport.update({
     id: '/question-bank/question-category',
@@ -107,6 +153,23 @@ const AdminExamExamDataIndexRoute = AdminExamExamDataIndexRouteImport.update({
   path: '/exam/exam-data/',
   getParentRoute: () => AdminRoute,
 } as any)
+const ExamExamExamIdIndexRoute = ExamExamExamIdIndexRouteImport.update({
+  id: '/$examId/',
+  path: '/$examId/',
+  getParentRoute: () => ExamExamRoute,
+} as any)
+const AdminMasterStudentDetailStudentIdRoute =
+  AdminMasterStudentDetailStudentIdRouteImport.update({
+    id: '/master/student-detail/$studentId',
+    path: '/master/student-detail/$studentId',
+    getParentRoute: () => AdminRoute,
+  } as any)
+const AdminExamExamMonitoringExamIdRoute =
+  AdminExamExamMonitoringExamIdRouteImport.update({
+    id: '/$examId',
+    path: '/$examId',
+    getParentRoute: () => AdminExamExamMonitoringRoute,
+  } as any)
 const AdminQuestionBankQuestionGroupQuestionGroupIdIndexRoute =
   AdminQuestionBankQuestionGroupQuestionGroupIdIndexRouteImport.update({
     id: '/question-bank/question-group/$questionGroupId/',
@@ -147,14 +210,24 @@ const AdminExamExamDataExamIdManageQuestionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/user': typeof UserRouteWithChildren
   '/login': typeof AuthLoginRoute
-  '/exam': typeof ExamExamRoute
+  '/exam': typeof ExamExamRouteWithChildren
+  '/admin/profile': typeof AdminProfileRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRoute
+  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
+  '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks/': typeof AdminEbooksIndexRoute
+  '/user/ebooks/': typeof UserEbooksIndexRoute
+  '/user/exam-history/': typeof UserExamHistoryIndexRoute
+  '/user/exam/': typeof UserExamIndexRoute
+  '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
+  '/exam/$examId/': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data/': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group/': typeof AdminQuestionBankQuestionGroupIndexRoute
   '/admin/exam/exam-data/$examId/manage-questions': typeof AdminExamExamDataExamIdManageQuestionsRoute
@@ -166,14 +239,24 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
+  '/user': typeof UserRouteWithChildren
   '/login': typeof AuthLoginRoute
-  '/exam': typeof ExamExamRoute
+  '/exam': typeof ExamExamRouteWithChildren
+  '/admin/profile': typeof AdminProfileRoute
   '/admin': typeof AdminIndexRoute
-  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRoute
+  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
+  '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks': typeof AdminEbooksIndexRoute
+  '/user/ebooks': typeof UserEbooksIndexRoute
+  '/user/exam-history': typeof UserExamHistoryIndexRoute
+  '/user/exam': typeof UserExamIndexRoute
+  '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
+  '/exam/$examId': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group': typeof AdminQuestionBankQuestionGroupIndexRoute
   '/admin/exam/exam-data/$examId/manage-questions': typeof AdminExamExamDataExamIdManageQuestionsRoute
@@ -189,15 +272,25 @@ export interface FileRoutesById {
   '/_exam': typeof ExamRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/admin': typeof AdminRouteWithChildren
+  '/user': typeof UserRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
-  '/_exam/exam': typeof ExamExamRoute
+  '/_exam/exam': typeof ExamExamRouteWithChildren
+  '/admin/profile': typeof AdminProfileRoute
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
-  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRoute
+  '/admin/exam/exam-monitoring': typeof AdminExamExamMonitoringRouteWithChildren
   '/admin/master/student-group': typeof AdminMasterStudentGroupRoute
   '/admin/master/student-master': typeof AdminMasterStudentMasterRoute
   '/admin/question-bank/question-bank': typeof AdminQuestionBankQuestionBankRoute
   '/admin/question-bank/question-category': typeof AdminQuestionBankQuestionCategoryRoute
+  '/user/exam-history/$userExamId': typeof UserExamHistoryUserExamIdRoute
+  '/admin/ebooks/': typeof AdminEbooksIndexRoute
+  '/user/ebooks/': typeof UserEbooksIndexRoute
+  '/user/exam-history/': typeof UserExamHistoryIndexRoute
+  '/user/exam/': typeof UserExamIndexRoute
+  '/admin/exam/exam-monitoring/$examId': typeof AdminExamExamMonitoringExamIdRoute
+  '/admin/master/student-detail/$studentId': typeof AdminMasterStudentDetailStudentIdRoute
+  '/_exam/exam/$examId/': typeof ExamExamExamIdIndexRoute
   '/admin/exam/exam-data/': typeof AdminExamExamDataIndexRoute
   '/admin/question-bank/question-group/': typeof AdminQuestionBankQuestionGroupIndexRoute
   '/admin/exam/exam-data/$examId/manage-questions': typeof AdminExamExamDataExamIdManageQuestionsRoute
@@ -212,14 +305,24 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/user'
     | '/login'
     | '/exam'
+    | '/admin/profile'
     | '/admin/'
     | '/admin/exam/exam-monitoring'
     | '/admin/master/student-group'
     | '/admin/master/student-master'
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
+    | '/user/exam-history/$userExamId'
+    | '/admin/ebooks/'
+    | '/user/ebooks/'
+    | '/user/exam-history/'
+    | '/user/exam/'
+    | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
+    | '/exam/$examId/'
     | '/admin/exam/exam-data/'
     | '/admin/question-bank/question-group/'
     | '/admin/exam/exam-data/$examId/manage-questions'
@@ -231,14 +334,24 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/user'
     | '/login'
     | '/exam'
+    | '/admin/profile'
     | '/admin'
     | '/admin/exam/exam-monitoring'
     | '/admin/master/student-group'
     | '/admin/master/student-master'
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
+    | '/user/exam-history/$userExamId'
+    | '/admin/ebooks'
+    | '/user/ebooks'
+    | '/user/exam-history'
+    | '/user/exam'
+    | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
+    | '/exam/$examId'
     | '/admin/exam/exam-data'
     | '/admin/question-bank/question-group'
     | '/admin/exam/exam-data/$examId/manage-questions'
@@ -253,8 +366,10 @@ export interface FileRouteTypes {
     | '/_exam'
     | '/_public'
     | '/admin'
+    | '/user'
     | '/_auth/login'
     | '/_exam/exam'
+    | '/admin/profile'
     | '/_public/'
     | '/admin/'
     | '/admin/exam/exam-monitoring'
@@ -262,6 +377,14 @@ export interface FileRouteTypes {
     | '/admin/master/student-master'
     | '/admin/question-bank/question-bank'
     | '/admin/question-bank/question-category'
+    | '/user/exam-history/$userExamId'
+    | '/admin/ebooks/'
+    | '/user/ebooks/'
+    | '/user/exam-history/'
+    | '/user/exam/'
+    | '/admin/exam/exam-monitoring/$examId'
+    | '/admin/master/student-detail/$studentId'
+    | '/_exam/exam/$examId/'
     | '/admin/exam/exam-data/'
     | '/admin/question-bank/question-group/'
     | '/admin/exam/exam-data/$examId/manage-questions'
@@ -277,10 +400,18 @@ export interface RootRouteChildren {
   ExamRoute: typeof ExamRouteWithChildren
   PublicRoute: typeof PublicRouteWithChildren
   AdminRoute: typeof AdminRouteWithChildren
+  UserRoute: typeof UserRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/user': {
+      id: '/user'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof UserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -323,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/admin/profile': {
+      id: '/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProfileRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_exam/exam': {
       id: '/_exam/exam'
       path: '/exam'
@@ -336,6 +474,41 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/user/exam/': {
+      id: '/user/exam/'
+      path: '/exam'
+      fullPath: '/user/exam/'
+      preLoaderRoute: typeof UserExamIndexRouteImport
+      parentRoute: typeof UserRoute
+    }
+    '/user/exam-history/': {
+      id: '/user/exam-history/'
+      path: '/exam-history'
+      fullPath: '/user/exam-history/'
+      preLoaderRoute: typeof UserExamHistoryIndexRouteImport
+      parentRoute: typeof UserRoute
+    }
+    '/user/ebooks/': {
+      id: '/user/ebooks/'
+      path: '/ebooks'
+      fullPath: '/user/ebooks/'
+      preLoaderRoute: typeof UserEbooksIndexRouteImport
+      parentRoute: typeof UserRoute
+    }
+    '/admin/ebooks/': {
+      id: '/admin/ebooks/'
+      path: '/ebooks'
+      fullPath: '/admin/ebooks/'
+      preLoaderRoute: typeof AdminEbooksIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/user/exam-history/$userExamId': {
+      id: '/user/exam-history/$userExamId'
+      path: '/exam-history/$userExamId'
+      fullPath: '/user/exam-history/$userExamId'
+      preLoaderRoute: typeof UserExamHistoryUserExamIdRouteImport
+      parentRoute: typeof UserRoute
     }
     '/admin/question-bank/question-category': {
       id: '/admin/question-bank/question-category'
@@ -385,6 +558,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/exam/exam-data/'
       preLoaderRoute: typeof AdminExamExamDataIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/_exam/exam/$examId/': {
+      id: '/_exam/exam/$examId/'
+      path: '/$examId'
+      fullPath: '/exam/$examId/'
+      preLoaderRoute: typeof ExamExamExamIdIndexRouteImport
+      parentRoute: typeof ExamExamRoute
+    }
+    '/admin/master/student-detail/$studentId': {
+      id: '/admin/master/student-detail/$studentId'
+      path: '/master/student-detail/$studentId'
+      fullPath: '/admin/master/student-detail/$studentId'
+      preLoaderRoute: typeof AdminMasterStudentDetailStudentIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/exam/exam-monitoring/$examId': {
+      id: '/admin/exam/exam-monitoring/$examId'
+      path: '/$examId'
+      fullPath: '/admin/exam/exam-monitoring/$examId'
+      preLoaderRoute: typeof AdminExamExamMonitoringExamIdRouteImport
+      parentRoute: typeof AdminExamExamMonitoringRoute
     }
     '/admin/question-bank/question-group/$questionGroupId/': {
       id: '/admin/question-bank/question-group/$questionGroupId/'
@@ -441,12 +635,24 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface ExamExamRouteChildren {
+  ExamExamExamIdIndexRoute: typeof ExamExamExamIdIndexRoute
+}
+
+const ExamExamRouteChildren: ExamExamRouteChildren = {
+  ExamExamExamIdIndexRoute: ExamExamExamIdIndexRoute,
+}
+
+const ExamExamRouteWithChildren = ExamExamRoute._addFileChildren(
+  ExamExamRouteChildren,
+)
+
 interface ExamRouteChildren {
-  ExamExamRoute: typeof ExamExamRoute
+  ExamExamRoute: typeof ExamExamRouteWithChildren
 }
 
 const ExamRouteChildren: ExamRouteChildren = {
-  ExamExamRoute: ExamExamRoute,
+  ExamExamRoute: ExamExamRouteWithChildren,
 }
 
 const ExamRouteWithChildren = ExamRoute._addFileChildren(ExamRouteChildren)
@@ -462,13 +668,30 @@ const PublicRouteChildren: PublicRouteChildren = {
 const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
+interface AdminExamExamMonitoringRouteChildren {
+  AdminExamExamMonitoringExamIdRoute: typeof AdminExamExamMonitoringExamIdRoute
+}
+
+const AdminExamExamMonitoringRouteChildren: AdminExamExamMonitoringRouteChildren =
+  {
+    AdminExamExamMonitoringExamIdRoute: AdminExamExamMonitoringExamIdRoute,
+  }
+
+const AdminExamExamMonitoringRouteWithChildren =
+  AdminExamExamMonitoringRoute._addFileChildren(
+    AdminExamExamMonitoringRouteChildren,
+  )
+
 interface AdminRouteChildren {
+  AdminProfileRoute: typeof AdminProfileRoute
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminExamExamMonitoringRoute: typeof AdminExamExamMonitoringRoute
+  AdminExamExamMonitoringRoute: typeof AdminExamExamMonitoringRouteWithChildren
   AdminMasterStudentGroupRoute: typeof AdminMasterStudentGroupRoute
   AdminMasterStudentMasterRoute: typeof AdminMasterStudentMasterRoute
   AdminQuestionBankQuestionBankRoute: typeof AdminQuestionBankQuestionBankRoute
   AdminQuestionBankQuestionCategoryRoute: typeof AdminQuestionBankQuestionCategoryRoute
+  AdminEbooksIndexRoute: typeof AdminEbooksIndexRoute
+  AdminMasterStudentDetailStudentIdRoute: typeof AdminMasterStudentDetailStudentIdRoute
   AdminExamExamDataIndexRoute: typeof AdminExamExamDataIndexRoute
   AdminQuestionBankQuestionGroupIndexRoute: typeof AdminQuestionBankQuestionGroupIndexRoute
   AdminExamExamDataExamIdManageQuestionsRoute: typeof AdminExamExamDataExamIdManageQuestionsRoute
@@ -480,13 +703,17 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminProfileRoute: AdminProfileRoute,
   AdminIndexRoute: AdminIndexRoute,
-  AdminExamExamMonitoringRoute: AdminExamExamMonitoringRoute,
+  AdminExamExamMonitoringRoute: AdminExamExamMonitoringRouteWithChildren,
   AdminMasterStudentGroupRoute: AdminMasterStudentGroupRoute,
   AdminMasterStudentMasterRoute: AdminMasterStudentMasterRoute,
   AdminQuestionBankQuestionBankRoute: AdminQuestionBankQuestionBankRoute,
   AdminQuestionBankQuestionCategoryRoute:
     AdminQuestionBankQuestionCategoryRoute,
+  AdminEbooksIndexRoute: AdminEbooksIndexRoute,
+  AdminMasterStudentDetailStudentIdRoute:
+    AdminMasterStudentDetailStudentIdRoute,
   AdminExamExamDataIndexRoute: AdminExamExamDataIndexRoute,
   AdminQuestionBankQuestionGroupIndexRoute:
     AdminQuestionBankQuestionGroupIndexRoute,
@@ -505,11 +732,28 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface UserRouteChildren {
+  UserExamHistoryUserExamIdRoute: typeof UserExamHistoryUserExamIdRoute
+  UserEbooksIndexRoute: typeof UserEbooksIndexRoute
+  UserExamHistoryIndexRoute: typeof UserExamHistoryIndexRoute
+  UserExamIndexRoute: typeof UserExamIndexRoute
+}
+
+const UserRouteChildren: UserRouteChildren = {
+  UserExamHistoryUserExamIdRoute: UserExamHistoryUserExamIdRoute,
+  UserEbooksIndexRoute: UserEbooksIndexRoute,
+  UserExamHistoryIndexRoute: UserExamHistoryIndexRoute,
+  UserExamIndexRoute: UserExamIndexRoute,
+}
+
+const UserRouteWithChildren = UserRoute._addFileChildren(UserRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ExamRoute: ExamRouteWithChildren,
   PublicRoute: PublicRouteWithChildren,
   AdminRoute: AdminRouteWithChildren,
+  UserRoute: UserRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

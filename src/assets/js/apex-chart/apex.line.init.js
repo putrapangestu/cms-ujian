@@ -1,16 +1,16 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // Basic Line Chart -------> LINE CHART
   var options_line = {
     series: [
       {
-        name: "Desktops",
+        name: 'Desktops',
         data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
       },
     ],
     chart: {
       height: 350,
-      type: "line",
-      fontFamily: "inherit",
+      type: 'line',
+      fontFamily: 'inherit',
       zoom: {
         enabled: false,
       },
@@ -21,41 +21,41 @@ document.addEventListener("DOMContentLoaded", function () {
     dataLabels: {
       enabled: false,
     },
-    colors: ["var(--bs-primary)"],
+    colors: ['var(--bs-primary)'],
     stroke: {
-      curve: "straight",
+      curve: 'straight',
     },
     grid: {
       row: {
-        colors: [ "transparent"], // takes an array which will be repeated on columns
+        colors: ['transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
       },
-      borderColor: "transparent",
+      borderColor: 'transparent',
     },
     xaxis: {
       categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
       ],
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -64,46 +64,46 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
   var chart_line_basic = new ApexCharts(
-    document.querySelector("#chart-line-basic"),
-    options_line
-  );
-  chart_line_basic.render();
+    document.querySelector('#chart-line-basic'),
+    options_line,
+  )
+  chart_line_basic.render()
 
   // Data Label Line Chart   -------> LINE CHART
   var options = {
     series: [
       {
-        name: "High - 2013",
+        name: 'High - 2013',
         data: [28, 29, 33, 36, 32, 32, 33],
       },
       {
-        name: "Low - 2013",
+        name: 'Low - 2013',
         data: [12, 11, 14, 18, 17, 13, 13],
       },
     ],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "line",
+      type: 'line',
       dropShadow: {
         enabled: true,
-        color: "#000",
+        color: '#000',
         top: 18,
         left: 7,
         blur: 10,
@@ -113,17 +113,17 @@ document.addEventListener("DOMContentLoaded", function () {
         show: false,
       },
     },
-    colors: ["var(--bs-primary)", "var(--bs-secondary)"],
+    colors: ['var(--bs-primary)', 'var(--bs-secondary)'],
     dataLabels: {
       enabled: true,
     },
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
     },
     grid: {
-      borderColor: "transparent",
+      borderColor: 'transparent',
       row: {
-        colors: ["transparent"], // takes an array which will be repeated on columns
+        colors: ['transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
       },
     },
@@ -131,17 +131,17 @@ document.addEventListener("DOMContentLoaded", function () {
       size: 1,
     },
     xaxis: {
-      categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -152,85 +152,85 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
     legend: {
-      position: "top",
-      horizontalAlign: "right",
+      position: 'top',
+      horizontalAlign: 'right',
       floating: true,
       offsetY: -25,
       offsetX: -5,
     },
-  };
+  }
 
   var chart_line_data = new ApexCharts(
-    document.querySelector("#chart-line-with-data-label"),
-    options
-  );
-  chart_line_data.render();
+    document.querySelector('#chart-line-with-data-label'),
+    options,
+  )
+  chart_line_data.render()
 
   // Zoomable Line Chart -------> LINE CHART
   var options_zoomable = {
     series: [
       {
-        name: "XYZ MOTORS",
+        name: 'XYZ MOTORS',
         data: [
           {
-            x: "02-10-2017 GMT",
+            x: '02-10-2017 GMT',
             y: 34,
           },
           {
-            x: "02-11-2017 GMT",
+            x: '02-11-2017 GMT',
             y: 43,
           },
           {
-            x: "02-12-2017 GMT",
+            x: '02-12-2017 GMT',
             y: 31,
           },
           {
-            x: "02-13-2017 GMT",
+            x: '02-13-2017 GMT',
             y: 43,
           },
           {
-            x: "02-14-2017 GMT",
+            x: '02-14-2017 GMT',
             y: 33,
           },
           {
-            x: "02-15-2017 GMT",
+            x: '02-15-2017 GMT',
             y: 52,
           },
         ],
       },
     ],
     chart: {
-      fontFamily: "inherit",
-      type: "area",
+      fontFamily: 'inherit',
+      type: 'area',
       stacked: false,
       height: 350,
       zoom: {
-        type: "x",
+        type: 'x',
         enabled: true,
         autoScaleYaxis: true,
       },
       toolbar: {
-        autoSelected: "zoom",
+        autoSelected: 'zoom',
         show: false,
       },
     },
@@ -238,14 +238,14 @@ document.addEventListener("DOMContentLoaded", function () {
       enabled: false,
     },
     grid: {
-      borderColor: "transparent",
+      borderColor: 'transparent',
     },
-    colors: ["var(--bs-primary)"],
+    colors: ['var(--bs-primary)'],
     markers: {
       size: 0,
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
         shadeIntensity: 1,
         inverseColors: false,
@@ -257,31 +257,31 @@ document.addEventListener("DOMContentLoaded", function () {
     yaxis: {
       labels: {
         formatter: function (val) {
-          return (val / 1000000).toFixed(0);
+          return (val / 1000000).toFixed(0)
         },
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     xaxis: {
-      type: "datetime",
+      type: 'datetime',
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -290,90 +290,90 @@ document.addEventListener("DOMContentLoaded", function () {
       shared: false,
       y: {
         formatter: function (val) {
-          return (val / 1000000).toFixed(0);
+          return (val / 1000000).toFixed(0)
         },
       },
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
   var chart_line_zoomable = new ApexCharts(
-    document.querySelector("#chart-line-zoomable"),
-    options_zoomable
-  );
-  chart_line_zoomable.render();
+    document.querySelector('#chart-line-zoomable'),
+    options_zoomable,
+  )
+  chart_line_zoomable.render()
 
   // Gradient Line Chart -------> LINE CHART
   var options_gradient = {
     series: [
       {
-        name: "Likes",
+        name: 'Likes',
         data: [4, 3, 10, 9, 29, 19, 22, 9, 12, 7, 19, 5, 13, 9, 17, 2, 7, 5],
       },
     ],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "line",
+      type: 'line',
       toolbar: {
         show: false,
       },
     },
     stroke: {
       width: 7,
-      curve: "smooth",
+      curve: 'smooth',
     },
     xaxis: {
-      type: "datetime",
+      type: 'datetime',
       categories: [
-        "1/11/2000",
-        "2/11/2000",
-        "3/11/2000",
-        "4/11/2000",
-        "5/11/2000",
-        "6/11/2000",
-        "7/11/2000",
-        "8/11/2000",
-        "9/11/2000",
-        "10/11/2000",
-        "11/11/2000",
-        "12/11/2000",
-        "1/11/2001",
-        "2/11/2001",
-        "3/11/2001",
-        "4/11/2001",
-        "5/11/2001",
-        "6/11/2001",
+        '1/11/2000',
+        '2/11/2000',
+        '3/11/2000',
+        '4/11/2000',
+        '5/11/2000',
+        '6/11/2000',
+        '7/11/2000',
+        '8/11/2000',
+        '9/11/2000',
+        '10/11/2000',
+        '11/11/2000',
+        '12/11/2000',
+        '1/11/2001',
+        '2/11/2001',
+        '3/11/2001',
+        '4/11/2001',
+        '5/11/2001',
+        '6/11/2001',
       ],
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     grid: {
-      borderColor: "transparent",
+      borderColor: 'transparent',
     },
-    colors: ["#39b69a"],
+    colors: ['#39b69a'],
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
-        shade: "dark",
-        gradientToColors: ["var(--bs-primary)"],
+        shade: 'dark',
+        gradientToColors: ['var(--bs-primary)'],
         shadeIntensity: 1,
-        type: "horizontal",
+        type: 'horizontal',
         opacityFrom: 1,
         opacityTo: 1,
         stops: [0, 100, 100, 100],
@@ -381,8 +381,8 @@ document.addEventListener("DOMContentLoaded", function () {
     },
     markers: {
       size: 4,
-      colors: ["var(--bs-primary)"],
-      strokeColors: "#fff",
+      colors: ['var(--bs-primary)'],
+      strokeColors: '#fff',
       strokeWidth: 2,
       hover: {
         size: 7,
@@ -394,80 +394,80 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
-  };
+  }
 
   var chart_line_gradient = new ApexCharts(
-    document.querySelector("#chart-line-gradient"),
-    options_gradient
-  );
-  chart_line_gradient.render();
+    document.querySelector('#chart-line-gradient'),
+    options_gradient,
+  )
+  chart_line_gradient.render()
 
-  var lastDate = 0;
-  var data = [];
-  var TICKINTERVAL = 86400000;
-  let XAXISRANGE = 777600000;
+  var lastDate = 0
+  var data = []
+  var TICKINTERVAL = 86400000
+  let XAXISRANGE = 777600000
 
   function getDayWiseTimeSeries(baseval, count, yrange) {
-    var i = 0;
+    var i = 0
     while (i < count) {
-      var x = baseval;
+      var x = baseval
       var y =
-        Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+        Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
 
       data.push({
         x,
         y,
-      });
-      lastDate = baseval;
-      baseval += TICKINTERVAL;
-      i++;
+      })
+      lastDate = baseval
+      baseval += TICKINTERVAL
+      i++
     }
   }
 
-  getDayWiseTimeSeries(new Date("11 Feb 2017 GMT").getTime(), 10, {
+  getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
     min: 10,
     max: 90,
-  });
+  })
 
   function getNewSeries(baseval, yrange) {
-    var newDate = baseval + TICKINTERVAL;
-    lastDate = newDate;
+    var newDate = baseval + TICKINTERVAL
+    lastDate = newDate
 
     for (var i = 0; i < data.length - 10; i++) {
       // IMPORTANT
       // we reset the x and y of the data which is out of drawing area
       // to prevent memory leaks
-      data[i].x = newDate - XAXISRANGE - TICKINTERVAL;
-      data[i].y = 0;
+      data[i].x = newDate - XAXISRANGE - TICKINTERVAL
+      data[i].y = 0
     }
 
     data.push({
       x: newDate,
       y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min,
-    });
+    })
   }
 
   function resetData() {
     // Alternatively, you can also reset the data at certain intervals to prevent creating a huge series
-    data = data.slice(data.length - 10, data.length);
+    data = data.slice(data.length - 10, data.length)
   }
 
   // Realtime Line Chart -------> LINE CHART
@@ -478,13 +478,13 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     ],
     chart: {
-      fontFamily: "inherit",
-      id: "realtime",
+      fontFamily: 'inherit',
+      id: 'realtime',
       height: 350,
-      type: "line",
+      type: 'line',
       animations: {
         enabled: true,
-        easing: "linear",
+        easing: 'linear',
         dynamicAnimation: {
           speed: 1000,
         },
@@ -498,33 +498,33 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     },
     grid: {
-      borderColor: "transparent",
+      borderColor: 'transparent',
     },
-    colors: ["var(--bs-primary)"],
+    colors: ['var(--bs-primary)'],
     dataLabels: {
       enabled: false,
     },
     stroke: {
-      curve: "smooth",
+      curve: 'smooth',
     },
     markers: {
       size: 0,
     },
     xaxis: {
-      type: "datetime",
+      type: 'datetime',
       range: XAXISRANGE,
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
@@ -534,45 +534,45 @@ document.addEventListener("DOMContentLoaded", function () {
       labels: {
         style: {
           colors: [
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
-            "#a1aab2",
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
+            '#a1aab2',
           ],
         },
       },
     },
     tooltip: {
-      theme: "dark",
+      theme: 'dark',
     },
     legend: {
       show: false,
     },
-  };
+  }
 
   var chart_line_realtime = new ApexCharts(
-    document.querySelector("#chart-line-real-time"),
-    options_realtime
-  );
-  chart_line_realtime.render();
+    document.querySelector('#chart-line-real-time'),
+    options_realtime,
+  )
+  chart_line_realtime.render()
 
   window.setInterval(function () {
     getNewSeries(lastDate, {
       min: 10,
       max: 90,
-    });
+    })
 
     chart_line_realtime.updateSeries([
       {
         data: data,
       },
-    ]);
-  }, 1000);
-});
+    ])
+  }, 1000)
+})

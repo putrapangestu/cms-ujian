@@ -1,0 +1,201 @@
+stages:
+  - build
+  - deploy
+
+.variables_template: &variables_template
+  REGISTRY_URL: registry.hummatech.com
+  IMAGE_NAME: $REGISTRY_URL/$CI_PROJECT_PATH
+  TAG: latest
+  DOCKER_TLS_CERTDIR: ''
+  DOCKER_BUILDKIT: '1'
+  BUILDKIT_PROGRESS: 'plain'
+
+# =============================
+# ✅ BUILD DEV JOB
+# =============================
+build_dev:
+  stage: build
+  image: docker:latest
+  tags:
+    - runner-development
+  variables:
+    <<: *variables_template
+    APP_NAME: cms-ujian
+    PORT: 8025
+  script:
+    - |
+      set -e
+      echo "🔹 Preparing environment file for build..."
+      echo "🔹 Branch: $CI_COMMIT_BRANCH"
+
+      if [ "$CI_COMMIT_BRANCH" = "production" ]; then
+        ENV_FILE="$ENV_PROD"
+      else
+        ENV_FILE="$ENV_DEV"
+      fi
+
+      if [ -z "$ENV_FILE" ]; then
+        echo "❌ ERROR: GitLab variable ENV_DEV/ENV_PROD tidak ditemukan!"
+        exit 1
+      fi
+
+      echo "$ENV_FILE" > .env
+      echo "✅ .env file generated (preview):"
+      head -n 5 .env
+
+      docker info
+      apk add --no-cache curl
+      curl -v https://$REGISTRY_URL/v2/
+      echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY_URL
+      docker build --network host --pull --progress=plain -t $IMAGE_NAME:$TAG .
+      docker push $IMAGE_NAME:$TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# =============================
+# ✅ DEPLOY DEV JOB
+# =============================
+deploy_dev:
+  stage: deploy
+  tags:
+    - runner-development-shell
+  variables:
+    <<: *variables_template
+    APP_NAME: cms-ujian
+    PORT: 8025
+    DEPLOY_DIR: /home/gitlab-runner/apps/$APP_NAME
+  script:
+    - echo "🔹 Cek koneksi Docker..."
+    - docker ps
+    - echo "🔹 Running on host (Shell Executor)..."
+
+    - |
+      echo "🔹 Preparing deploy environment..."
+
+      # pastikan direktori deploy ada
+      mkdir -p $DEPLOY_DIR
+      mkdir -p $DEPLOY_DIR/nginx
+
+      cp docker-compose-development.yml $DEPLOY_DIR/docker-compose-development.yml
+
+      # cek ENV_DEV
+      if [ -z "$ENV_DEV" ]; then
+        echo "❌ ERROR: GitLab variable ENV_DEV tidak ditemukan!"
+        exit 1
+      fi
+
+      # buat file .env
+      echo "$ENV_DEV" > $DEPLOY_DIR/.env
+      echo "✅ .env berhasil dibuat di $DEPLOY_DIR/.env"
+
+      # buat file nginx/default.conf
+      echo "$NGINX_CONF" > $DEPLOY_DIR/nginx/default.conf
+      echo "✅ Nginx config berhasil dibuat di $DEPLOY_DIR/nginx/default.conf"
+
+    - cd $DEPLOY_DIR
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY_URL
+    # stop & remove container yang pakai volume public
+    - docker compose -p $APP_NAME stop cms-ujian nginx
+    - docker compose -p $APP_NAME rm -f cms-ujian nginx
+    # hapus hanya volume public
+    - docker volume rm ${APP_NAME}_asset_ujian || true
+
+    - docker compose -f docker-compose-development.yml pull
+    - docker compose -f docker-compose-development.yml -p $APP_NAME up -d --force-recreate
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# =============================
+# ✅ BUILD PROD JOB
+# =============================
+build_prod:
+  stage: build
+  image: docker:latest
+  tags:
+    - runner-anlearning-docker
+  variables:
+    <<: *variables_template
+    APP_NAME: cms-ujian
+    PORT: 8025
+  script:
+    - |
+      set -e
+      echo "🔹 Preparing environment file for build..."
+      echo "🔹 Branch: $CI_COMMIT_BRANCH"
+
+      if [ "$CI_COMMIT_BRANCH" = "production" ]; then
+        ENV_FILE="$ENV_PROD"
+      else
+        ENV_FILE="$ENV_DEV"
+      fi
+
+      if [ -z "$ENV_FILE" ]; then
+        echo "❌ ERROR: GitLab variable ENV_DEV/ENV_PROD tidak ditemukan!"
+        exit 1
+      fi
+
+      echo "$ENV_FILE" > .env
+      echo "✅ .env file generated (preview):"
+      head -n 5 .env
+
+      docker info
+      apk add --no-cache curl
+      curl -v https://$REGISTRY_URL/v2/
+      echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY_URL
+      docker build --network host --pull --progress=plain -t $IMAGE_NAME:$TAG .
+      docker push $IMAGE_NAME:$TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'
+
+# =============================
+# ✅ DEPLOY PROD JOB
+# =============================
+deploy_prod:
+  stage: deploy
+  tags:
+    - runner-anlearning
+  variables:
+    <<: *variables_template
+    APP_NAME: cms-ujian
+    PORT: 8025
+    DEPLOY_DIR: /home/gitlab-runner/apps/$APP_NAME
+  script:
+    - echo "🔹 Cek koneksi Docker..."
+    - docker ps
+    - echo "🔹 Running on host (Shell Executor)..."
+
+    - |
+      echo "🔹 Preparing deploy environment..."
+
+      # pastikan direktori deploy ada
+      mkdir -p $DEPLOY_DIR
+      mkdir -p $DEPLOY_DIR/nginx
+
+      cp docker-compose-development.yml $DEPLOY_DIR/docker-compose-development.yml
+
+      # cek ENV_PROD
+      if [ -z "$ENV_PROD" ]; then
+        echo "❌ ERROR: GitLab variable ENV_PROD tidak ditemukan!"
+        exit 1
+      fi
+
+      # buat file .env
+      echo "$ENV_PROD" > $DEPLOY_DIR/.env
+      echo "✅ .env berhasil dibuat di $DEPLOY_DIR/.env"
+
+      # buat file nginx/default.conf
+      echo "$NGINX_CONF" > $DEPLOY_DIR/nginx/default.conf
+      echo "✅ Nginx config berhasil dibuat di $DEPLOY_DIR/nginx/default.conf"
+
+    - cd $DEPLOY_DIR
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $REGISTRY_URL
+    # stop & remove container yang pakai volume public
+    - docker compose -p $APP_NAME stop cms-ujian nginx
+    - docker compose -p $APP_NAME rm -f cms-ujian nginx
+    # hapus hanya volume public
+    - docker volume rm ${APP_NAME}_asset_ujian || true
+
+    - docker compose -f docker-compose-development.yml pull
+    - docker compose -f docker-compose-development.yml -p $APP_NAME up -d --force-recreate
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "production"'

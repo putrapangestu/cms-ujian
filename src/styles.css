@@ -1,10 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@config "../tailwind.config.ts";
 
 @layer base {
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
@@ -14,27 +15,27 @@
   .text-primary {
     color: #214545;
   }
-  
+
   .bg-primary {
     background-color: #214545;
   }
-  
+
   .border-primary {
     border-color: #214545;
   }
-  
+
   .text-secondary {
-    color: #00AF81;
+    color: #00af81;
   }
-  
+
   .bg-secondary {
-    background-color: #00AF81;
+    background-color: #00af81;
   }
-  
+
   .border-secondary {
-    border-color: #00AF81;
+    border-color: #00af81;
   }
-  
+
   .hover-secondary:hover {
     background-color: #008f6a;
   }

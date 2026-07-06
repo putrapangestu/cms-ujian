@@ -1,81 +1,81 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   // Basic Radial Bar Chart -------> RADIAL CHART
   var options_basic = {
     series: [70],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "radialBar",
+      type: 'radialBar',
     },
-    colors: ["#615dff"],
+    colors: ['#615dff'],
     plotOptions: {
       radialBar: {
         hollow: {
-          size: "70%",
+          size: '70%',
         },
         dataLabels: {
           value: {
-            color: "#a1aab2",
+            color: '#a1aab2',
             show: true,
           },
         },
       },
     },
-    labels: ["Cricket"],
-  };
+    labels: ['Cricket'],
+  }
 
   var chart_radial_basic = new ApexCharts(
-    document.querySelector("#chart-radial-basic"),
-    options_basic
-  );
-  chart_radial_basic.render();
+    document.querySelector('#chart-radial-basic'),
+    options_basic,
+  )
+  chart_radial_basic.render()
 
   // Multiple Radial Bar Chart -------> RADIAL CHART
   var options_multiple = {
     series: [44, 55, 67, 83],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "radialBar",
+      type: 'radialBar',
     },
-    colors: ["#615dff", "#3dd9eb", "#ffae1f", "#fa896b"],
+    colors: ['#615dff', '#3dd9eb', '#ffae1f', '#fa896b'],
     plotOptions: {
       radialBar: {
         dataLabels: {
           name: {
-            fontSize: "22px",
+            fontSize: '22px',
           },
           value: {
-            fontSize: "16px",
-            color: "#a1aab2",
+            fontSize: '16px',
+            color: '#a1aab2',
           },
           total: {
             show: true,
-            label: "Total",
+            label: 'Total',
             formatter: function (w) {
               // By default this function returns the average of all series. The below is just an example to show the use of custom formatter function
-              return 249;
+              return 249
             },
           },
         },
       },
     },
-    labels: ["Apples", "Oranges", "Bananas", "Berries"],
-  };
+    labels: ['Apples', 'Oranges', 'Bananas', 'Berries'],
+  }
 
   var chart_radial_multiple = new ApexCharts(
-    document.querySelector("#chart-radial-multiple"),
-    options_multiple
-  );
-  chart_radial_multiple.render();
+    document.querySelector('#chart-radial-multiple'),
+    options_multiple,
+  )
+  chart_radial_multiple.render()
 
   // Custome circle Radial Bar Chart -------> RADIAL CHART
   var options_custom_circle = {
     series: [76, 67, 61, 90],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 390,
-      type: "radialBar",
+      type: 'radialBar',
     },
     plotOptions: {
       radialBar: {
@@ -84,8 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
         endAngle: 270,
         hollow: {
           margin: 5,
-          size: "30%",
-          background: "transparent",
+          size: '30%',
+          background: 'transparent',
           image: undefined,
         },
         dataLabels: {
@@ -98,13 +98,13 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       },
     },
-    colors: ["#615dff", "#3dd9eb", "#ffae1f", "#fa896b"],
-    labels: ["Vimeo", "Messenger", "Facebook", "LinkedIn"],
+    colors: ['#615dff', '#3dd9eb', '#ffae1f', '#fa896b'],
+    labels: ['Vimeo', 'Messenger', 'Facebook', 'LinkedIn'],
     legend: {
       show: true,
       floating: true,
-      fontSize: "16px",
-      position: "left",
+      fontSize: '16px',
+      position: 'left',
       offsetX: 80,
       offsetY: 15,
       labels: {
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         size: 0,
       },
       formatter: function (seriesName, opts) {
-        return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex];
+        return seriesName + ':  ' + opts.w.globals.series[opts.seriesIndex]
       },
       itemMargin: {
         vertical: 3,
@@ -130,21 +130,21 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       },
     ],
-  };
+  }
 
   var chart_radial_custom_circle = new ApexCharts(
-    document.querySelector("#chart-radial-circle"),
-    options_custom_circle
-  );
-  chart_radial_custom_circle.render();
+    document.querySelector('#chart-radial-circle'),
+    options_custom_circle,
+  )
+  chart_radial_custom_circle.render()
 
   // Stroked Gauge Radial Bar Chart -------> RADIAL CHART
   var options_gradient = {
     series: [75],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "radialBar",
+      type: 'radialBar',
       toolbar: {
         show: false,
       },
@@ -155,12 +155,12 @@ document.addEventListener("DOMContentLoaded", function () {
         endAngle: 225,
         hollow: {
           margin: 0,
-          size: "70%",
-          background: "#fff",
+          size: '70%',
+          background: '#fff',
           image: undefined,
           imageOffsetX: 0,
           imageOffsetY: 0,
-          position: "front",
+          position: 'front',
           dropShadow: {
             enabled: true,
             top: 3,
@@ -170,8 +170,8 @@ document.addEventListener("DOMContentLoaded", function () {
           },
         },
         track: {
-          background: "#fff",
-          strokeWidth: "67%",
+          background: '#fff',
+          strokeWidth: '67%',
           margin: 0, // margin is in pixels
           dropShadow: {
             enabled: true,
@@ -187,27 +187,27 @@ document.addEventListener("DOMContentLoaded", function () {
           name: {
             offsetY: -10,
             show: true,
-            color: "#615dff",
-            fontSize: "17px",
+            color: '#615dff',
+            fontSize: '17px',
           },
           value: {
             formatter: function (val) {
-              return parseInt(val);
+              return parseInt(val)
             },
-            color: "#6610f2",
-            fontSize: "36px",
+            color: '#6610f2',
+            fontSize: '36px',
             show: true,
           },
         },
       },
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
-        shade: "dark",
-        type: "horizontal",
+        shade: 'dark',
+        type: 'horizontal',
         shadeIntensity: 0.5,
-        gradientToColors: ["#615dff"],
+        gradientToColors: ['#615dff'],
         inverseColors: true,
         opacityFrom: 1,
         opacityTo: 1,
@@ -215,52 +215,52 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     },
     stroke: {
-      lineCap: "round",
+      lineCap: 'round',
     },
-    labels: ["Percent"],
-  };
+    labels: ['Percent'],
+  }
 
   var chart_radial_gradient = new ApexCharts(
-    document.querySelector("#chart-radial-gradient"),
-    options_gradient
-  );
-  chart_radial_gradient.render();
+    document.querySelector('#chart-radial-gradient'),
+    options_gradient,
+  )
+  chart_radial_gradient.render()
 
   // Stroked Gauge Radial Bar Chart -------> RADIAL CHART
   var options_strocked = {
     series: [67],
     chart: {
-      fontFamily: "inherit",
+      fontFamily: 'inherit',
       height: 350,
-      type: "radialBar",
+      type: 'radialBar',
       offsetY: -10,
     },
-    colors: ["#615dff"],
+    colors: ['#615dff'],
     plotOptions: {
       radialBar: {
         startAngle: -135,
         endAngle: 135,
         dataLabels: {
           name: {
-            fontSize: "16px",
+            fontSize: '16px',
             color: undefined,
             offsetY: 120,
           },
           value: {
             offsetY: 76,
-            fontSize: "22px",
-            color: "#a1aab2",
+            fontSize: '22px',
+            color: '#a1aab2',
             formatter: function (val) {
-              return val + "%";
+              return val + '%'
             },
           },
         },
       },
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
-        shade: "dark",
+        shade: 'dark',
         shadeIntensity: 0.15,
         inverseColors: false,
         opacityFrom: 1,
@@ -271,21 +271,21 @@ document.addEventListener("DOMContentLoaded", function () {
     stroke: {
       dashArray: 4,
     },
-    labels: ["Median Ratio"],
-  };
+    labels: ['Median Ratio'],
+  }
 
   var chart_radial_strocked = new ApexCharts(
-    document.querySelector("#chart-radial-stroked-gauge"),
-    options_strocked
-  );
-  chart_radial_strocked.render();
+    document.querySelector('#chart-radial-stroked-gauge'),
+    options_strocked,
+  )
+  chart_radial_strocked.render()
 
   // Semi Circle Radial Bar Chart -------> RADIAL CHART
   var options_semi_circle = {
     series: [76],
     chart: {
-      fontFamily: "inherit",
-      type: "radialBar",
+      fontFamily: 'inherit',
+      type: 'radialBar',
       offsetY: -20,
       width: 400,
       height: 300,
@@ -298,14 +298,14 @@ document.addEventListener("DOMContentLoaded", function () {
         startAngle: -90,
         endAngle: 90,
         track: {
-          background: "#615dff",
-          strokeWidth: "97%",
+          background: '#615dff',
+          strokeWidth: '97%',
           margin: 5, // margin is in pixels
           dropShadow: {
             enabled: true,
             top: 2,
             left: 0,
-            color: "#999",
+            color: '#999',
             opacity: 1,
             blur: 2,
           },
@@ -316,8 +316,8 @@ document.addEventListener("DOMContentLoaded", function () {
           },
           value: {
             offsetY: -2,
-            fontSize: "22px",
-            color: "#a1aab2",
+            fontSize: '22px',
+            color: '#a1aab2',
           },
         },
       },
@@ -328,10 +328,10 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     },
     fill: {
-      type: "gradient",
+      type: 'gradient',
       gradient: {
-        color: "#6610f2",
-        shade: "light",
+        color: '#6610f2',
+        shade: 'light',
         shadeIntensity: 0.4,
         inverseColors: false,
         opacityFrom: 1,
@@ -339,12 +339,12 @@ document.addEventListener("DOMContentLoaded", function () {
         stops: [0, 50, 53, 91],
       },
     },
-    labels: ["Average Results"],
-  };
+    labels: ['Average Results'],
+  }
 
   var chart_radial_semi_circle = new ApexCharts(
-    document.querySelector("#chart-radial-semi-circle"),
-    options_semi_circle
-  );
-  chart_radial_semi_circle.render();
-});
+    document.querySelector('#chart-radial-semi-circle'),
+    options_semi_circle,
+  )
+  chart_radial_semi_circle.render()
+})

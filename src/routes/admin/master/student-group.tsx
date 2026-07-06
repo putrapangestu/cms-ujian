@@ -1,10 +1,19 @@
 import { DataTable, type ColumnDef } from '@/components/DataTables'
 import { DebouncedInput } from '@/components/DebounceInput'
 import { STUDENT_GROUP } from '@/data/const/api_url'
-import { useMutationAction, useQueryData } from '@/data/hooks/api/useGlobalFetch'
+import {
+  useMutationAction,
+  useQueryData,
+} from '@/data/hooks/api/useGlobalFetch'
 import type { ApiResponsePaginationType } from '@/data/types/api_response'
 import type { StudentGroupDataType } from '@/data/validations/student_schema'
-import { IconEdit, IconEye, IconPlus, IconSearch, IconTrash } from '@tabler/icons-react'
+import {
+  IconEdit,
+  IconEye,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from '@tabler/icons-react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import StudentGroupModalCreate from './-components/student-group-modal-add'
@@ -20,55 +29,132 @@ function RouteComponent() {
   const [isEdit, setIsEdit] = useState(false)
   const [current, setCurrent] = useState<StudentGroupDataType>()
 
-  const { trigger: deleteTrigger } = useMutationAction(STUDENT_GROUP.DELETE, 'delete', { refreshKey: STUDENT_GROUP.GET })
+  const { trigger: deleteTrigger } = useMutationAction(
+    STUDENT_GROUP.DELETE,
+    'delete',
+    { refreshKey: STUDENT_GROUP.GET },
+  )
 
   const clickDeleteHandle = (category: StudentGroupDataType) => {
-      deleteDataAlert(category.name, () => deleteTrigger({ id: category.id }))
+    deleteDataAlert(category.name, () => deleteTrigger({ id: category.id }))
   }
 
   const columns: ColumnDef<StudentGroupDataType>[] = [
-        {header: '#', cell: (_, i) => (i+1)},
-        {header: 'Nama', accessorKey: 'name'},
-        {header: 'Deskripsi', accessorKey: 'description'},
-        {header: 'Total Siswa', cell(row, index) {
+    { header: '#', cell: (_, i) => i + 1 },
+    { header: 'Nama', accessorKey: 'name' },
+    {
+      header: 'Kapasitas Maksimal Siswa',
+      cell(row, index) {
+        return (
+          <span className="badge bg-danger-subtle text-danger">
+            {row.max_students}
+          </span>
+        )
+      },
+    },
+    {
+      header: 'Total Siswa Aktif',
+      cell(row, index) {
+        return (
+          <span className="badge bg-success-subtle text-success">
+            {row.active_students_count ?? row.students_count}
+          </span>
+        )
+      },
+    },
+    {
+      header: 'Status Grup',
+      cell(row, index) {
+        if (row.status === 'active') {
           return (
-            <span className='badge bg-success-subtle text-success'>{row.max_students}</span>
+            <span className="badge bg-success-subtle text-success">Aktif</span>
           )
-        },
-        },
-        {header: 'Aksi', cell: (v) => (
-            <div className='d-flex align-items-center gap-2'>
-                <button type="button" className="btn btn-md rounded-1 btn-info" onClick={() => navigate({to: '/admin/master/students/$studentGroupId', params: {studentGroupId: v.id}})}><IconEye size={18} /></button>
-                <button type="button" className="btn btn-md rounded-1 btn-warning" onClick={() => clickOpenModalHandle(v)}><IconEdit size={18} /></button>
-                <button type="button" className="btn btn-md rounded-1 btn-danger" onClick={() => clickDeleteHandle(v)}><IconTrash size={18} /></button>
-            </div>
-        )},
-    ]
-  
-    const {data} = useQueryData<ApiResponsePaginationType<StudentGroupDataType>>(STUDENT_GROUP.GET)
+        } else {
+          return (
+            <span className="badge bg-danger-subtle text-danger">
+              Non Aktif
+            </span>
+          )
+        }
+      },
+    },
+    {
+      header: 'Aksi',
+      cell: (v) => (
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-info"
+            onClick={() =>
+              navigate({
+                to: '/admin/master/students/$studentGroupId',
+                params: { studentGroupId: v.id },
+              })
+            }
+          >
+            <IconEye size={18} />
+          </button>
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-warning"
+            onClick={() => clickOpenModalHandle(v)}
+          >
+            <IconEdit size={18} />
+          </button>
+          <button
+            type="button"
+            className="btn btn-md rounded-1 btn-danger"
+            onClick={() => clickDeleteHandle(v)}
+          >
+            <IconTrash size={18} />
+          </button>
+        </div>
+      ),
+    },
+  ]
 
-    const clickOpenModalHandle = (studentGroup?: StudentGroupDataType) => {
-        setIsEdit(studentGroup ? true : false);
-        setCurrent(studentGroup);
-        $('#student-group-modal-create').modal('show')
-    }
+  const { data } = useQueryData<
+    ApiResponsePaginationType<StudentGroupDataType>
+  >(STUDENT_GROUP.GET)
+
+  const clickOpenModalHandle = (studentGroup?: StudentGroupDataType) => {
+    setIsEdit(studentGroup ? true : false)
+    setCurrent(studentGroup)
+    $('#student-group-modal-create').modal('show')
+  }
 
   return (
     <>
-    <StudentGroupModalCreate isEdit={isEdit} studentGroup={current} />
-    <div className="card">
-      <div className="border-bottom p-4">
-        <h5 className="card-title fw-bolder">Group Siswa</h5>
-        <button type="button" className='btn btn-primary' onClick={() => clickOpenModalHandle()}>Tambah Group Siswa</button>
-      </div>
-      <div className="card-body">
-        <div className="d-flex flex-wrap gap-2 mb-3">
-             <div className='input-group input-group-sm w-auto'>
-                  <DebouncedInput value={search} onChange={(v) => setSearch(String(v))} className='form-control bg-white' placeholder='cari...' />
-                  <button type="button" className='btn btn-primary py-2'><IconSearch size={18} /></button>
-              </div>
+      <StudentGroupModalCreate isEdit={isEdit} studentGroup={current} />
+      <div className="card">
+        <div className="border-bottom p-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 className="card-title fw-bolder">Grup Siswa</h5>
+            <p className="p-0">List informasi grup siswa</p>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => clickOpenModalHandle()}
+          >
+            Tambah Group Siswa
+          </button>
         </div>
-        <DataTable
+        <div className="card-body">
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            <div className="input-group input-group-sm w-auto">
+              <DebouncedInput
+                value={search}
+                onChange={(v) => setSearch(String(v))}
+                className="form-control bg-white"
+                placeholder="cari..."
+              />
+              <button type="button" className="btn btn-primary py-2">
+                <IconSearch size={18} />
+              </button>
+            </div>
+          </div>
+          <DataTable
             data={data?.data || []}
             columns={columns}
             showPageSize={false}
@@ -76,9 +162,9 @@ function RouteComponent() {
             rowCount={data?.data?.length || 0}
             onPageChange={setPage}
             manualPagination
-        />
+          />
+        </div>
       </div>
-    </div>
     </>
   )
 }

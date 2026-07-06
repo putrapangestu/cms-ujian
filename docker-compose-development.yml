@@ -1,0 +1,55 @@
+# version: "3.9"
+
+# services:
+#   cms-ujian:
+#     image: registry.hummatech.com/proyek/ujian-cnps/cms-ujian:latest
+#     container_name: cms-ujian
+#     restart: unless-stopped
+#     command: bun run start
+#     ports:
+#       - "3000:3000"
+#     volumes:
+#       - asset_ujian:/app/dist/client
+
+#   nginx:
+#     image: nginx:alpine
+#     container_name: ujian-nginx
+#     ports:
+#       - "8025:80"
+#     volumes:
+#       - asset_ujian:/app/dist/client:ro
+#       - ./nginx:/etc/nginx/conf.d
+#     depends_on:
+#       - cms-ujian
+
+# volumes:
+#   asset_ujian:
+#   db_data:
+
+version: '3.9'
+
+services:
+  cms-ujian:
+    image: registry.hummatech.com/proyek/ujian-cnps/cms-ujian:latest
+    container_name: cms-ujian
+    restart: unless-stopped
+    # command: bun run start
+    ports:
+      - '3000:3000'
+    volumes:
+      - asset_ujian:/app/dist/client
+
+  nginx:
+    image: nginx:alpine
+    container_name: ujian-nginx
+    restart: unless-stopped
+    ports:
+      - '8025:80'
+    volumes:
+      - asset_ujian:/app/dist/client:ro
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - cms-ujian
+
+volumes:
+  asset_ujian:

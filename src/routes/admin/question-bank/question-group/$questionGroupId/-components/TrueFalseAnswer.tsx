@@ -1,14 +1,18 @@
-import React from 'react';
-import { type UseFormRegister, type UseFormWatch } from 'react-hook-form';
+import React from 'react'
+import { type UseFormRegister, type UseFormWatch } from 'react-hook-form'
 
 interface TrueFalseProps {
-  register: UseFormRegister<any>;
-  watch: UseFormWatch<any>;
-  name: string;
+  register: UseFormRegister<any>
+  watch: UseFormWatch<any>
+  name: string
 }
 
-const TrueFalseAnswer: React.FC<TrueFalseProps> = ({ register, watch, name }) => {
-  const selectedValue = watch(name);
+const TrueFalseAnswer: React.FC<TrueFalseProps> = ({
+  register,
+  watch,
+  name,
+}) => {
+  const selectedValue = watch(name)
 
   return (
     <div className="mb-5">
@@ -71,7 +75,7 @@ const TrueFalseAnswer: React.FC<TrueFalseProps> = ({ register, watch, name }) =>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TrueFalseAnswer;
+export default TrueFalseAnswer

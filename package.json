@@ -8,11 +8,14 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "postbuild": "node -e \"const fs=require('fs');let s=fs.readFileSync('entry-server.js','utf8');s=s.replace('./dist/server/server.js','./server/server.js');fs.mkdirSync('dist',{recursive:true});fs.writeFileSync('dist/entry-server.js',s)\"",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --check .",
-    "check": "prettier --write . && eslint --fix"
+    "check": "prettier --write . && eslint --fix",
+    "start": "node entry-server.js",
+    "start:prod": "node dist/entry-server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -33,6 +36,7 @@
     "@tiptap/starter-kit": "^3.20.0",
     "@types/jquery": "^4.0.0",
     "@types/js-cookie": "^3.0.6",
+    "apexcharts": "^5.10.6",
     "axios": "^1.13.5",
     "dayjs": "^1.11.19",
     "jquery": "^3.7.1",
@@ -40,12 +44,13 @@
     "katex": "^0.16.33",
     "lucide-react": "^0.545.0",
     "react": "^19.2.0",
+    "react-apexcharts": "^2.1.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.71.2",
     "react-select": "^5.10.2",
     "simplebar-react": "^3.3.2",
+    "socket.io-client": "^4.8.3",
     "sweetalert2": "^11.26.20",
-    "swiper": "^14.0.1",
     "swr": "^2.4.0",
     "tailwindcss": "^4.0.6",
     "tiptap-extension-resize-image": "^1.3.3",

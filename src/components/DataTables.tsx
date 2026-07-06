@@ -1,50 +1,55 @@
-import React, { useState, useMemo, type ReactNode } from "react";
-import { clsx } from "clsx";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useState, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { clsx } from 'clsx'
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 
 // --- Tipe Definition ---
 
-type Path<T> = T extends object ? {
-  [K in keyof T]: K extends string 
-    ? T[K] extends React.ReactNode ? K // Stop jika value adalah primitive/ReactNode
-    : `${K}` | `${K}.${Path<T[K]>}` // Lanjut recursive jika object
-    : never
-}[keyof T] : never;
+type Path<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string
+        ? T[K] extends React.ReactNode
+          ? K // Stop jika value adalah primitive/ReactNode
+          : `${K}` | `${K}.${Path<T[K]>}` // Lanjut recursive jika object
+        : never
+    }[keyof T]
+  : never
 
 export type ColumnDef<T> = {
-  header: string;
-  accessorKey?: Path<T>;
-  cell?: (row: T, index: number) => React.ReactNode;
-  classNameHead?: string;
-  className?: string;
-  width?: string;
-};
+  header: string | React.ReactNode
+  accessorKey?: Path<T>
+  cell?: (row: T, index: number) => React.ReactNode
+  classNameHead?: string
+  className?: string
+  width?: string
+}
 
 type DataTableProps<T> = {
-  data: T[];
-  columns: ColumnDef<T>[];
-  pageSizeOptions?: number[];
-  
+  data: T[]
+  columns: ColumnDef<T>[]
+  pageSizeOptions?: number[]
+
   // Custom Action Slot (Search, Buttons, dll)
-  actions?: React.ReactNode; 
+  actions?: React.ReactNode
 
   // --- Visibility Control (Baru) ---
-  showPageSize?: boolean;    // Hide dropdown "Show Entries"
-  showInfo?: boolean;        // Hide text "Showing 1 to 10..."
-  showPagination?: boolean;  // Hide tombol Prev/Next
+  showPageSize?: boolean // Hide dropdown "Show Entries"
+  showInfo?: boolean // Hide text "Showing 1 to 10..."
+  showPagination?: boolean // Hide tombol Prev/Next
 
   // --- Props Hybrid Logic ---
-  manualPagination?: boolean;
-  rowCount?: number;
-  pageIndex?: number;
-  pageSize?: number;
-  onPageChange?: (page: number) => void;
-  onPageSizeChange?: (size: number) => void;
-  isSub?: boolean;
-};
+  manualPagination?: boolean
+  rowCount?: number
+  pageIndex?: number
+  pageSize?: number
+  onPageChange?: (page: number) => void
+  onPageSizeChange?: (size: number) => void
+  isSub?: boolean
+  isLoading?: boolean
+}
 
 function getNestedValue(obj: any, path: string) {
-  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj)
 }
 
 export const DataTable = <T,>({
@@ -52,7 +57,7 @@ export const DataTable = <T,>({
   columns,
   pageSizeOptions = [10, 25, 50, 100],
   actions,
-  
+
   // Default: Tampilkan semua
   showPageSize = true,
   showInfo = true,
@@ -64,79 +69,81 @@ export const DataTable = <T,>({
   pageSize: controlledPageSize,
   onPageChange,
   onPageSizeChange,
-  isSub = false
+  isSub = false,
+  isLoading = false,
 }: DataTableProps<T>) => {
-  
   // State Internal
-  const [localPageIndex, setLocalPageIndex] = useState(1);
-  const [localPageSize, setLocalPageSize] = useState(pageSizeOptions[0]);
+  const [localPageIndex, setLocalPageIndex] = useState(1)
+  const [localPageSize, setLocalPageSize] = useState(pageSizeOptions[0])
 
   // Normalisasi State
-  const currentPage = manualPagination ? (controlledPageIndex ?? 1) : localPageIndex;
-  const pageSize = manualPagination ? (controlledPageSize ?? pageSizeOptions[0]) : localPageSize;
+  const currentPage = manualPagination
+    ? (controlledPageIndex ?? 1)
+    : localPageIndex
+  const pageSize = manualPagination
+    ? (controlledPageSize ?? pageSizeOptions[0])
+    : localPageSize
 
   // Logic Total Page & Data
-  const totalItemCount = manualPagination ? rowCount : data.length;
-  const totalPages = Math.max(1, Math.ceil(totalItemCount / pageSize));
+  const totalItemCount = manualPagination ? rowCount : data.length
+  const totalPages = Math.max(1, Math.ceil(totalItemCount / pageSize))
 
   const currentData = useMemo(() => {
-    if (manualPagination) return data;
-    const start = (currentPage - 1) * pageSize;
-    return data.slice(start, start + pageSize);
-  }, [data, currentPage, pageSize, manualPagination]);
+    if (manualPagination) return data
+    const start = (currentPage - 1) * pageSize
+    return data.slice(start, start + pageSize)
+  }, [data, currentPage, pageSize, manualPagination])
 
   // Handlers
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSize = Number(e.target.value);
+    const newSize = Number(e.target.value)
     if (manualPagination && onPageSizeChange) {
-      onPageSizeChange(newSize);
+      onPageSizeChange(newSize)
     } else {
-      setLocalPageSize(newSize);
-      setLocalPageIndex(1);
+      setLocalPageSize(newSize)
+      setLocalPageIndex(1)
     }
-  };
+  }
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       if (manualPagination && onPageChange) {
-        onPageChange(page);
+        onPageChange(page)
       } else {
-        setLocalPageIndex(page);
+        setLocalPageIndex(page)
       }
     }
-  };
+  }
 
   // Logic Pagination Group (Max 5 tombol)
   const paginationGroup = useMemo(() => {
-    const maxButtons = 5; 
+    const maxButtons = 5
     if (totalPages <= maxButtons) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+      return Array.from({ length: totalPages }, (_, i) => i + 1)
     }
-    let start = currentPage - 2;
-    let end = currentPage + 2;
+    let start = currentPage - 2
+    let end = currentPage + 2
     if (start <= 0) {
-      start = 1;
-      end = maxButtons;
+      start = 1
+      end = maxButtons
     }
     if (end > totalPages) {
-      end = totalPages;
-      start = totalPages - maxButtons + 1;
+      end = totalPages
+      start = totalPages - maxButtons + 1
     }
-    const pages = [];
+    const pages = []
     for (let i = start; i <= end; i++) {
-      pages.push(i);
+      pages.push(i)
     }
-    return pages;
-  }, [currentPage, totalPages]);
+    return pages
+  }, [currentPage, totalPages])
 
   return (
     <div className="w-100">
-      
       {/* --- TOP SECTION --- */}
       {/* Hanya render container jika showPageSize true ATAU ada actions */}
       {(showPageSize || actions) && (
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-2 gap-2">
-          
           {/* KIRI: Show Entries */}
           <div>
             {showPageSize && (
@@ -144,7 +151,7 @@ export const DataTable = <T,>({
                 <span>Tampilkan</span>
                 <select
                   className="form-select form-select-sm bg-white mb-0"
-                  style={{ width: "auto" }}
+                  style={{ width: 'auto' }}
                   value={pageSize}
                   onChange={handlePageSizeChange}
                 >
@@ -160,46 +167,80 @@ export const DataTable = <T,>({
           </div>
 
           {/* KANAN: Custom Action Slot */}
-          <div>
-            {actions}
-          </div>
+          <div>{actions}</div>
         </div>
       )}
 
       {/* --- TABLE SECTION --- */}
       <div className="rounded overflow-hidden border">
-        <div className="table-responsive" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <table className={`table m-0 align-middle ${isSub ? "table-sm" : ""}`}>
+        <div
+          className="table-responsive"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          <table
+            className={`table m-0 align-middle ${isSub ? 'table-sm' : ''}`}
+          >
             <thead className="">
               <tr>
-                
                 {columns.map((col, idx) => (
-                  <th key={idx} className={`text-nowrap ${col.classNameHead} ${isSub ? "bg-primary-subtle" : ""}`} style={{ width: col.width }}>
+                    <th
+                      key={idx}
+                      className={`text-nowrap ${col.classNameHead} ${isSub ? 'bg-primary-subtle' : ''}`}
+                      style={{ width: col.width }}
+                    >
                     {col.header}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {currentData.length > 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center py-5"
+                    style={{ '--bs-table-bg-type': 'var(--bs-white)' } as any}
+                  >
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : currentData.length > 0 ? (
                 currentData.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     {columns.map((col, colIndex) => (
-                      <td key={colIndex} className={col.accessorKey ? col.className : ""} style={col.accessorKey ? { width: col.width } : {}}>
-                        {col.cell
-                          ? col.cell(row, (currentPage - 1) * pageSize + rowIndex)
-                          : col.accessorKey
-                          ? <div className={col.className} style={{ width: col.width }}>
-                            {getNestedValue(row, col.accessorKey as string) as ReactNode ?? "-"}
-                          </div> : "-"}
+                      <td
+                        key={colIndex}
+                        className={col.accessorKey ? col.className : ''}
+                        style={col.accessorKey ? { width: col.width } : {}}
+                      >
+                        {col.cell ? (
+                          col.cell(row, (currentPage - 1) * pageSize + rowIndex)
+                        ) : col.accessorKey ? (
+                          <div
+                            className={col.className}
+                            style={{ width: col.width }}
+                          >
+                            {(getNestedValue(
+                              row,
+                              col.accessorKey as string,
+                            ) as ReactNode) ?? '-'}
+                          </div>
+                        ) : (
+                          '-'
+                        )}
                       </td>
                     ))}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  {/* @ts-ignore */}
-                  <td colSpan={columns.length} className="text-center text-muted py-4" style={{ "--bs-table-bg-type": 'var(--bs-white)' }}>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center text-muted py-4"
+                    style={{ '--bs-table-bg-type': 'var(--bs-white)' } as any}
+                  >
                     Tidak ada data
                   </td>
                 </tr>
@@ -213,25 +254,28 @@ export const DataTable = <T,>({
       {/* Hanya render container jika showInfo true ATAU showPagination true */}
       {(showInfo || showPagination) && (
         <div className="d-flex flex-column flex-sm-row justify-content-between align-items-center mt-2 gap-2">
-          
           {/* KIRI: Showing Info */}
           <div className="text-muted text-center text-sm-start">
-             {showInfo && (
-                <>
-                  Menampilkan {currentData.length > 0 ? (currentPage - 1) * pageSize + 1 : 0} hingga{" "}
-                  {manualPagination 
-                      ? Math.min(currentPage * pageSize, totalItemCount)
-                      : Math.min(currentPage * pageSize, data.length)
-                  } dari {totalItemCount} entri
-                </>
-             )}
+            {showInfo && (
+              <>
+                Menampilkan{' '}
+                {currentData.length > 0 ? (currentPage - 1) * pageSize + 1 : 0}{' '}
+                hingga{' '}
+                {manualPagination
+                  ? Math.min(currentPage * pageSize, totalItemCount)
+                  : Math.min(currentPage * pageSize, data.length)}{' '}
+                dari {totalItemCount} entri
+              </>
+            )}
           </div>
 
           {/* KANAN: Pagination */}
           {showPagination && (
             <nav>
               <ul className="pagination m-0">
-                <li className={clsx("page-item", currentPage === 1 && "disabled")}>
+                <li
+                  className={clsx('page-item', currentPage === 1 && 'disabled')}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage - 1)}
@@ -243,7 +287,10 @@ export const DataTable = <T,>({
                 {paginationGroup.map((page) => (
                   <li
                     key={page}
-                    className={clsx("page-item", currentPage === page && "active")}
+                    className={clsx(
+                      'page-item',
+                      currentPage === page && 'active',
+                    )}
                   >
                     <button
                       className="page-link h-100 py-0"
@@ -254,7 +301,12 @@ export const DataTable = <T,>({
                   </li>
                 ))}
 
-                <li className={clsx("page-item", currentPage === totalPages && "disabled")}>
+                <li
+                  className={clsx(
+                    'page-item',
+                    currentPage === totalPages && 'disabled',
+                  )}
+                >
                   <button
                     className="page-link"
                     onClick={() => handlePageChange(currentPage + 1)}
@@ -268,5 +320,5 @@ export const DataTable = <T,>({
         </div>
       )}
     </div>
-  );
-};
+  )
+}
